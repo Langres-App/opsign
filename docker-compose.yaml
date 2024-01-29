@@ -1,0 +1,49 @@
+version: '3.8'
+services: 
+  database:
+    image: mariadb:latest
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: charte
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+    volumes:
+      - ./database_data:/var/lib/mysql
+    ports:
+      - "3306"
+    networks:
+      vpcbr: 
+        ipv4_address: 172.23.0.2
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: database
+      PMA_ABSOLUTE_URI: http://${hostname}/charte/
+    volumes:
+      - ./config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
+    labels:
+      - traefik.enamble=true
+      - traefik.http.routers.phpmyadmincharte.rule=PathPrefix(' /charte')
+      - traefik.http.routers.phpmyadmincharte.middlewares=strip-phpmyadmincharte-prefix
+      - traefik.http.middlewares.strip-phpmyadmincharte-prefix.stripPrefix.prefixes=/charte
+      - traefik.http.routers.phpmyadmincharte.entrypoints=web
+    networks:
+      vpcbr:
+        ipv4_address: 172.23.0.3
+    depends_on:
+      - database
+
+networks:
+ vpcbr: 
+  driver: bridge
+  ipam:
+    config:
+      - subnet: 172.23.0.0/16
+      - gateway: 172.23.0.1 
+    
+
+
+      
+      
