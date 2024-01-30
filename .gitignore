@@ -1,0 +1,4 @@
+.idea
+/API/node_modules
+/API/package-lock.json
+/database_data
