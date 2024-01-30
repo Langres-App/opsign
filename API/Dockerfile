@@ -5,4 +5,4 @@ FROM node:21-alpine
 WORKDIR /var/www
 
 # Exposing server port
-EXPOSE 80
+EXPOSE 52200
