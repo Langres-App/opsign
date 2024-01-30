@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  web:
+    build:
+      context: ./API/
+    # image: node:21-bookworm
+    restart: unless-stopped
+    entrypoint:
+      - "./dev-entrypoint.sh"
+    environment:
+      PORT: 80
+      http_proxy: http://10.0.0.1:80
+      APP_TIMEZONE: Europe/Paris
+    volumes:
+      - ./:/var/www
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.webchart.rule=PathPrefix(`/charte`)
+      - traefik.http.routers.webchart.middlewares=strip-webchart-prefix
+      - traefik.http.middlewares.strip-webchart-prefix.stripprefix.prefixes=/charte
+      - traefik.http.routers.webchart.entrypoints=web
+    depends_on:
+      - database
+    networks:
+      vpcbr:
+        ipv4_address: 172.23.0.4
