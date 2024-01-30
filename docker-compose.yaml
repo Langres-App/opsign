@@ -20,14 +20,14 @@ services:
     restart: unless-stopped
     environment:
       PMA_HOST: database
-      PMA_ABSOLUTE_URI: http://${hostname}/charte/
+      PMA_ABSOLUTE_URI: http://${HOSTNAME}/chartepma/
     volumes:
       - ./config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
     labels:
       - traefik.enamble=true
-      - traefik.http.routers.phpmyadmincharte.rule=PathPrefix(' /charte')
+      - traefik.http.routers.phpmyadmincharte.rule=PathPrefix(`/chartepma`)
       - traefik.http.routers.phpmyadmincharte.middlewares=strip-phpmyadmincharte-prefix
-      - traefik.http.middlewares.strip-phpmyadmincharte-prefix.stripPrefix.prefixes=/charte
+      - traefik.http.middlewares.strip-phpmyadmincharte-prefix.stripPrefix.prefixes=/chartepma
       - traefik.http.routers.phpmyadmincharte.entrypoints=web
     networks:
       vpcbr:
@@ -41,7 +41,7 @@ networks:
   ipam:
     config:
       - subnet: 172.23.0.0/16
-      - gateway: 172.23.0.1 
+      - gateway: 172.23.0.1
     
 
 
