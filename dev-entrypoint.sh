@@ -6,6 +6,4 @@ cd ./API/;
 
 npm install;
 
-node index.js;
-
-echo "called";
+npm start;
