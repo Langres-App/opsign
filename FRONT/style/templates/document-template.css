@@ -1,0 +1,44 @@
+.document {
+    width: 280px;
+    margin: 150px;
+    background: var(--white);
+    border-radius: var(--radius);
+}
+
+.document .document-preview {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+}
+
+.document .document-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: scale-down;
+}
+
+.document .document-preview .document-date {
+    text-align: right;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--lightText);
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 5px;
+    background-color: var(--blue);
+}
+
+.document .document-info {
+    padding: 20px;
+    background: var(--blue);
+}
+
+.document .document-info .document-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+
+
