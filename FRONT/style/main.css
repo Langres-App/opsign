@@ -5,11 +5,12 @@
     --dark-gray: #333333;
     --blue: #0755a0;
     --green: #038103;
+    --red: #c40000;
 
     --text-light-color: #fff;
     --text-dark-color: #000;
 
-    --radius: 8px;
+    --radius: 5px;
 
 }
 
@@ -198,7 +199,6 @@ footer {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
-
 }
 
 footer .padBox {
@@ -217,4 +217,23 @@ footer svg {
     width: 100vw;
     height: 100vh;
     backdrop-filter: blur(5px);
+}
+
+/* INPUT STYLE */
+
+input {
+    width: unset;
+    outline: none;
+    font-size: 1em;
+    padding: 10px 2px;
+    
+    color: var(--text-dark-color);
+    border: 1px solid var(--blue);
+
+    border-radius: var(--radius);
+    background-color: var(--white);
+}
+
+input:required {
+    border: 1px solid var(--red);
 }
