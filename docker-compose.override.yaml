@@ -3,7 +3,6 @@ services:
   webapi:
     build:
       context: ./API/
-    # image: node:21-bookworm
     restart: unless-stopped
     entrypoint:
       - "./dev-entrypoint.sh"
@@ -29,7 +28,6 @@ services:
   web:
     build:
       context: ./FRONT/
-    # image: node:21-bookworm
     restart: unless-stopped
     depends_on:
       - webapi
