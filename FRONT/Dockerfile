@@ -1,8 +1,8 @@
 # Fetching the minified node image on apline linux
-FROM node:21-alpine
+FROM httpd:alpine
 
 # Setting up the work directory
-WORKDIR /var/www
+WORKDIR /usr/local/apache2/htdocs/
 
 # Exposing server port
-EXPOSE 52200
+EXPOSE 80
