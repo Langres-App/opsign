@@ -1,0 +1,198 @@
+/* Accessible variables useable in any css file while the html file contain it's link */
+:root {
+    --white: #D9D9D9;
+    --light-gray: #727272;
+    --dark-gray: #333333;
+    --blue: #0755a0;
+    --green: #038103;
+
+    --text-light-color: #fff;
+    --text-dark-color: #000;
+
+    --radius: 8px;
+
+}
+
+/* GOOGLE icons Style */
+.material-symbols-outlined {
+  font-variation-settings:
+  'FILL' 0,
+  'wght' 400,
+  'GRAD' 0,
+  'opsz' 24
+}
+
+/* COMMON STYLE */
+
+* {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.red {
+    background-color: #ff0000 !important;
+}
+
+
+.green {
+    background-color: var(--green) !important;
+}
+
+
+.blue {
+    background-color: var(--blue) !important;
+}
+
+.bold {
+    font-weight: bold !important;
+}
+
+.underlined {
+    text-decoration: underline !important;
+}
+
+.fullcaps {
+    text-transform: uppercase !important;
+}
+
+.smallcaps {
+    font-variant: small-caps !important;
+}
+
+.link {
+    cursor: pointer;
+    font-weight: bold !important;
+    text-decoration: underline !important;
+}
+
+.noLink {
+    text-decoration: none !important;
+    color: #000;
+}
+
+.bigIcon {
+    font-size: 2.5em;
+}
+
+.lightText {
+    color: var(--text-light-color);
+}
+
+.button {
+    width: fit-content;
+    height: fit-content;
+    cursor: pointer;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 20px;
+    margin: 10px 0;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--text-light-color);
+    background-color: var(--blue);
+    transition: all 0.3s ease-in-out;
+}
+
+.button:hover {
+    scale: 1.05;
+}
+
+/* TOPBAR STYLE */
+
+.topbar {
+    z-index: 1;
+    width: 100vw;
+    min-height: 10vh;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+    justify-content: space-between;
+    background-color: var(--light-gray);
+    box-sizing: border-box;
+}
+
+.topbar * {
+    color: var(--text-light-color);
+    padding: 10px 20px;
+}
+
+.topbar>div {
+    flex: 1;
+    display: flex;
+}
+
+.topbar .left > * {
+    margin-right: auto;
+    justify-content: flex-start;
+}
+
+.topbar .right > * {
+    margin-left: auto;
+}
+
+/* BODY STYLE */
+
+body {
+    background-color: var(--dark-gray);
+    color: var(--text-light-color);
+}
+
+/* PO BACKGROUND LOGO STYLE */
+
+body>#backgroundImage {
+    overflow: hidden;
+    z-index: -1;
+    position: absolute;
+    width: 100vw;
+    left: 50%;
+
+    /*  */
+    transform: translate(-50%, 10%);
+
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+}
+
+body>#backgroundImage>img {
+    height: 90vh;
+    height: 90vh;
+    filter: opacity(.2);
+    transform: translate(-5px, 6%);
+}
+
+/* MAIN PART */
+
+main {
+    min-height: 82vh;
+    width: 100vw;
+}
+
+/* FOOTER PART */
+
+footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    width: 100vw;
+    min-height: 8vh;
+    padding: 20px;
+    background-color: black;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+
+}
+
+footer .padBox {
+    width: 32px;
+}
+
+footer svg {
+    filter: contrast(0) brightness(0) invert(1);
+}
