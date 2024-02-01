@@ -29,7 +29,34 @@
     flex-direction: column;
 }
 
+.popup .button.close {
+    width: 100%;
+    margin-top: 40px;
+    text-align: center;
+}
+
+
 /* ONLY DOC POPUP */
+
 .popup #document-file-import {
     margin: 0;
+}
+
+/* DOC CLICKED POPUP */
+
+#document-clicked-popup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#document-clicked-popup .button {
+    width: 100%;
+    text-align: center;
+}
+
+#document-clicked-popup {
+    width: 16vw;
+    padding: 20px 80px;
+    box-sizing: border-box;
 }
