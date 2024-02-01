@@ -1,0 +1,34 @@
+main {
+    width: auto;
+    padding: 2vh 5vw;
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+    align-items: center;
+    overflow-y: scroll;
+}
+
+main #add-card {
+    flex-basis: auto;
+    align-self: center;
+    justify-self: center;
+    height: 267px;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s ease-in-out all;
+}
+
+main #add-card:active {
+    scale: 1.02;
+}
+
+main #add-card .material-symbols-outlined {
+    font-size: 100px;
+    color: var(--blue);
+    overflow: hidden;
+    text-align: center;
+}

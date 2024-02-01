@@ -16,6 +16,7 @@
 
 /* GOOGLE icons Style */
 .material-symbols-outlined {
+    user-select: none;
     font-variation-settings:
         'FILL' 0,
         'wght' 400,
@@ -29,7 +30,7 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
 .red {
@@ -125,14 +126,14 @@
 .topbar {
     z-index: 1;
     width: 100vw;
-    min-height: 10vh;
+    height: 10vh;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     align-content: center;
+    box-sizing: border-box;
     justify-content: space-between;
     background-color: var(--light-gray);
-    box-sizing: border-box;
 }
 
 .topbar * {
@@ -196,8 +197,9 @@ body>#backgroundImage>img {
 /* MAIN PART */
 
 main {
-    min-height: 82vh;
+    height: 82vh;
     width: 100vw;
+    box-sizing: border-box;
 }
 
 /* FOOTER PART */
