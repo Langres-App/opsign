@@ -1,0 +1,20 @@
+main {
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+main form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+    padding: 40px;
+    border-radius: var(--radius);
+}
+
+main form input[type=submit] {
+    margin: 20px auto;
+
+
+}
