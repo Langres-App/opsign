@@ -30,9 +30,9 @@
 }
 
 .popup .button.close {
-    width: 100%;
     margin-top: 40px;
     text-align: center;
+    box-sizing: border-box;
 }
 
 
@@ -59,4 +59,20 @@
     width: 16vw;
     padding: 20px 80px;
     box-sizing: border-box;
+}
+
+/* MESSAGE POPUP */
+
+.message-popup {
+    margin: 30px auto;
+    min-width: 26vw;
+    max-width: 45vw;
+    padding: 20px 40px;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.message-popup .button {
+    width: 100%;
+    text-align: center;
 }
