@@ -1,0 +1,72 @@
+main {
+    flex-direction: row;
+}
+
+main > object {
+    width: 55vw;
+}
+
+main form {
+    overflow-y: auto;
+    width: 40vw;
+    margin: 0 2.5vw;
+    padding: 0;
+    background-clip: padding-box;
+}
+::-webkit-scrollbar {
+    width: 14px;
+  }
+  
+
+::-webkit-scrollbar-thumb {
+    border-left: 8px solid rgba(0, 0, 0, 0);
+    background-clip: padding-box;
+    margin-left: 10px;
+    background-color: #aaaaaa;
+}
+
+main form h2 {
+    font-size: 36px;
+    margin: 20px 0;
+}
+
+main form p {
+    font-size: 30px;
+    margin: 20px 0;
+}
+
+main form .field {
+    width: 50%;
+}
+
+main form label {
+    font-size: 24px;
+    color: var(--lightText);
+}
+
+main form input {
+    width: 100%;
+    margin: 0 auto;
+    padding: 10px;
+    font-size: 20px;
+    box-sizing: border-box;
+}
+
+main form canvas {
+    width: 100%;
+    height: 250px;
+    margin: 10px auto;
+    padding: 10px;
+    box-sizing: border-box;
+    background-color: #fff;
+    border-radius: var(--radius);
+    border: 1px solid black;
+}
+
+main form .button {
+    width: 100%;
+    margin: 10px auto;
+    padding: 10px;
+    font-size: 20px;
+    box-sizing: border-box;
+}
