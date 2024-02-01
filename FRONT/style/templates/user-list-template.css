@@ -1,0 +1,13 @@
+.user-signed-element {
+    width: 60vw;
+    margin: 20px auto;
+    padding: 16px 24px;
+    font-size: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border-radius: var(--radius);
+    justify-content: space-between;
+    background-color: var(--blue);
+}
