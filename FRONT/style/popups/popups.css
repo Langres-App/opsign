@@ -1,0 +1,35 @@
+/* POPUP STYLE */
+
+#popupContainer {
+    position: absolute;
+    z-index: 2;
+    width: 100vw;
+    height: 100vh;
+    backdrop-filter: blur(5px);
+}
+
+.popup {
+    width: fit-content;
+    background: var(--white);
+    padding: 20px 40px;
+    border-radius: var(--radius);
+    color: var(--text-dark-color);
+}
+
+.popup .title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.popup .field {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ONLY DOC POPUP */
+.popup #document-file-import {
+    margin: 0;
+}

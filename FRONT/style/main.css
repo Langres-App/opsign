@@ -54,6 +54,14 @@
     text-decoration: underline !important;
 }
 
+.italic {
+    font-style: italic !important;
+}
+
+.light {
+    font-weight: 300 !important;
+}
+
 .fullcaps {
     text-transform: uppercase !important;
 }
@@ -209,17 +217,27 @@ footer svg {
     filter: contrast(0) brightness(0) invert(1);
 }
 
-/* POPUP STYLE */
-
-#popupContainer {
-    position: absolute;
-    z-index: 2;
-    width: 100vw;
-    height: 100vh;
-    backdrop-filter: blur(5px);
+.buttons {
+    display: flex;
+    justify-content: space-evenly;
+    padding: 20px;
+    gap: 40px;
 }
 
+.popup .aligned {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 4px;
+}
+
+
 /* INPUT STYLE */
+
+label {
+    color: var(--text-dark-color);
+    margin-bottom: 5px;
+}
 
 input {
     width: unset;
@@ -231,7 +249,7 @@ input {
     border: 1px solid var(--blue);
 
     border-radius: var(--radius);
-    background-color: var(--white);
+    background-color: #fff;
 }
 
 input:required {

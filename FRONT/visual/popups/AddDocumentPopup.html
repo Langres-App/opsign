@@ -1,0 +1,31 @@
+<div class="popup" id="document-popup">
+
+    <div>
+        <p id="document-popup-title" class="title smallcaps">Ajouter un document</p>
+    </div>
+
+    <form action="#">
+        <div class="field">
+            <label for="document-name">Nom du document :</label>
+            <input type="text" disabled name="" placeholder="Nom du document" id="document-name">
+        </div>
+        <div class="field">
+            <label for="document-date">Date de création :</label>
+            <input type="date" name="" id="document-date">
+        </div>
+        <div class="field">
+            <label for="document-file">Document à importer :</label>
+            <input type="file" hidden name="" class="hidden" id="document-file">
+            <div class="aligned">
+                <input type="text" name="" id="document-file-name" disabled>
+                <input type="button" name="" id="document-file-import" class="button" value="importer">
+            </div>
+        </div>
+
+        <div class="buttons">
+            <input id="document-submit" class="button red" type="button" value="Annuler">
+            <input id="document-submit" class="button green" type="submit" value="Confirmer">
+        </div>
+    </form>
+
+</div>
