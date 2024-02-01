@@ -23,12 +23,6 @@
     margin-bottom: 20px;
 }
 
-.popup .field {
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-}
-
 .popup .button.close {
     margin-top: 40px;
     text-align: center;

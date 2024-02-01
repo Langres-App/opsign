@@ -1,6 +1,7 @@
 /* Accessible variables useable in any css file while the html file contain it's link */
 :root {
     --white: #D9D9D9;
+    --black: #000000;
     --light-gray: #727272;
     --dark-gray: #333333;
     --blue: #0755a0;
@@ -77,6 +78,7 @@
 
 .link {
     cursor: pointer;
+    user-select: none;
     font-weight: bold !important;
     text-decoration: underline !important;
 }
@@ -92,6 +94,14 @@
 
 .lightText {
     color: var(--text-light-color);
+}
+
+.justified {
+    text-align: justify;
+}
+
+.tabbed {
+    text-indent: 40px;
 }
 
 .button {
@@ -200,6 +210,8 @@ main {
     height: 82vh;
     width: 100vw;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 /* FOOTER PART */
@@ -242,6 +254,12 @@ footer svg {
 
 
 /* INPUT STYLE */
+
+.field {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
 
 label {
     color: var(--text-dark-color);
