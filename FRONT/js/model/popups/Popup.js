@@ -1,0 +1,78 @@
+/**
+ * @class Popup is an abstract class to create popups
+ */
+class Popup {
+
+    /**
+     * Constructor for the Popup class
+     * @param {string} id id of the popup (should be the one from the file template)
+     * @param {string} path Path from the root to the popup template 
+     */
+    constructor(id, path) {
+        this.id = id;
+        this.path = path;
+
+        // get the popup container
+        this.popupContainer = document.getElementById('popupContainer');
+
+        // add the popup css to the page
+        this.init();
+    }
+
+    /**
+     * Function to get the popup element FROM the DOM
+     * @returns {HTMLElement} the popup element
+     */
+    getPopup() {
+        return document.getElementById(this.id);
+    }
+
+    /**
+     * Function to get the content of the popup FROM the file
+     * @returns {Promise<string>} the content of the popup
+     */
+    async getContent() {
+        return Utils.readLocalFile(this.path);
+    }
+
+    /**
+     * Initialize the popup
+     * Add the content to the popupContainer and add the event listener to the close button
+     * Add a call to this function at the end of the constructor of the specific popup
+     */
+    init() {
+        this.getContent().then(content => this.popupContainer.innerHTML += content);
+    }
+
+    /**
+     * Add a listener to the close button of the popup
+     */
+    addCloseListener() {
+        let close = this.getPopup().querySelector('.button.close');
+        close.addEventListener('click', () => this.close());
+    }
+
+    /**
+     * Open the popup
+     */
+    open() {
+        // check if the close listener is already added
+        if (this.closeListenerAdded === undefined) {
+            // if not, the close listener is added
+            this.addCloseListener();
+            this.closeListenerAdded = true;
+        }
+        
+        // open the popup
+        this.getPopup().classList.remove('disabled');
+        
+    }
+
+    /**
+     * Close the popup
+     */
+    close() {
+        this.getPopup().classList.add('disabled');
+        this.popupContainer.classList.add('disabled');
+    }
+}
