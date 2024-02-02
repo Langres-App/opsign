@@ -2,6 +2,7 @@ main {
     width: auto;
     padding: 2vh 5vw;
     display: flex !important;
+    flex-direction: row;
     flex-wrap: wrap;
     gap: 24px;
     justify-content: center;

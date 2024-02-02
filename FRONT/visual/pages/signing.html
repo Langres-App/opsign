@@ -9,11 +9,6 @@
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
-    <!-- private stylesheet -->
-    <link rel="stylesheet" href="../../style/main.css">
-    <link rel="stylesheet" href="../../style/pages/signing.css">
-    <link rel="stylesheet" href="../../style/templates/user-list-template.css">
-
     <!-- Page Icon -->
     <link rel="icon" href="../../img/Plastic_Omnium_noname.svg">
 
@@ -22,10 +17,6 @@
 </head>
 
 <body>
-
-    <div id="backgroundImage">
-        <img src="../../img/Plastic_Omnium_noname.svg" alt="">
-    </div>
 
     <header class="topbar">
         <div class="left">
@@ -92,6 +83,41 @@
         </a>
     </footer>
 
+    <script>
+        // get the path of the current page (without the domain name)
+        let path = window.location.pathname;
+
+        // replace the '/charte' because the website is in a folder called 'charte'
+        path = path.replace('/charte', '');
+        path = path.replace('/FRONT', '');
+
+        // split the path into an array of strings
+        const pathArray = path.split('/');
+        let relativePath = '';
+
+        // depending on the path, we set the relative path to the root of the website or to the 'charte' folder
+        if (path == '') relativePath = 'charte/';
+        else relativePath = './';
+
+        // for each element in the array, we add a '../' to the relative path to go to the root of the website
+        for (let i = 0; i < pathArray.length - 2; i++) 
+            relativePath += '../';
+        
+
+        // we add the main.js and Utils.js scripts to the head of the document 
+        // they will load the other scripts, styles and the page content
+        let script = document.createElement('script');
+        script.src = relativePath + 'js/model/Utils.js';
+        document.querySelector('head').appendChild(script);
+
+        // when the Utils.js script is loaded, we load the main.js script (which will load the other scripts and the page content through the Utils.js script)
+        script.onload = () => {
+            let script = document.createElement('script');
+            script.src = relativePath + 'js/main.js';
+            document.querySelector('head').appendChild(script);
+        }
+
+    </script>
 </body>
 
 </html>
