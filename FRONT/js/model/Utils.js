@@ -20,8 +20,6 @@ class Utils {
         link.href = pathFromRoot;
         
         document.head.appendChild(link);
-
-        console.log('Added stylesheet: ' + pathFromRoot);
     }
 
     /**
@@ -48,8 +46,6 @@ class Utils {
 
         // add the script to the head of the document
         document.head.appendChild(script);
-
-        console.log('Added script: ' + pathFromRoot);
 
         // add the event to the script
         script.onload = onLoadAction;
@@ -103,7 +99,7 @@ class Utils {
      */
     static async readLocalFile(fileName) {
         // we wait the response of the request
-        const response = await fetch(fileName);
+        const response = await fetch(this.getRelativePathToRoot() + fileName);
 
         // if the response is not ok, we throw an error
         if (!response.ok) {
