@@ -6,10 +6,12 @@
     width: 100vw;
     height: 100vh;
     backdrop-filter: blur(5px);
+    display: flex;
 }
 
 .popup {
     width: fit-content;
+    height: fit-content;
     background: var(--white);
     padding: 20px 40px;
     border-radius: var(--radius);
