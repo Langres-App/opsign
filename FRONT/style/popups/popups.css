@@ -10,12 +10,17 @@
 }
 
 .popup {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     width: fit-content;
     height: fit-content;
     background: var(--white);
     padding: 20px 40px;
     border-radius: var(--radius);
     color: var(--text-dark-color);
+    box-sizing: border-box;
 }
 
 .popup .title {
@@ -26,7 +31,6 @@
 }
 
 .popup .button.close {
-    margin-top: 40px;
     text-align: center;
     box-sizing: border-box;
 }
@@ -40,19 +44,20 @@
 
 /* DOC CLICKED POPUP */
 
-#document-clicked-popup {
+#clicked-popup {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-#document-clicked-popup .button {
+#clicked-popup .button {
     width: 100%;
     text-align: center;
 }
 
-#document-clicked-popup {
-    width: 16vw;
+#clicked-popup {
+    min-width: 16vw;
+    max-width: 24vw;
     padding: 20px 80px;
     box-sizing: border-box;
 }
