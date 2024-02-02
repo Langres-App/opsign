@@ -33,14 +33,33 @@ function addStyleSheetsAndScripts() {
     // if the page is the index but as the '/charte' url, we set the name to 'index'
     if (docName === 'charte') docName = 'index';
 
+
     // add the style sheets to the page
     Utils.addStyleSheet('style/main.css');
     Utils.addStyleSheet(`style/pages/${docName}.css`);
+
 
     // add the scripts to the page (in the right order)
     Utils.addScript('js/view/View.js', () => {
         Utils.addScript(`js/view/${docName}.js`, () => {
             // TODO : start the page script
+            console.log(docName);
+            switch (docName) {
+                case 'charte':
+                case 'index':
+                    new IndexView();
+                    break;
+                case 'signing':
+                    new SigningView();
+                    break;
+                case 'signedList':
+                    new SignedListView();
+                    break;
+                case 'login':
+                    new LoginView();
+                    break;
+
+            }
         });
     });
 
