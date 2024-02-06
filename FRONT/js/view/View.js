@@ -9,7 +9,7 @@ class View {
      */
     initPopupManager() {
         // add the PopupManager script to the page and create the PopupManager object when the script is loaded
-        Utils.addScript('js/model/PopupManager.js', () => {
+        Utils.addScript('js/model/PopupManager.js').then(() => {
             this.popupManager = new PopupManager();
         });
     }

@@ -1,5 +1,18 @@
-addStyleSheetsAndScripts();
+addPlasticOmniumIco();
 addPlasticOmniumLogo();
+addStyleSheetsAndScripts();
+
+
+function addPlasticOmniumIco() {
+    // create the link element
+    let link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/x-icon';
+    link.href = Utils.getRelativePathToRoot() + 'img/Plastic_Omnium_noname.svg';
+
+    // add the link to the head
+    document.head.appendChild(link);
+}
 
 /**
  * Add the Plastic Omnium logo to the page
@@ -23,7 +36,7 @@ function addPlasticOmniumLogo() {
 /**
  * Add the style sheets and scripts to the page depending on the current page
  */
-function addStyleSheetsAndScripts() {
+async function addStyleSheetsAndScripts() {
     // get the name of the current page (url without the domain name and the parameters) as a table
     const doc = document.location.pathname.split('/');
 
@@ -39,29 +52,26 @@ function addStyleSheetsAndScripts() {
     Utils.addStyleSheet(`style/pages/${docName}.css`);
 
 
-    // add the scripts to the page (in the right order)
-    Utils.addScript('js/view/View.js', () => {
-        Utils.addScript(`js/view/${docName}.js`, () => {
-            // TODO : start the page script
-            console.log(docName);
-            switch (docName) {
-                case 'charte':
-                case 'index':
-                    new IndexView();
-                    break;
-                case 'signing':
-                    new SigningView();
-                    break;
-                case 'signedList':
-                    new SignedListView();
-                    break;
-                case 'login':
-                    new LoginView();
-                    break;
+    // add the scripts to the page (we use a promise to wait for all the scripts to be loaded before creating the view)
+    await Utils.addScript('js/view/View.js');
+    await Utils.addScript(`js/view/${docName}.js`);
 
-            }
-        });
-    });
+    // depending on the page, we create the correct view
+    switch (docName) {
+        case 'charte':
+        case 'index':
+            new IndexView();
+            break;
+        case 'signing':
+            new SigningView();
+            break;
+        case 'signedList':
+            new SignedListView();
+            break;
+        case 'login':
+            new LoginView();
+            break;
 
+    }
 }
 
