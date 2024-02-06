@@ -1,3 +1,6 @@
+/**
+ * @class Utils - Class that contains utility functions
+ */
 class Utils {
 
     /**
@@ -128,6 +131,35 @@ class Utils {
             Object.entries(values).forEach(el => content = content.replaceAll('{{' + el[0] + '}}', el[1]));   // for each key in the file content, we replace the key by the value
 
         return content;
+    }
+
+    /**
+     * Get the value of the parameter in the URL
+     * @param {string} parameter The parameter to search for in the URL
+     * @returns {string | undefined} The value of the parameter in the URL
+     */
+    static getParamValue(parameter) {
+        // get the URL of the page
+        const url = window.location.href;
+        let result = undefined;
+
+        // add the '=' to the parameter to search for
+        // ex: if the parameter is 'id', we search for 'id='
+        let param = parameter + "=";
+
+        // check if the parameter is in the URL
+        if (url.includes(param)) {
+
+            // get the value of the parameter in the URL
+            result = url.substring(url.lastIndexOf(param) + param.length);
+            
+            // if the value contains a '&', we remove everything after the '&' (because it's another parameter)
+            if (result.includes('&')) {
+                result = result.substring(0, result.indexOf('&'));
+            }
+        }
+
+        return result;
     }
 
 }
