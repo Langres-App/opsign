@@ -26,30 +26,33 @@ class Utils {
      * Function to add a script to the from their pathFromRoot
      * @param {string} pathFromRoot Path to the script from the root of the website
      * @param {lambda Expression} onLoadEvent event to execute when the script is loaded
-     * @returns {void}
+     * @returns {Promise} a promise that resolves when the script is loaded
      */
-    static addScript(pathFromRoot, onLoadAction) {
-        // add the relative path to the root of the website to the path
-        pathFromRoot = Utils.getRelativePathToRoot() + pathFromRoot;
+    static addScript(pathFromRoot) {
+        return new Promise((resolve, reject) => {
+            // add the relative path to the root of the website to the path
+            pathFromRoot = Utils.getRelativePathToRoot() + pathFromRoot;
 
-        // check if the script don't exist first
-        let scripts = document.getElementsByTagName('script');
-        for (let script of scripts) {
-            if (script.src.includes(pathFromRoot)) {
-                return;
+            // check if the script don't exist first
+            let scripts = document.getElementsByTagName('script');
+            for (let script of scripts) {
+                if (script.src.includes(pathFromRoot)) {
+                    resolve();
+                    return;
+                }
             }
-        }
 
-        // create the script element and set its attributes
-        let script = document.createElement('script');
-        script.src = pathFromRoot;
+            // create the script element and set its attributes
+            let script = document.createElement('script');
+            script.src = pathFromRoot;
 
-        // add the script to the head of the document
-        document.head.appendChild(script);
+            // add the script to the head of the document
+            document.head.appendChild(script);
 
-        // add the event to the script
-        script.onload = onLoadAction;
-
+            // add the event to the script
+            script.onload = resolve;
+            script.onerror = reject;
+        });
     }
 
     /**
