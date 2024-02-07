@@ -21,11 +21,12 @@ class Version {
     /**
      * Constructor for the Version class
      * @param {number} id Database id of the version
+     * @param {string} addDate Date of the version
      */
-    constructor(id = null) {
+    constructor(id = null, addDate = null) {
         this.#id = id;
         this.#path = null;
-        this.#addDate = null;
+        this.#addDate = addDate;
         this.#preview = Utils.getRelativePathToRoot() + "img/Plastic_Omnium.svg";
     }
 

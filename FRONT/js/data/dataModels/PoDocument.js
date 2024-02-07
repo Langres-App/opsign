@@ -20,10 +20,11 @@ class PoDocument {
     /**
      * Constructor for the PoDocument class
      * @param {number} id Identifier of the document in the database
+     * @param {string} fileName Name of the file
      */
-    constructor(id = null) {
+    constructor(id = null, fileName = null) {
         this.#id = id;
-        this.#fileName = null;
+        this.#fileName = fileName;
         this.#archivedDate = null;
     }
 
