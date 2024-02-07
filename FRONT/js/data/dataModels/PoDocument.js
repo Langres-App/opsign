@@ -28,6 +28,15 @@ class PoDocument {
         this.#archivedDate = null;
     }
 
+    toJSON() {
+        return {
+            id: this.#id,
+            fileName: this.#fileName,
+            archivedDate: this.#archivedDate,
+            versions: this.#versions
+        };
+    }
+
     /**
      * Get the id of the document
      * @returns {number} the id of the document
