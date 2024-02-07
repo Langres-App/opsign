@@ -28,7 +28,7 @@ class PopupManager {
         await this.initialize();
         await Utils.addScript('js/model/popups/Popup.js');
         await Utils.addScript('js/model/popups/MessagePopup.js');
-        if (!this.#popups['message-popup']) {
+        if (!this.#popups[MessagePopup.id]) {
             this.#addPopup(new MessagePopup());
         }
     }
@@ -40,7 +40,7 @@ class PopupManager {
         await this.initialize();
         await Utils.addScript('js/model/popups/Popup.js');
         await Utils.addScript('js/model/popups/AddDocumentPopup.js');
-        if (!this.#popups['document-popup']) {
+        if (!this.#popups[AddDocumentPopup.id]) {
             this.#addPopup(new AddDocumentPopup());
         }
     }
@@ -52,7 +52,7 @@ class PopupManager {
         await this.initialize();
         await Utils.addScript('js/model/popups/Popup.js');
         await Utils.addScript('js/model/popups/DocumentClickedPopup.js');
-        if (!this.#popups['clicked-popup']) {
+        if (!this.#popups[DocumentClickedPopup.id]) {
             this.#addPopup(new DocumentClickedPopup());
         }
     }
