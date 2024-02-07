@@ -2,8 +2,11 @@
  * @class MessagePopup extends Popup - Represents a message popup with editable title and content
  */
 class MessagePopup extends Popup {
+
+    static id = 'message-popup';
+
     constructor() {
-        super('message-popup', 'visual/popups/MessagePopup.html');
+        super(MessagePopup.id, 'visual/popups/MessagePopup.html');
     }
 
     /**

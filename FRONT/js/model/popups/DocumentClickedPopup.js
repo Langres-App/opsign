@@ -3,7 +3,10 @@
  * Represents a popup that appears when a document is clicked in the index
  */
 class DocumentClickedPopup extends Popup {
+
+    static id = 'clicked-popup';
+
     constructor() {
-        super('clicked-popup', 'visual/popups/DocumentClickedPopup.html');
+        super(DocumentClickedPopup.id, 'visual/popups/DocumentClickedPopup.html');
     }
 }
