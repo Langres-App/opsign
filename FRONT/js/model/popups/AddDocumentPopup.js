@@ -3,8 +3,11 @@
  * Used to create a popup that allows the user to add a document to the database
  */
 class AddDocumentPopup extends Popup {
+
+    static id = 'document-popup';
+
     constructor() {
-        super('document-popup', 'visual/popups/AddDocumentPopup.html');
+        super(AddDocumentPopup.id, 'visual/popups/AddDocumentPopup.html');
     }
 
 
