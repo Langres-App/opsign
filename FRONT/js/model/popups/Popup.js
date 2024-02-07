@@ -3,6 +3,8 @@
  */
 class Popup {
 
+    static id = 'popup';
+
     /**
      * Constructor for the Popup class
      * @param {string} id id of the popup (should be the one from the file template)
