@@ -21,7 +21,7 @@ class Utils {
         let link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = pathFromRoot;
-        
+
         document.head.appendChild(link);
     }
 
@@ -152,7 +152,7 @@ class Utils {
 
             // get the value of the parameter in the URL
             result = url.substring(url.lastIndexOf(param) + param.length);
-            
+
             // if the value contains a '&', we remove everything after the '&' (because it's another parameter)
             if (result.includes('&')) {
                 result = result.substring(0, result.indexOf('&'));
@@ -160,6 +160,30 @@ class Utils {
         }
 
         return result;
+    }
+
+
+    /**
+     * Get the element which has a parent with the specified class (up to the specified limit element) otherwise return null
+     * @param {HTMLElement} element Element to check if it has a parent with the specified class
+     * @param {string} className Name of the class to check
+     * @param {string} upTo Query element to limit the search (ex: 'body' to search up to the body element or '.container' to search up to the container element)
+     * @returns {boolean} True if the element has a parent with the specified class, false otherwise
+     */
+    static getParentWithClass(element, className, upTo = 'body') {
+        // check if the element has a parent with the specified class
+        let parent = element.parentElement;
+
+        // get the element that is the limit of the search
+        let limitElement = document.querySelector(upTo);
+
+        // while the parent is not null and not the limit element, we check if the parent has the specified class
+        while (parent != null && parent != limitElement) {
+            if (parent.classList.contains(className)) return parent;
+            parent = parent.parentElement;
+        }
+
+        return null;
     }
 
 }
