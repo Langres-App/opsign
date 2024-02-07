@@ -18,7 +18,6 @@ class PopupManager {
 
         // create an array to store the popups
         this.#popups = [];
-        this.initialize();
     }
 
     /**
@@ -26,33 +25,45 @@ class PopupManager {
      * @returns Promise<void>
      */
     async #addMessagePopup() {
+        await this.initialize();
         await Utils.addScript('js/model/popups/Popup.js');
         await Utils.addScript('js/model/popups/MessagePopup.js');
-        this.#addPopup(new MessagePopup());
+        if (!this.#popups['message-popup']) {
+            this.#addPopup(new MessagePopup());
+        }
     }
 
     /**
      * Add the script to the page and Add the add document popup to the PopupManager
      */
     async #addDocumentPopup() {
+        await this.initialize();
         await Utils.addScript('js/model/popups/Popup.js');
         await Utils.addScript('js/model/popups/AddDocumentPopup.js');
-        this.#addPopup(new AddDocumentPopup());
+        if (!this.#popups['document-popup']) {
+            this.#addPopup(new AddDocumentPopup());
+        }
     }
 
     /**
      * Add the script to the page and Add the document clicked popup to the PopupManager
      */
     async #addDocumentClickedPopup() {
+        await this.initialize();
         await Utils.addScript('js/model/popups/Popup.js');
         await Utils.addScript('js/model/popups/DocumentClickedPopup.js');
-        this.#addPopup(new DocumentClickedPopup());
+        if (!this.#popups['clicked-popup']) {
+            this.#addPopup(new DocumentClickedPopup());
+        }
     }
 
     /**
      * Initialize the PopupManager by adding the popupContainer to the page
      */
     async initialize() {
+        if (this.initialized) return;
+        this.initialized = true;
+
         // take the body element
         let body = document.querySelector('main');
 
@@ -62,7 +73,14 @@ class PopupManager {
         // add a div with the id popup
         body.appendChild(popupContainer);
 
-        this.popupContainer = popupContainer;
+        this.popupContainer = document.getElementById('popupContainer');
+
+        // on container clicked, close the popup if the click is outside the popup
+        this.popupContainer.addEventListener('click', (e) => {
+            if (e.target === this.popupContainer) {
+                this.#closeAll();
+            }
+        });
     }
 
     /**
@@ -95,5 +113,14 @@ class PopupManager {
      */
     #addPopup(popup) {
         this.#popups[popup.id] = popup;
+    }
+
+    /**
+     * Close all the popups and the container (blur)
+     */
+    #closeAll() {
+        for (let popup in this.#popups) {
+            this.#popups[popup].close();
+        }
     }
 }
