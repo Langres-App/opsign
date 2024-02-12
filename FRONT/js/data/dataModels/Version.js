@@ -30,6 +30,10 @@ class Version {
         this.#preview = Utils.getRelativePathToRoot() + "img/Plastic_Omnium.svg";
     }
 
+    /**
+     * Get the version as a json object
+     * @returns {object} the version as a json object
+     */
     toJSON() {
         return {
             id: this.#id,

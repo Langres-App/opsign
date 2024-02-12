@@ -28,6 +28,10 @@ class PoDocument {
         this.#archivedDate = null;
     }
 
+    /**
+     * Get the document as a json object
+     * @returns {object} the document as a json object
+     */
     toJSON() {
         return {
             id: this.#id,
