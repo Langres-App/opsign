@@ -4,6 +4,7 @@
 class DocumentManager extends DataManager {
 
     constructor() {
+        super();
         this.#init();
     }
 
@@ -11,12 +12,9 @@ class DocumentManager extends DataManager {
      * Initializes the DocumentManager class
      */
     async #init() {
-        if (super.getDao() === undefined) {
-            await Utils.addScript('js/data/dao/Dao.js');
-            await Utils.addScript('js/data/dao/DocumentDao.js');
-            super.setDao(new DocumentDao());
-        }
+        super.setDao(new DocumentDao());
     }
+    
     /**
      * Returns all the object
      * @returns {Array} - An array of all the object
@@ -115,7 +113,7 @@ class DocumentManager extends DataManager {
             console.log(e);
         }
 
-        if (data) {} // TODO update view / reload page
+        if (data) { } // TODO update view / reload page
     }
 
     /**
@@ -131,7 +129,7 @@ class DocumentManager extends DataManager {
             console.log(e);
         }
 
-        if (data) {} // TODO update view / reload page
+        if (data) { } // TODO update view / reload page
     }
 
 

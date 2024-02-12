@@ -46,27 +46,23 @@ async function addStyleSheetsAndScripts() {
     // if the page is the index but as the '/charte' url, we set the name to 'index'
     if (docName === 'charte') docName = 'index';
 
-
     // add the style sheets to the page
     Utils.addStyleSheet('style/main.css');
     Utils.addStyleSheet(`style/pages/${docName}.css`);
 
-
-    // add the scripts to the page (we use a promise to wait for all the scripts to be loaded before creating the view)
-    await Utils.addScript('js/view/View.js');
-    await Utils.addScript(`js/view/${docName}.js`);
+    await Utils.addScript('js/model/Instantiator.js');
 
     // depending on the page, we create the correct view
     switch (docName) {
         case 'charte':
         case 'index':
-            new IndexView();
+            Instantiator.index();
             break;
         case 'signing':
             new SigningView();
             break;
         case 'signedList':
-            new SignedListView();
+            Instantiator.signedList();
             break;
         case 'login':
             new LoginView();
