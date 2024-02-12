@@ -31,6 +31,19 @@ class Version {
     }
 
     /**
+     * Get the version as a json object
+     * @returns {object} the version as a json object
+     */
+    toJSON() {
+        return {
+            id: this.#id,
+            path: this.#path,
+            addDate: this.#addDate,
+            preview: this.#preview
+        };
+    }
+
+    /**
      * returns the id of the version
      * @returns {number} the id of the version
      */
