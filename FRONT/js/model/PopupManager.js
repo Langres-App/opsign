@@ -26,9 +26,8 @@ class PopupManager {
      */
     async #addMessagePopup() {
         await this.initialize();
-        await Utils.addScript('js/model/popups/Popup.js');
-        await Utils.addScript('js/model/popups/MessagePopup.js');
-        if (!this.#popups[MessagePopup.id]) {
+       
+        if (!this.#popups['message-popup']) {
             this.#addPopup(new MessagePopup());
         }
     }
@@ -38,9 +37,8 @@ class PopupManager {
      */
     async #addDocumentPopup() {
         await this.initialize();
-        await Utils.addScript('js/model/popups/Popup.js');
-        await Utils.addScript('js/model/popups/AddDocumentPopup.js');
-        if (!this.#popups[AddDocumentPopup.id]) {
+
+        if (!this.#popups['document-popup']) {
             this.#addPopup(new AddDocumentPopup());
         }
     }
@@ -50,9 +48,8 @@ class PopupManager {
      */
     async #addDocumentClickedPopup() {
         await this.initialize();
-        await Utils.addScript('js/model/popups/Popup.js');
-        await Utils.addScript('js/model/popups/DocumentClickedPopup.js');
-        if (!this.#popups[DocumentClickedPopup.id]) {
+
+        if (!this.#popups['clicked-popup']) {
             this.#addPopup(new DocumentClickedPopup());
         }
     }
@@ -86,9 +83,10 @@ class PopupManager {
     /**
      * Open a popup with a specific id, throw an error if the popup does not exist
      * @param {string} id id of the popup to open
+     * @param {Array} dataMap Array of data to add to the popup
      * @returns Promise<void>
      */
-    async open(id) {
+    async open(id, dataMap = []) {
         // we check if the script is already added to the page
         if (!this.#popupsScripts[id]) {
             throw new Error('Popup with id ' + id + ' does not exist');
@@ -98,13 +96,16 @@ class PopupManager {
         await this.#popupsScripts[id]();
 
         // check if the popup to be added to the PopupManager
-        if (!this.#popups[id]) {
-            throw new Error('Popup with id ' + id + ' does not exist');
-        }
+        // if (this.#popups[id] === undefined) {
+        //     console.log(this.#popups);
+        //     throw new Error('Popup with id ' + id + ' does not exist');
+        // }
 
         // open the popup and remove the disabled class from the popupContainer
         this.popupContainer.classList.remove('disabled');
-        this.#popups[id].open();
+        this.#popups[id].open(dataMap);
+
+        return this.#popups[id];
     }
 
     /**
@@ -122,5 +123,14 @@ class PopupManager {
         for (let popup in this.#popups) {
             this.#popups[popup].close();
         }
+    }
+
+    getPopup(id) {
+        let popup = this.#popups[id];
+        if (popup) {
+            return popup;
+        }
+
+        throw new Error('Popup with id ' + id + ' does not exist');
     }
 }
