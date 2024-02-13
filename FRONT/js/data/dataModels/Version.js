@@ -12,6 +12,9 @@ class Version {
     // the path to the version file.
     #path;
 
+    // file
+    #file;
+
     // the date of the version.
     #addDate;
 
@@ -26,6 +29,7 @@ class Version {
     constructor(id = null, addDate = null) {
         this.#id = id;
         this.#path = null;
+        this.#file = null;
         this.#addDate = addDate;
         this.#preview = Utils.getRelativePathToRoot() + "img/Plastic_Omnium.svg";
     }
@@ -65,6 +69,22 @@ class Version {
      */
     setPath(path) {
         this.#path = path;
+    }
+
+    /**
+     * Retrieves the file associated with this version.
+     * @returns {string} The file associated with this version.
+     */
+    getFile() {
+        return this.#file;
+    }
+
+    /**
+     * Sets the file for the Version object.
+     * @param {string} file - The file to set.
+     */
+    setFile(file) {
+        this.#file = file;
     }
 
     /**
