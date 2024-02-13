@@ -3,9 +3,50 @@
  */
 class DocumentManager extends DataManager {
 
+    /**
+     * The documents that are currently in the system (cached)
+     */
+    #documents = [];
+
+    /**
+     * Represents a DocumentManager object.
+     * @constructor
+     */
     constructor() {
         super();
         this.#init();
+    }
+
+    /**
+     * Caches the provided documents.
+     * 
+     * @param {Array} documents - The documents to be cached.
+     * @returns {void}
+     */
+    cacheDocuments(documents) {
+        this.#documents = documents;
+    }
+
+    /**
+     * Retrieves the documents stored in the DocumentManager.
+     * @returns {Array} An array of documents.
+     */
+    getDocuments() {
+        return this.#documents;
+    }
+
+    /**
+     * Retrieves a document by its ID FROM THE CACHE.
+     * @param {string} id - The ID of the document.
+     * @returns {Document|null} - The document object if found, or null if not found.
+     */
+    getDocument(id) {
+        for (let doc of this.#documents) {
+            if (doc.getId() == id) {
+                return doc;
+            }
+        }
+        return null;
     }
 
     /**
@@ -78,7 +119,7 @@ class DocumentManager extends DataManager {
         }
 
         // depending on what appened we either reload the page or return a message
-        if (data) { }  // TODO message popup that reload the view
+        if (data) { }  // TODO: message popup that reload the view
     }
 
     /**
@@ -97,7 +138,7 @@ class DocumentManager extends DataManager {
         }
 
         // depending on the api call, either tell the element was added, or return an error message
-        if (data) { } // TODO message popup that reload the view / error message
+        if (data) { } // TODO: message popup that reload the view / error message
     }
 
 
@@ -113,7 +154,7 @@ class DocumentManager extends DataManager {
             console.log(e);
         }
 
-        if (data) { } // TODO update view / reload page
+        if (data) { } // TODO: update view / reload page
     }
 
     /**
@@ -129,7 +170,11 @@ class DocumentManager extends DataManager {
             console.log(e);
         }
 
-        if (data) { } // TODO update view / reload page
+        if (data) { } // TODO: update view / reload page
+    }
+
+    async generateSigningLink() {
+        return 'http://tinyurl.com/38u9dv8f'; // TODO: : call api, generate token & send back url with token
     }
 
 

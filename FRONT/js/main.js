@@ -59,7 +59,7 @@ async function addStyleSheetsAndScripts() {
             Instantiator.index();
             break;
         case 'signing':
-            new SigningView();
+            Instantiator.signing();
             break;
         case 'signedList':
             Instantiator.signedList();

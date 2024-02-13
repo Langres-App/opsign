@@ -3,6 +3,10 @@
  */
 class Popup {
 
+    /**
+     * The unique identifier for the popup.
+     * @type {string}
+     */
     static id = 'popup';
 
     /**

@@ -38,8 +38,24 @@
 
 /* ONLY DOC POPUP */
 
+#document-popup p {
+    width: 100%;
+}
+
+#document-popup #details {
+    text-align: center;
+    margin-bottom: 20px;
+    color: darkred;
+    font-weight: 500;
+}
+
 .popup #document-file-import {
     margin: 0;
+}
+
+.popup #document-file {
+    margin: 0 !important;
+    padding: 10px 4px;
 }
 
 /* DOC CLICKED POPUP */
@@ -48,18 +64,21 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-width: 16vw;
+    max-width: 26vw;
+    padding: 20px 60px;
+    overflow: hidden;
 }
 
 #clicked-popup .button {
     width: 100%;
     text-align: center;
+    box-sizing: border-box !important;
 }
 
-#clicked-popup {
-    min-width: 16vw;
-    max-width: 24vw;
-    padding: 20px 80px;
-    box-sizing: border-box;
+#clicked-popup .button.close {
+    width: 80% !important;
+    text-align: center;
 }
 
 /* MESSAGE POPUP */
@@ -71,6 +90,15 @@
     padding: 20px 40px;
     box-sizing: border-box;
     text-align: center;
+}
+
+.message-popup .title {
+    margin-bottom: 20px;
+}
+
+.message-popup .message {
+    font-size: 20px;
+    margin-bottom: 20px;
 }
 
 .message-popup .button {
