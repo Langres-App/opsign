@@ -136,7 +136,7 @@
 .topbar {
     z-index: 1;
     width: 100vw;
-    height: 10vh;
+    height: 8vh;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -149,6 +149,10 @@
 .topbar * {
     color: var(--text-light-color);
     padding: 10px 20px;
+}
+
+.topbar #title {
+    font-size: 26px;
 }
 
 .topbar>div {
@@ -207,7 +211,7 @@ body>#backgroundImage>img {
 /* MAIN PART */
 
 main {
-    height: 82vh;
+    height: 84vh;
     width: 100vw;
     box-sizing: border-box;
     display: flex;
@@ -221,8 +225,7 @@ footer {
     bottom: 0;
     z-index: 1;
     width: 100vw;
-    min-height: 8vh;
-    padding: 20px;
+    height: 8vh;
     background-color: black;
     box-sizing: border-box;
     display: flex;
@@ -271,7 +274,7 @@ input {
     outline: none;
     font-size: 1em;
     padding: 10px 2px;
-    
+
     color: var(--text-dark-color);
     border: 1px solid var(--blue);
 
