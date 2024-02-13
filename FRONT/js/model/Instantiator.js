@@ -198,5 +198,31 @@ class Instantiator {
         new SignedListView();
     }
 
+    /**
+     * Creates a signing view.
+     * @returns {Promise<void>} A promise that resolves when the signing view is created.
+     */
+    static async signing() {
+        await Promise.all([
+            this.#loadSequentially([this.#pathes.view.View, this.#pathes.view.Signing]),
+            this.#addScript(this.#pathes.data.model.SignedUser),
+        ]);
+
+        new SigningView();
+    }
+
+
+    /**
+     * Import and creates a new Canvas object.
+     * 
+     * @param {HTMLElement} canvas - The HTML canvas element.
+     * @returns {Canvas} The newly created Canvas object.
+     */
+    static async canvas(canvas) {
+        await this.#addScript('js/model/Canvas.js');
+     
+        return new Canvas(canvas);
+    }
+
 
 }
