@@ -1,11 +1,33 @@
 /**
  * @class PopupManager manages the popups on the page
  */
+/**
+ * Represents a manager for handling popups.
+ */
+/**
+ * Represents a manager for handling popups.
+ */
 class PopupManager {
 
+    /**
+     * Array containing the popups managed by the PopupManager.
+     * @private
+     * @type {Array}
+     */
     #popups = [];
+
+
+    /**
+     * Array containing the scripts of the popups.
+     * @private
+     * @type {Array}
+     */
     #popupsScripts = [];
 
+    /**
+     * Creates a new instance of PopupManager.
+     * @constructor
+     */
     constructor() {
         // add the popup css to the page
         Utils.addStyleSheet('style/popups/popups.css');
@@ -20,9 +42,11 @@ class PopupManager {
         this.#popups = [];
     }
 
+    
     /**
-     * Add the script to the page and Add the message popup to the PopupManager
-     * @returns Promise<void>
+     * Adds a message popup to the popup manager.
+     * @private
+     * @async
      */
     async #addMessagePopup() {
         await this.initialize();
@@ -32,8 +56,11 @@ class PopupManager {
         }
     }
 
+    
     /**
-     * Add the script to the page and Add the add document popup to the PopupManager
+     * Adds a document popup to the PopupManager.
+     * @private
+     * @async
      */
     async #addDocumentPopup() {
         await this.initialize();
@@ -43,8 +70,11 @@ class PopupManager {
         }
     }
 
+    
     /**
-     * Add the script to the page and Add the document clicked popup to the PopupManager
+     * Adds a document clicked popup.
+     * @private
+     * @async
      */
     async #addDocumentClickedPopup() {
         await this.initialize();
@@ -54,8 +84,10 @@ class PopupManager {
         }
     }
 
+    
     /**
-     * Initialize the PopupManager by adding the popupContainer to the page
+     * Initializes the PopupManager.
+     * @returns {Promise<void>} A promise that resolves once the initialization is complete.
      */
     async initialize() {
         if (this.initialized) return;
@@ -103,7 +135,7 @@ class PopupManager {
 
         // open the popup and remove the disabled class from the popupContainer
         this.popupContainer.classList.remove('disabled');
-        this.#popups[id].open(dataMap);
+        await this.#popups[id].open(dataMap);
 
         return this.#popups[id];
     }
@@ -125,12 +157,20 @@ class PopupManager {
         }
     }
 
+    /**
+     * Retrieves a popup by its ID.
+     * @param {string} id - The ID of the popup.
+     * @returns {Object} - The popup object.
+     * @throws {Error} - If the popup with the specified ID does not exist.
+     */
     getPopup(id) {
         let popup = this.#popups[id];
+        // check if the popup exists
         if (popup) {
             return popup;
         }
 
+        // if the popup does not exist, we throw an error
         throw new Error('Popup with id ' + id + ' does not exist');
     }
 }
