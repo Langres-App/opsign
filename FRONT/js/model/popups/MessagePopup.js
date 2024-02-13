@@ -3,10 +3,34 @@
  */
 class MessagePopup extends Popup {
 
+    /**
+     * The unique identifier for the message popup.
+     * @type {string}
+     */
     static id = 'message-popup';
 
+    /**
+     * Represents a MessagePopup object.
+     * @constructor
+     */
     constructor() {
         super(MessagePopup.id, 'visual/popups/MessagePopup.html');
+    }
+    
+    /**
+     * Opens the message popup.
+     * @param {Object} dataMap - The data map containing data to add to the popup.
+     * @returns {Promise<void>} - A promise that resolves when the popup is opened.
+     */
+    async open(dataMap = []) {
+        await super.open();
+
+        // add the data to the popup if it exists
+        if (dataMap['title']) this.setTitle(dataMap['title']);
+        else this.setTitle('');
+        
+        if (dataMap['message']) this.setMessage(dataMap['message']);
+        else this.setMessage('');
     }
 
     /**
