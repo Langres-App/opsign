@@ -8,7 +8,8 @@ class Dao {
      */
     constructor(endpoint) {
         // set the url of the api
-        this.url = "http://http://slanlp0033.ad.ponet/charteapi/";
+        // TODO: slanlp0033.ad.ponet will be env variable
+        this.url = "http://slanlp0033.ad.ponet/charteapi/";
 
         // check if the endpoint is defined
         if (endpoint === undefined) {
