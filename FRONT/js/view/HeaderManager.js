@@ -8,6 +8,9 @@ class HeaderManager {
         // set the title of the page
         this.setTitle(document.title);
 
+        // listen for title changes
+        document.addEventListener('TITLE_CHANGED', () => this.setTitle(document.title));
+
         // set the account button | if there is no button, create one if 'login' button isn't wanted on a specific page
         const accountButton = document.getElementById('account-button') || document.createElement('button');
 
