@@ -13,6 +13,18 @@ class SignedUserTemplateManager extends TemplateManager {
     }
 
     /**
+     * Adds signed users to the template manager.
+     * @param {Array} users - The array of signed users to add.
+     * @returns {Promise} - A promise that resolves when all signed users are added.
+     */
+    async addSignedUsers(users) {
+        // add the users to the container
+        for (let user of users) {
+            await this.addSignedUser(user);
+        }
+    }
+
+    /**
      * Add a SignedUser to the container
      * @param {SignedUser} user User to be added to the container
      * @returns Promise<void>

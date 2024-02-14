@@ -53,7 +53,7 @@ async function addStyleSheetsAndScripts() {
     await Utils.addScript('js/model/Instantiator.js');
 
     // prepare to reload if the user logs out
-    document.addEventListener('USER_LOGGED_OUT', () => widonw.location.reload());
+    document.addEventListener('USER_LOGGED_OUT', () => window.location.reload());
 
     // create the header manager
     Instantiator.headerManager();
