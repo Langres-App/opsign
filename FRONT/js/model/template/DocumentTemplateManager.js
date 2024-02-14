@@ -13,6 +13,18 @@ class DocumentTemplateManager extends TemplateManager {
     }
 
     /**
+     * Adds multiple documents to the container.
+     * @param {Array} documents - The array of documents to be added.
+     * @returns {Promise} A promise that resolves when all documents have been added.
+     */
+    async addDocuments(documents = []) {
+        // add the documents to the container
+        for (let doc of documents) {
+            await this.addDocument(doc);
+        }
+    }
+
+    /**
      * Add a PoDocument to the container
      * @param {PoDocument} document Document to be added to the container
      * @returns Promise<void>
