@@ -33,9 +33,6 @@ class Utils {
      */
     static addScript(pathFromRoot) {
         return new Promise((resolve, reject) => {
-            // add the relative path to the root of the website to the path
-            pathFromRoot = Utils.getRelativePathToRoot() + pathFromRoot;
-
             // check if the script don't exist first
             let scripts = document.getElementsByTagName('script');
             for (let script of scripts) {
@@ -44,6 +41,9 @@ class Utils {
                     return;
                 }
             }
+
+            // add the relative path to the root of the website to the path
+            pathFromRoot = Utils.getRelativePathToRoot() + pathFromRoot;
 
             // create the script element and set its attributes
             let script = document.createElement('script');
