@@ -21,6 +21,22 @@ class Dao {
     }
 
     /**
+     * Returns the URL of the Dao.
+     * @returns {string} The URL of the Dao.
+     */
+    getUrl() {
+        return this.url;
+    }
+
+    /**
+     * Retrieves the endpoint of the DAO.
+     * @returns {string} The endpoint of the DAO.
+     */
+    getEndpoint() {
+        return this.endpoint;
+    }
+
+    /**
      * Get all the objects in the database
      * @returns All the objects in the database
      */
