@@ -18,9 +18,11 @@ class Instantiator {
                 SignedUser: 'js/data/dataModels/SignedUser.js',
             },
 
-            manager: 'js/model/DataManager.js',
-            DocumentManager: 'js/model/DocumentManager.js',
+            manager: 'js/model/data/DataManager.js',
+            DocumentManager: 'js/model/data/DocumentManager.js',
         },
+
+        HeaderManager: 'js/view/HeaderManager.js',
 
         popup: {
             model: {
@@ -30,7 +32,7 @@ class Instantiator {
                 MessagePopup: 'js/model/popups/MessagePopup.js',
             },
 
-            manager: 'js/model/PopupManager.js',
+            manager: 'js/model/popups/PopupManager.js',
         },
 
         template: {
@@ -224,5 +226,25 @@ class Instantiator {
         return new Canvas(canvas);
     }
 
+
+    /**
+     * Creates a new instance of HeaderManager.
+     * @returns {HeaderManager} The newly created instance of HeaderManager.
+     */
+    static async headerManager() {
+        await this.#addScript(this.#pathes.HeaderManager);
+
+        return new HeaderManager();
+    }
+
+    /**
+     * Creates a new instance of LoginView.
+     * @returns {LoginView} The newly created LoginView instance.
+     */
+    static async loginView() {
+        await this.#loadSequentially([this.#pathes.view.View, this.#pathes.view.Login]);
+
+        return new LoginView();
+    }
 
 }
