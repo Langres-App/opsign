@@ -20,6 +20,11 @@ class Canvas {
         this.#canvas = canvas;
         this.#canvas.bDraw = false;
 
+        // due to the canvas not resizing properly (it's size is set by this current class),
+        // we need to reload the page when the window is resized (allowing the canvas to resize properly and be drawn on the whole surface)
+        window.addEventListener('resize', () => window.location.reload());
+
+        // remove the blur effect from the canvas
         this.#removeBlur();
 
         // add event listeners
@@ -39,22 +44,18 @@ class Canvas {
         const ctx = this.#canvas.getContext('2d');
         const devicePixelRatio = window.devicePixelRatio || 1;
 
-        // Set the canvas size
-        const backingStoreRatio = ctx.webkitBackingStorePixelRatio ||
-            ctx.mozBackingStorePixelRatio ||
-            ctx.msBackingStorePixelRatio ||
-            ctx.oBackingStorePixelRatio ||
-            ctx.backingStorePixelRatio || 1;
-        const ratio = devicePixelRatio / backingStoreRatio;
+        // Calculate the canvas size based on the visible area
+        const canvasWidth = this.#canvas.clientWidth;
+        const canvasHeight = this.#canvas.clientHeight;
 
         // Set the canvas size
-        this.#canvas.width = this.#canvas.offsetWidth * ratio;
-        this.#canvas.height = this.#canvas.offsetHeight * ratio;
-        this.#canvas.style.width = this.#canvas.offsetWidth + 'px';
-        this.#canvas.style.height = this.#canvas.offsetHeight + 'px';
+        this.#canvas.width = canvasWidth * devicePixelRatio;
+        this.#canvas.height = canvasHeight * devicePixelRatio;
+        this.#canvas.style.width = canvasWidth + 'px';
+        this.#canvas.style.height = canvasHeight + 'px';
 
         // Scale the canvas
-        ctx.scale(ratio, ratio);
+        ctx.scale(devicePixelRatio, devicePixelRatio);
     }
 
     /**
@@ -62,12 +63,14 @@ class Canvas {
      * @param {Event} event - The event object.
      */
     #moveDrawLine(event) {
+
+        console.log(event.offsetX, event.offsetY);
+
         // If the canvas is not in drawing mode, we return
         if (!this.#canvas.bDraw) return;
 
         // Get the context and the position of the event
         const ctx = this.#canvas.getContext('2d');
-        const pos = this.#getPosition(event);
 
         // Draw
         ctx.strokeStyle = '#000000';
@@ -75,12 +78,12 @@ class Canvas {
         ctx.lineCap = 'round'; // Set line cap to round
         ctx.beginPath();
         ctx.moveTo(this.#canvas.posX, this.#canvas.posY);
-        ctx.lineTo(pos.posX, pos.posY);
+        ctx.lineTo(event.offsetX, event.offsetY);
         ctx.stroke();
 
         // Update the position
-        this.#canvas.posX = pos.posX;
-        this.#canvas.posY = pos.posY;
+        this.#canvas.posX = event.offsetX;
+        this.#canvas.posY = event.offsetY;
     }
 
     /**
@@ -94,10 +97,14 @@ class Canvas {
         const eventPos = event.changedTouches ? event.changedTouches[0] : event;
 
         // Return the position of the event relative to the canvas
-        return {
-            posX: (eventPos.clientX - rect.left) / (rect.right - rect.left) * this.#canvas.width,
-            posY: (eventPos.clientY - rect.top) / (rect.bottom - rect.top) * this.#canvas.height
+        let position = {
+            posX: event.offsetX, // (eventPos.clientX - rect.left) / (rect.right - rect.left) * this.#canvas.width,
+            posY: event.offsetY, // (eventPos.clientY - rect.top) / (rect.bottom - rect.top) * this.#canvas.height
         };
+
+        console.log(position.posX, position.posY);
+
+        return position;
     }
 
     /**

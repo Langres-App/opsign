@@ -54,9 +54,9 @@ main form input {
 
 main form canvas {
     width: 100%;
+    aspect-ratio: 2/5;
     height: 250px;
     margin: 10px auto;
-    padding: 10px;
     box-sizing: border-box;
     background-color: #fff;
     border-radius: var(--radius);
