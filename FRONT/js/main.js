@@ -52,6 +52,12 @@ async function addStyleSheetsAndScripts() {
 
     await Utils.addScript('js/model/Instantiator.js');
 
+    // prepare to reload if the user logs out
+    document.addEventListener('USER_LOGGED_OUT', () => widonw.location.reload());
+
+    // create the header manager
+    Instantiator.headerManager();
+
     // depending on the page, we create the correct view
     switch (docName) {
         case 'charte':
@@ -65,7 +71,7 @@ async function addStyleSheetsAndScripts() {
             Instantiator.signedList();
             break;
         case 'login':
-            new LoginView();
+            Instantiator.loginView();
             break;
 
     }
