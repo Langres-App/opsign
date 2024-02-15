@@ -7,34 +7,57 @@ class IndexView extends View {
   /**
    * Constructs a new instance of the class.
    */
-  constructor() {
+  constructor(authManager) {
     super();
+    this.manager = authManager;
+    this.documentManager = null;
     Utils.addStyleSheet('style/templates/document-template.css');
 
-    // after adding the script and the style, add the documents (using the added scripts)
-    Instantiator.addDocumentScripts()
-      .then(async () => {
-        // add the documents to the container (and import its scripts if needed)
-        this.documentManager = this.documentManager || await Instantiator.getDocumentManager();
-        this.displayFetchedDocuments();
-      });
-
     // add the add button functionality if the user is logged in
-      document.addEventListener('USER_LOGGED_IN', () => this.enableAddButton());
+    document.addEventListener('USER_LOGGED_IN', () => this.enableAddButton());
+    document.addEventListener('USER_NOT_LOGGED_IN', () => this.disableAddButton());
+
+    this.instantiateDocumentManager().then(() => {
+      // add the documents to the container (and import its scripts if needed) and display them
+      // after that, check if the user is logged in (to enable the add button if needed)
+      this.manageDisplayDocument().then(() => this.manager.check());
+
+    });
 
   }
 
   /**
-   * Enables the add button functionality.
-   * When the add button is clicked, it opens a popup and passes the needed data.
-   * @returns {Promise<void>} A promise that resolves when the add button functionality is enabled.
+   * Instantiates the document manager by adding the documents to the container and importing its scripts if needed.
+   * @returns {Promise<void>} A promise that resolves when the document manager is instantiated.
    */
-  async enableAddButton() {
-    // get the document manager (and set it if not defined) and import its scripts if needed
-    this.documentManager = this.documentManager || await Instantiator.getDocumentManager();
+  async instantiateDocumentManager() {
+    // add the documents to the container (and import its scripts if needed)
+    this.documentManager = await Instantiator.getDocumentManager();
+  }
 
-    // get the add button
+  /**
+   * Manages the display of documents.
+   * Adds the necessary scripts and styles, then displays the fetched documents.
+   * @returns {Promise<void>} A promise that resolves when the display is complete.
+   */
+  async manageDisplayDocument() {
+    // after adding the script and the style, add the documents (using the added scripts)
+    await Instantiator.addDocumentScripts();
+
+    await this.displayFetchedDocuments();
+  }
+
+  /**
+   * Enables the add button functionality.
+   */
+  enableAddButton() {
+
+    // get the add button (and replace it to remove the event listeners)
     let btn = document.getElementById('add-card');
+    let clonedBtn = btn.cloneNode(true);
+    btn.replaceWith(clonedBtn);
+    btn = clonedBtn;
+
     btn.classList.remove('disabled');
 
     // when the add is clicked open the popup and pass the needed data
@@ -44,6 +67,19 @@ class IndexView extends View {
         manager: this.documentManager
       });
     });
+  }
+
+  /**
+   * Disables the add button by replacing it with a disabled clone.
+   * @async
+   */
+  async disableAddButton() {
+    // get the add button
+    let btn = document.getElementById('add-card');
+    let clonedBtn = btn.cloneNode(true);
+    btn.replaceWith(clonedBtn);
+    btn = clonedBtn;
+    btn.classList.add('disabled');
   }
 
   /**
