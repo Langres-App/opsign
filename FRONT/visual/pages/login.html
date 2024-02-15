@@ -8,7 +8,7 @@
     <!-- Google material Icons : https://fonts.google.com/icons -->
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-        
+
     <!-- Page Name -->
     <title>Charte - Connexion</title>
 </head>
@@ -30,12 +30,12 @@
         <h2 class="smallcaps">Connexion</h2>
         <form action="#">
             <div class="field">
-                <label for="user-identifier" class="lightText">Identifiant :</label><input type="text"
-                    placeholder="Identifiant " name="identifier" id="user-identifier">
+                <label for="user-identifier" class="lightText">Identifiant :</label>
+                <input type="text" placeholder="Identifiant " name="identifier" id="user-identifier" required>
             </div>
             <div class="field">
-                <label for="user-password" class="lightText">Mot de passe :</label><input type="password"
-                    placeholder="Mot de passe" name="password" id="user-password">
+                <label for="user-password" class="lightText">Mot de passe :</label>
+                <input type="password" placeholder="Mot de passe" name="password" id="user-password" required>
             </div>
             <input type="submit" value="Se connecter" class="button green">
         </form>
@@ -80,9 +80,9 @@
         else relativePath = './';
 
         // for each element in the array, we add a '../' to the relative path to go to the root of the website
-        for (let i = 0; i < pathArray.length - 2; i++) 
+        for (let i = 0; i < pathArray.length - 2; i++)
             relativePath += '../';
-        
+
 
         // we add the main.js and Utils.js scripts to the head of the document 
         // they will load the other scripts, styles and the page content
