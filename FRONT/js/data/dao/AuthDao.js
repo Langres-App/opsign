@@ -34,7 +34,7 @@ class AuthDao extends Dao {
      * @returns {Promise} A promise that resolves when the user is logged out.
      */
     async logout() {
-        return await this.post('/logout');
+        return await this.get('/logout');
     }
 
     /**
@@ -52,7 +52,11 @@ class AuthDao extends Dao {
      * @returns {Promise<any>} - A promise that resolves to the retrieved data.
      */
     async get(urlParam) {
-        const response = await fetch(super.getUrl() + super.getEndpoint() + urlParam);
+        const response = await fetch(super.getUrl() + super.getEndpoint() + urlParam, {
+            headers: {
+                'Authorization': '' + AuthManager.getToken()
+            }
+        });
         return response;
     }
 
