@@ -12,17 +12,27 @@ class HeaderManager {
         document.addEventListener('TITLE_CHANGED', () => this.setTitle(document.title));
 
         // set the account button | if there is no button, create one if 'login' button isn't wanted on a specific page
-        const accountButton = document.getElementById('account-button') || document.createElement('button');
+        let accountButton = document.getElementById('account-button') || document.createElement('button');
 
         // if the user is logged in, set the button to log out
         document.addEventListener('USER_LOGGED_IN', () => {
 
             // set button Text to 'Déconnexion'
             accountButton.innerHTML = 'Déconnexion';
+            accountButton.replaceWith(accountButton.cloneNode(true));
+
+            accountButton = document.getElementById('account-button') || document.createElement('button');
 
             // add the event listener to log out
-            accountButton.addEventListener('click', () => {
-                Instantiator.loginManager().then(loginManager => loginManager.logout());
+            accountButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.dispatchEvent(new Event('USER_NOT_LOGGED_IN'));
+                
+                // remove the user from the local storage
+                window.localStorage.removeItem('userToken');
+
+                // TODO: call the logout function from the loginManager
+                // Instantiator.loginManager().then(loginManager => loginManager.logout());
             });
         });
 
@@ -31,9 +41,13 @@ class HeaderManager {
             
             // set button Text to 'Connexion'
             accountButton.innerHTML = 'Connexion';
+            accountButton.replaceWith(accountButton.cloneNode(true));
+
+            accountButton = document.getElementById('account-button') || document.createElement('button');
 
             // add the event listener to log in
-            accountButton.addEventListener('click', () => {
+            accountButton.addEventListener('click', (e) => {
+                e.preventDefault();
                 window.location.href = Utils.getRelativePathToRoot() + 'visual/pages/login.html';
             });
         });
