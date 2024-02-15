@@ -55,6 +55,12 @@ async function addStyleSheetsAndScripts() {
     // prepare to reload if the user logs out
     document.addEventListener('USER_LOGGED_OUT', () => window.location.reload());
 
+
+
+
+    // create the auth manager (when await is not used, )
+    let manager = await Instantiator.getAuthManager();
+
     // create the header manager
     Instantiator.headerManager();
 
@@ -62,18 +68,18 @@ async function addStyleSheetsAndScripts() {
     switch (docName) {
         case 'charte':
         case 'index':
-            Instantiator.index();
+            Instantiator.index(manager);
             break;
         case 'signing':
-            Instantiator.signing();
+            Instantiator.signing(manager);
             break;
         case 'signedList':
-            Instantiator.signedList();
+            Instantiator.signedList(manager);
             break;
         case 'login':
-            Instantiator.loginView();
+            Instantiator.loginView(manager);
             break;
-
     }
+
 }
 
