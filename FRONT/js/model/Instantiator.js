@@ -10,6 +10,7 @@ class Instantiator {
                 Dao: 'js/data/dao/Dao.js',
                 DocumentDao: 'js/data/dao/DocumentDao.js',
                 UserDao: 'js/data/dao/UserDao.js',
+                AuthDao: 'js/data/dao/AuthDao.js',
             },
 
             model: {
@@ -41,7 +42,7 @@ class Instantiator {
             SignedUserTemplateManager: 'js/model/template/SignedUserTemplateManager.js',
         },
 
-        LoginManager: 'js/model/LoginManager.js',
+        AuthManager: 'js/model/auth/AuthManager.js',
 
         view: {
             Index: 'js/view/index.js',
@@ -103,14 +104,14 @@ class Instantiator {
      * Loads the necessary dependencies and initializes the index view.
      * @returns {Promise<void>} A promise that resolves when the index view is initialized.
      */
-    static async index() {
+    static async index(manager) {
         await Promise.all([
             this.#loadSequentially([this.#pathes.view.View, this.#pathes.view.Index]),
             this.#addScript(this.#pathes.data.model.PoDocument),
             this.#addScript(this.#pathes.data.model.Version),
         ]);
 
-        new IndexView();
+        new IndexView(manager);
     }
     
     /**
@@ -192,25 +193,25 @@ class Instantiator {
      * Creates a signed list view.
      * @returns {Promise<void>} A promise that resolves when the signed list view is created.
      */
-    static async signedList() {
+    static async signedList(manager) {
         await Promise.all([
             this.#loadSequentially([this.#pathes.view.View, this.#pathes.view.SignedList]),
         ]);
 
-        new SignedListView();
+        new SignedListView(manager);
     }
 
     /**
      * Creates a signing view.
      * @returns {Promise<void>} A promise that resolves when the signing view is created.
      */
-    static async signing() {
+    static async signing(manager) {
         await Promise.all([
             this.#loadSequentially([this.#pathes.view.View, this.#pathes.view.Signing]),
             this.#addScript(this.#pathes.data.model.SignedUser),
         ]);
 
-        new SigningView();
+        new SigningView(manager);
     }
 
 
@@ -241,10 +242,33 @@ class Instantiator {
      * Creates a new instance of LoginView.
      * @returns {LoginView} The newly created LoginView instance.
      */
-    static async loginView() {
+    static async loginView(manager) {
         await this.#loadSequentially([this.#pathes.view.View, this.#pathes.view.Login]);
 
-        return new LoginView();
+        return new LoginView(manager);
+    }
+
+    /**
+     * Retrieves the AuthManager instance.
+     * @returns {Promise<AuthManager>} A promise that resolves to an instance of AuthManager.
+     */
+    static async getAuthManager() {
+        await Promise.all([
+            this.#loadSequentially([this.#pathes.data.access.Dao, this.#pathes.data.access.AuthDao]),
+            this.#addScript(this.#pathes.AuthManager),
+        ]);
+
+        return new AuthManager();
+    }
+
+    /**
+     * Retrieves the authentication DAO.
+     * @returns {AuthDao} The authentication DAO instance.
+     */
+    static async getAuthDao() {
+        await this.#loadSequentially([this.#pathes.data.access.Dao, this.#pathes.data.access.AuthDao]);
+
+        return new AuthDao();
     }
 
 }
