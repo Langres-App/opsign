@@ -12,6 +12,23 @@ class DocumentTemplateManager extends TemplateManager {
         this.path = 'visual/templates/DocumentTemplate.html';
     }
 
+
+    /**
+     * Sets the same height for all document titles within the container.
+     */
+    #setSameHeight() {
+        let maxSize = 0;
+        
+        this.container.querySelectorAll('.document-title').forEach((doc) => {
+            maxSize = Math.max(maxSize, doc.offsetHeight);
+        });
+
+        this.container.querySelectorAll('.document-title').forEach((doc) => {
+            doc.style.height = maxSize + 'px';
+        });
+
+    }
+
     /**
      * Adds multiple documents to the container.
      * @param {Array} documents - The array of documents to be added.
@@ -20,8 +37,10 @@ class DocumentTemplateManager extends TemplateManager {
     async addDocuments(documents = []) {
         // add the documents to the container
         for (let doc of documents) {
-            await this.addDocument(doc);
+            await this.#addDocument(doc);
         }
+
+        this.#setSameHeight();
     }
 
     /**
@@ -29,7 +48,7 @@ class DocumentTemplateManager extends TemplateManager {
      * @param {PoDocument} document Document to be added to the container
      * @returns Promise<void>
      */
-    async addDocument(document) {
+    async #addDocument(document) {
         // values is a map that contains the values to be replaced in the template, 
         // the key is the name of the variable in the template and the value is the value to replace
         let values = [];
