@@ -21,6 +21,7 @@ class Instantiator {
 
             manager: 'js/model/data/DataManager.js',
             DocumentManager: 'js/model/data/DocumentManager.js',
+            UserManager: 'js/model/data/UserManager.js'
         },
 
         HeaderManager: 'js/view/HeaderManager.js',
@@ -137,6 +138,15 @@ class Instantiator {
 
         return new DocumentManager();
     }
+
+     static async getUserManager() {
+        await Promise.all([
+            this.#loadSequentially([this.#pathes.data.access.Dao, this.#pathes.data.access.UserDao]),
+            this.#loadSequentially([this.#pathes.data.manager, this.#pathes.data.UserManager]),
+        ]);
+
+        return new UserManager();
+     }
 
     
     /**
