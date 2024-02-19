@@ -14,13 +14,20 @@ class SignedListView extends View {
    * Constructs a new instance of the signedList view.
    * @constructor
    */
-  constructor() {
+  constructor(authManager) {
     super();
     Utils.addStyleSheet('style/templates/user-list-template.css');
 
     // check if the id is in the url, otherwise redirect to the index page
     this.#CheckParam();
 
+    Instantiator.getUserManager().then((manager) => {
+      this.manager = manager;
+      this.#init(authManager);
+    });  
+  }
+
+  #init(authManager) {
     // Wait for auth Check
     document.addEventListener('USER_LOGGED_IN', () => {
       this.#setPageTitle();
@@ -30,12 +37,14 @@ class SignedListView extends View {
     });
 
     // if the user is not logged in, we redirect to the index page
-    document.addEventListener('USER_NOT_LOGGED_IN', () => this.#backToIndex());
-
-    // TODO: remove this => only for dev
-    this.#displayUsers().then(() => {
-      this.#manageSearch();
+    document.addEventListener('USER_NOT_LOGGED_IN', () => {
+      this.#displayUsers().then(() => {
+        this.#manageSearch();
+      });
     });
+
+    authManager.check();
+
   }
 
   /**
@@ -105,17 +114,7 @@ class SignedListView extends View {
     let templateManager = await Instantiator.signedUserTemplateManager(container);
 
     // add the users to the container
-    // let users = await UserManager.getAllSignedUsers(doc.id);
-    let users = [
-      new SignedUser(1, 'John Doe', '2020-01-01'),
-      new SignedUser(2, 'Jane Doe', '2020-01-02'),
-      new SignedUser(3, 'John Smith', '2020-01-03'),
-      new SignedUser(4, 'Jane Smith', '2020-01-04'),
-      new SignedUser(5, 'John Johnson', '2020-01-05'),
-      new SignedUser(6, 'Jane Johnson', '2020-01-06'),
-      new SignedUser(7, 'John Brown', '2020-01-07'),
-      new SignedUser(8, 'Jane Brown', '2020-01-08')
-    ];
+    let users = await this.manager.getAllByDocId(this.#docId);
 
     // set the search value as an empty string if it is not defined
     searchValue = searchValue || '';
