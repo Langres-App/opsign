@@ -26,10 +26,3 @@ main #add-card {
 main #add-card:active {
     scale: 1.02;
 }
-
-main #add-card .material-symbols-outlined {
-    font-size: 100px;
-    color: var(--blue);
-    overflow: hidden;
-    text-align: center;
-}
