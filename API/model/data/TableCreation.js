@@ -1,17 +1,10 @@
 // import the pool & util module
-const mysql = require('mysql');
 const util = require('util');
+const getPool = require('./PoolGetter');
 
-// database pool
-const pool = mysql.createPool({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE
-    });
-
-// Promisify the pool query method to allow for async/await
-const query = util.promisify(pool.query).bind(pool);
+// declare the pool and query variables
+let pool;
+let query;
 
 /**
  * Creates the document table in the database if it doesn't exist.
@@ -38,7 +31,7 @@ async function createVersionTable() {
     id INT AUTO_INCREMENT PRIMARY KEY,
     doc_id INT NOT NULL,
     file_path VARCHAR(255) NOT NULL,
-    created_date Date,
+    created_date Date NOT NULL,
     FOREIGN KEY (doc_id) REFERENCES document(id)
   )`;
 
@@ -101,6 +94,14 @@ async function createAuthTable() {
  * @returns {Promise<void>} A promise that resolves when the tables are created.
  */
 async function createTables() {
+
+  // create the database poolv
+  pool = getPool();
+
+  // Promisify the pool query method to allow for async/await
+  query = util.promisify(pool.query).bind(pool);
+
+  // create the tables 
   await createDocumentTable();
   await createVersionTable();
   await createUserTable();
