@@ -24,7 +24,7 @@ services:
     volumes:
       - ./config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
     labels:
-      - traefik.enamble=true
+      - traefik.enable=true
       - traefik.http.routers.phpmyadmincharte.rule=PathPrefix(`/chartepma`)
       - traefik.http.routers.phpmyadmincharte.middlewares=strip-phpmyadmincharte-prefix
       - traefik.http.middlewares.strip-phpmyadmincharte-prefix.stripPrefix.prefixes=/chartepma
