@@ -125,6 +125,7 @@ class AddDocumentPopup extends Popup {
         // set the date to the current date if the state is ADD
         form['document-date'].value = dataMap['state'] === AddDocumentPopup.state.EDIT ? version.getAddDate() : new Date().toISOString().split('T')[0];
         form['document-file'].parentElement.style.display = dataMap['state'] === AddDocumentPopup.state.EDIT ? 'none' : 'flex';
+        form['document-date'].parentElement.style.display = dataMap['state'] === AddDocumentPopup.state.EDIT ? 'none' : 'flex';
 
         // replace the submit button by a clone to remove any older eventListener
         form['document-submit'].replaceWith(form['document-submit'].cloneNode(true));
@@ -132,7 +133,9 @@ class AddDocumentPopup extends Popup {
 
 
         // onclick of the submit button
-        form['document-submit'].onclick = () => {
+        super.getPopup().querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            console.log('submit');
 
             // do the necessary action depending on the state
             switch (dataMap['state']) {
@@ -151,7 +154,7 @@ class AddDocumentPopup extends Popup {
              * Closes the popup.
              */
             super.close();
-        }
+        });
     }
 
     /**
@@ -176,10 +179,15 @@ class AddDocumentPopup extends Popup {
 
         console.log(doc);
 
-        return; // TODO: Remove this line when the code is complete
-
         // Add the document to the database
-        manager.addDocument(doc)
+        console.log(form);
+
+        const data = new FormData();
+        data.append('title', form['document-name'].value);
+        data.append('file', form['document-file'].files[0]);
+        data.append('date', form['document-date'].value);
+
+        manager.add(data)
         .then(() => {})
         .catch(e => console.error(e));
     }
