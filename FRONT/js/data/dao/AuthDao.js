@@ -52,10 +52,15 @@ class AuthDao extends Dao {
      * @returns {Promise<any>} - A promise that resolves to the retrieved data.
      */
     async get(urlParam) {
+        let header;
+        if (AuthManager.getToken() === null) header = {};
+        else header = {
+            'Authorization': 'Bearer ' + AuthManager.getToken()
+        };
+        
         const response = await fetch(super.getUrl() + super.getEndpoint() + urlParam, {
-            headers: {
-                'Authorization': '' + AuthManager.getToken()
-            }
+            method: 'GET',
+            headers: header
         });
         return response;
     }
