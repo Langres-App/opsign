@@ -1,4 +1,3 @@
-const { log } = require("console");
 const assert = require("../../Asserter");
 const { hashPassword, comparePassword } = require("../../PasswordHasher");
 const getPool = require("../PoolGetter");
@@ -100,6 +99,10 @@ async function userIsLogged(token) {
 
         if (users.length > 1) {
             throw new Error('There is more than one user');
+        }
+
+        if (users.length === 0) {
+            return false;
         }
 
         // check if the token is expired
