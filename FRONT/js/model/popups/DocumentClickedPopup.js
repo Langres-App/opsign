@@ -42,7 +42,8 @@ class DocumentClickedPopup extends Popup {
 
         // set the title of the popup
         let title = popup.querySelector('#document-popup-title');
-        title.innerHTML = "Document n°" + docId;
+        this.document = await dataMap['manager'].getById(docId);
+        title.innerHTML = this.document.getFileName() || 'Document';
 
         // manage the click events
         this.manageClick(dataMap);
