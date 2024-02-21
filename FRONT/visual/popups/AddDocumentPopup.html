@@ -5,18 +5,18 @@
     </div>
     <p id="details">Cette modification ajoutera une nouvelle version de document pour les futures signatures.<br>Les anciennes version signées seront toujours disponible.</p>
 
-    <form action="#">
+    <form action="#" enctype="multipart/form-data">
         <div class="field">
             <label for="document-name">Nom du document :</label>
-            <input type="text" name="" placeholder="Nom du document" id="document-name" required>
+            <input type="text" name="doc_name" placeholder="Nom du document" id="document-name" required>
         </div>
         <div class="field">
             <label for="document-date">Date de création :</label>
-            <input type="date" name="" id="document-date" required>
+            <input type="date" name="doc_ver_date" id="document-date" required>
         </div>
         <div class="field">
             <label for="document-file">Document à importer :</label>
-            <input type="file" name="" class="" id="document-file" required>
+            <input type="file" name="doc_file" class="" id="document-file" required>
         </div>
 
         <div class="buttons">
