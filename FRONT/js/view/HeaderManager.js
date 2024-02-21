@@ -26,10 +26,10 @@ class HeaderManager {
             // add the event listener to log out
             accountButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                document.dispatchEvent(new Event('USER_NOT_LOGGED_IN'));
-                
+                document.dispatchEvent(new CustomEvent('USER_NOT_LOGGED_IN', { detail: { userExist: true } }));
+
                 // remove the user from the local storage
-                window.localStorage.removeItem('userToken');
+                // window.localStorage.removeItem('userToken');
 
                 // TODO: call the logout function from the loginManager
                 // Instantiator.loginManager().then(loginManager => loginManager.logout());
@@ -37,10 +37,10 @@ class HeaderManager {
         });
 
         // if the user is not logged in, set the button to log in
-        document.addEventListener('USER_NOT_LOGGED_IN', () => {
-            
+        document.addEventListener('USER_NOT_LOGGED_IN', e => {
+
             // set button Text to 'Connexion'
-            accountButton.innerHTML = 'Connexion';
+            accountButton.innerHTML = e.detail.userExist ? 'Connexion' : 'Créer un compte';
             accountButton.replaceWith(accountButton.cloneNode(true));
 
             accountButton = document.getElementById('account-button') || document.createElement('button');
