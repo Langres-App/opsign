@@ -9,14 +9,12 @@ class AuthManager {
      * @type {string}
      */
     static #key = 'userToken';
-    
+
     /**
      * Constructs a new instance of AuthManager.
      * @constructor
      */
     constructor() {
-        // listen for authenticated API requests (to expand token duration)
-        document.addEventListener('AUTHENTICATED_API_REQUEST', () => this.#expandTokenDuration());
     }
 
     /**
@@ -25,13 +23,31 @@ class AuthManager {
      */
     async check() {
         this.dao = await Instantiator.getAuthDao();
-        let response = await this.dao.checkForExistingUser();
-        let responseBody = await response.json();
 
-        if (responseBody.logged) document.dispatchEvent(new Event('USER_LOGGED_IN'));
-        else document.dispatchEvent(new Event('USER_NOT_LOGGED_IN'));
+        let toReturn = false;
+        let response = null;
 
-        return response.status === 200;
+        try {
+            response = await this.dao.checkForExistingUser();
+            toReturn = response.status === 200;
+
+            if (toReturn) {
+                let responseBody = await response.json();
+                if (responseBody.logged) document.dispatchEvent(new Event('USER_LOGGED_IN'));
+                else {
+                    document.dispatchEvent(new CustomEvent('USER_NOT_LOGGED_IN', { detail: { userExist: true } }));
+                    // localStorage.removeItem(AuthManager.#key);
+                }
+            } else {
+                document.dispatchEvent(new CustomEvent('USER_NOT_LOGGED_IN', { detail: { userExist: false } }));
+            }
+
+        } catch (error) {
+            console.error(error);
+            document.dispatchEvent(new CustomEvent('USER_NOT_LOGGED_IN', { detail: { userExist: false } }));
+        }
+
+        return toReturn;
     }
 
     /**
@@ -40,9 +56,8 @@ class AuthManager {
      * @returns {Promise<void>} - A promise that resolves when the login is successful.
      */
     async login(user) {
-        let val = await this.dao.login(user);
-        console.log('token: ' + val.token);
-        this.#setToken(val.token);
+        let response = await this.dao.login(user);
+        this.#setToken(response);
     }
 
     /**
@@ -52,9 +67,7 @@ class AuthManager {
      */
     async register(user) {
         let response = await this.dao.register(user);
-        // get 'token' from response header
-        let token = response.headers.get('token');
-        this.#setToken(token);
+        this.#setToken(response);
     }
 
     /**
@@ -69,45 +82,16 @@ class AuthManager {
     /**
      * Sets the user token in local storage with an expiration date of 5 minutes from now.
      * @param {string} token - The user token to be set.
+     * @param {Date} expire - The expiration date of the token.
      */
-    #setToken(token) {
-        // set the token expiration date to 5 minutes from now
-        const date = new Date();
-        date.setMinutes(date.getMinutes() + 5);
-        date.setHours(date.getHours() + 1);
+    #setToken(message) {
+        // get the user token & the expiration date
+        const token = message.token;
+
+        if (!token) return;
 
         // set the user token in local storage
-        localStorage.setItem(AuthManager.#key,
-            JSON.stringify({
-                token: token,
-                expire: date
-            })
-        );
-    }
-
-    /**
-     * Expands the token duration by setting the token expiration date to 5 minutes from now.
-     * If there is no user token in local storage, this method does nothing.
-     */
-    #expandTokenDuration() {
-        // get the user token from local storage
-        const item = JSON.parse(localStorage.getItem(AuthManager.#key));
-
-        if (!item) return;
-
-        // set the token expiration date to 5 minutes from now
-        const date = new Date();
-        date.setMinutes(date.getMinutes() + 5);
-        date.setHours(date.getHours() + 1);
-        console.log(date);
-
-        // set the user token in local storage
-        localStorage.setItem(AuthManager.#key,
-            JSON.stringify({
-                token: item.token,
-                expire: date
-            })
-        );
+        localStorage.setItem(AuthManager.#key, token);
     }
 
     /**
@@ -118,15 +102,7 @@ class AuthManager {
      */
     static getToken() {
         // get the user token from local storage
-        const item = JSON.parse(localStorage.getItem(AuthManager.#key));
-
-        // if the token is not expired, return it
-        if (item && new Date(item.expire) > new Date()) {
-            return item.token;
-        }
-
-        // if the token is expired, remove it from local storage and return null
-        localStorage.removeItem(AuthManager.#key);
-        return null;
+        const item = localStorage.getItem(AuthManager.#key);
+        return item || null;
     }
 }
