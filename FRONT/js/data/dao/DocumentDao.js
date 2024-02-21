@@ -10,6 +10,21 @@ class DocumentDao extends Dao {
     super('documents');
   }
 
+  async add(doc) {
+    console.log(doc);
+    let response = await fetch(this.url + this.endpoint, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+      },
+      body: doc
+    });
+
+    let result = await response.json();
+
+    return result;
+  }
+
   /**
    * Add a document to the database
    * @param {number} id Id of the document to get
