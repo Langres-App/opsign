@@ -43,7 +43,8 @@ class AuthDao extends Dao {
      * @returns {Promise} A promise that resolves with the result of the registration.
      */
     async register(user) {
-        return await this.post('/register', user);
+        let resp = await this.post('/register', user);
+        return await resp.json();
     }
 
     /**
