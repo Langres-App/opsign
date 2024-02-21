@@ -1,6 +1,6 @@
-const assert = require('./../Asserter');
+const assert = require('../../Asserter');
 const util = require('util');
-const getPool = require('./PoolGetter');
+const getPool = require('../PoolGetter');
 
 /**
  * Retrieves documents from the database.

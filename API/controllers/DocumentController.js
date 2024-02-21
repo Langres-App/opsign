@@ -5,8 +5,9 @@
 
 const express = require('express');
 const router = express.Router();
-const { getDocuments, changeDocumentName, addVersion, archiveDocument } = require('../model/data/DocumentsQueries');
+const { getDocuments, changeDocumentName, addVersion, archiveDocument } = require('../model/data/queries/DocumentsQueries');
 const { createTables } = require('../model/data/TableCreation');
+const requireAuth = require('./authMiddleware');
 
 /**
  * Route for getting all documents.
@@ -17,7 +18,7 @@ const { createTables } = require('../model/data/TableCreation');
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
-router.get('/', async (req, res) => {
+router.get('/', async (_, res) => {
     await createTables();
     try {
         res.status(200).send(await getDocuments());
