@@ -15,7 +15,7 @@ async function createDocumentTable() {
   CREATE TABLE IF NOT EXISTS document (
     id INT AUTO_INCREMENT PRIMARY KEY,
     file_name VARCHAR(255) NOT NULL,
-    archived_date Date
+    archived_date Datetime
   )`;
 
   await query(documentQuery);
@@ -48,7 +48,7 @@ async function createUserTable() {
   CREATE TABLE IF NOT EXISTS user (
     id INT AUTO_INCREMENT PRIMARY KEY,
     identifier VARCHAR(255) NOT NULL,
-    archived_date Date default NULL
+    archived_date Datetime default NULL
   )`;
 
   await query(versionQuery);
@@ -64,7 +64,7 @@ async function createUserVersionTable() {
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     version_id INT NOT NULL,
-    date Date NOT NULL,
+    date Datetime NOT NULL,
     signature BLOB NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(id),
     FOREIGN KEY (version_id) REFERENCES version(id)
@@ -83,10 +83,11 @@ async function createAuthTable() {
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    token VARCHAR(255) default NULL
+    token VARCHAR(255) default NULL,
+    token_expiration Datetime default NULL
   )`;
-
-  await query(authQuery);
+ 
+  await query(authQuery); 
 }
 
 /**
