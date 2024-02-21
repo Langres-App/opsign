@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const { getDocuments, changeDocumentName, addVersion, archiveDocument } = require('../model/data/queries/DocumentsQueries');
 const { createTables } = require('../model/data/TableCreation');
-const requireAuth = require('./authMiddleware');
+const { storeDocument, upload, deleteOriginal } = require('../model/FileStore');
 
 /**
  * Route for getting all documents.
@@ -19,9 +19,9 @@ const requireAuth = require('./authMiddleware');
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
 router.get('/', async (_, res) => {
-    await createTables();
+    await createTables(); 
     try {
-        res.status(200).send(await getDocuments());
+        res.status(200).send(await getDocuments()); 
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -54,14 +54,19 @@ router.get('/:id', async (req, res) => {
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
-router.post('/', async (req, res) => {
-    await createTables();
+router.post('/', upload.single('file'), storeDocument, deleteOriginal, async (req, res) => {
+    // This middleware (upload.single('file')) handles the file upload
+    await createTables(); // Create database tables (assuming this is an asynchronous operation)
+    console.log(req.file); // Log the uploaded file information
+    console.log(req.body); // Log other form fields (assuming there are additional form fields)
+
     try {
-        const file_path = 'BLANK_FILE_PATH'; // TODO: await storeDocument(req.body.title, req.body.file);
-        await createDocument(req.body, file_path);
-        res.status(201).send('Document created successfully');
+        // Assuming createTables() and storeDocument() are asynchronous functions
+        // Store the document in the database
+        // await createDocument(req.body, file_path);
+        res.status(201).send('Document created successfully'); // Send success response
     } catch (error) {
-        res.status(500).send(error.message);
+        res.status(500).send(error); // Send error response if any exception occurs
     }
 });
 
