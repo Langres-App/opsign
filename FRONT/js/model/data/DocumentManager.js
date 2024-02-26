@@ -55,7 +55,7 @@ class DocumentManager extends DataManager {
     async #init() {
         super.setDao(new DocumentDao());
     }
-    
+
     /**
      * Returns all the object
      * @returns {Array} - An array of all the object
@@ -124,7 +124,7 @@ class DocumentManager extends DataManager {
     /**
      * Returns the object with the given name
      * @param {string} name name of the object
-     */ 
+     */
     async add(object) {
         let data;
 
@@ -165,28 +165,22 @@ class DocumentManager extends DataManager {
     async update(object) {
         let data;
         try {
-            data = await this.update(object);
+            data = await super.update(object);
         } catch (e) {
             console.log(e);
         }
 
-        if (data) { } // TODO: update view / reload page
+        if (data && data.status === 200) {
+            window.location.reload();
+        }
     }
 
     /**
-     * Deletes the object with the given id
+     * archive the object with the given id
      * @param {number | string} id identifier of the object to delete  
      */
-    async delete(id) {
-        let data;
-
-        try {
-            data = await this.delete(id);
-        } catch (e) {
-            console.log(e);
-        }
-
-        if (data) { } // TODO: update view / reload page
+    async archive(id) {
+        await super.delete(id);
     }
 
     async generateSigningLink() {
