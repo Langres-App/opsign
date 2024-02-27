@@ -18,7 +18,7 @@ class DocumentTemplateManager extends TemplateManager {
      */
     #setSameHeight() {
         let maxSize = 0;
-        
+
         this.container.querySelectorAll('.document-title').forEach((doc) => {
             maxSize = Math.max(maxSize, doc.offsetHeight);
         });
@@ -60,7 +60,14 @@ class DocumentTemplateManager extends TemplateManager {
             const lastVer = document.getLastVersion();
 
             // check if the last version exsists and is a Version object
-            if (!lastVer || !(lastVer instanceof Version)) return;
+            if (!lastVer || !(lastVer instanceof Version)) {
+                // if this warning is raised, it means that the document has no version (or that it's not recognized as a version object)
+                // ==> check if the version data are received correctly from the server
+                // ==> check if the fields names are the same as in the constructor
+                // ==> check if the version data are added to the database, if not, verify the server side code
+                console.warn(`No version found for the document ${document.getFileName()}!`);
+                return;
+            }
 
             values['Date'] = lastVer.getAddDate();
             values['Preview'] = lastVer.getPreview();

@@ -68,7 +68,7 @@ class AddDocumentPopup extends Popup {
         const title = super.getPopup().querySelector('#document-popup-title');
         const add_version_details = super.getPopup().querySelector('#details');
         let form = super.getPopup().querySelector('form');
-       
+
         // Get the form elements
         form = form.elements;
 
@@ -114,7 +114,7 @@ class AddDocumentPopup extends Popup {
 
         // set the form values & states to the dataMap values 
         form['document-name'].value = doc.getFileName() || '';
-        
+
         // disable and lower the opacity of the name input if the state is ADD_VERSION
         form['document-name'].style.opacity = dataMap['state'] === AddDocumentPopup.state.ADD_VERSION ? 0.5 : 1;
         form['document-name'].disabled = dataMap['state'] === AddDocumentPopup.state.ADD_VERSION;
@@ -125,14 +125,36 @@ class AddDocumentPopup extends Popup {
         // set the date to the current date if the state is ADD
         form['document-date'].value = dataMap['state'] === AddDocumentPopup.state.EDIT ? version.getAddDate() : new Date().toISOString().split('T')[0];
         form['document-file'].parentElement.style.display = dataMap['state'] === AddDocumentPopup.state.EDIT ? 'none' : 'flex';
+        form['document-date'].parentElement.style.display = dataMap['state'] === AddDocumentPopup.state.EDIT ? 'none' : 'flex';
 
         // replace the submit button by a clone to remove any older eventListener
         form['document-submit'].replaceWith(form['document-submit'].cloneNode(true));
         form['document-submit'].innerHTML = dataMap['state'] === AddDocumentPopup.state.EDIT ? 'Modifier' : 'Ajouter';
 
+        if (AddDocumentPopup.state.EDIT === dataMap['state']) {
+            form['document-file'].parentElement.style.display = 'none';
+            form['document-date'].parentElement.style.display = 'none';
+            
+            form['document-file'].required = false;
+            form['document-date'].required = false;
+
+            form['document-submit'].innerHTML = 'Modifier';
+
+        } else {
+            form['document-file'].parentElement.style.display = 'flex';
+            form['document-date'].parentElement.style.display = 'flex';
+            
+            form['document-file'].required = true;
+            form['document-date'].required = true;
+
+            form['document-submit'].innerHTML = 'Ajouter';
+
+        }
+
 
         // onclick of the submit button
-        form['document-submit'].onclick = () => {
+        super.getPopup().querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
 
             // do the necessary action depending on the state
             switch (dataMap['state']) {
@@ -140,10 +162,10 @@ class AddDocumentPopup extends Popup {
                     this.addDocumentWithVersion(manager, form);
                     break;
                 case AddDocumentPopup.state.EDIT:
-                    this.editDocument(manager, form);
+                    this.editDocument(dataMap['id'], manager, form);
                     break;
                 case AddDocumentPopup.state.ADD_VERSION:
-                    this.addVersion(manager, form);
+                    this.addVersion(dataMap['id'], manager, form);
                     break;
             }
 
@@ -151,7 +173,7 @@ class AddDocumentPopup extends Popup {
              * Closes the popup.
              */
             super.close();
-        }
+        });
     }
 
     /**
@@ -162,33 +184,59 @@ class AddDocumentPopup extends Popup {
      * @returns {Promise} - A promise that resolves when the document and version are added to the database.
      */
     async addDocumentWithVersion(manager, form) {
-        
-        // Create the document and version objects from the form
-        let doc = new PoDocument();
-        doc.setFileName(form['document-name'].value);
 
-        let ver = new Version();
-        ver.setFile(form['document-file'].files[0]);
-        ver.setAddDate(form['document-date'].value);
+        // create the form data that will be sent to the server
+        const data = new FormData();
+        data.append('title', form['document-name'].value);
+        data.append('file', form['document-file'].files[0]);
+        data.append('date', form['document-date'].value);
 
-        // Add the version to the document
-        doc.addVersion(ver);
-
-        console.log(doc);
-
-        return; // TODO: Remove this line when the code is complete
-
-        // Add the document to the database
-        manager.addDocument(doc)
-        .then(() => {})
-        .catch(e => console.error(e));
-    }
-
-    async editDocument(manager, form) {
+        // add the document to the manager
+        try {
+            await manager.add(data);
+            window.location.reload();
+        } catch (e) {
+            console.error(e);
+        }
 
     }
 
-    async addVersion(manager, form) {
+    /**
+     * Edit the title of a document.
+     * @param {string} docId - The ID of the document.
+     * @param {object} manager - The document manager.
+     * @param {object} form - The form data.
+     * @returns {Promise<void>} - A promise that resolves when the document is successfully edited.
+     */
+    async editDocument(docId, manager, form) {
+        console.log('edit document');
+        // add the document to the manager
+        try {
+            await manager.update({
+                id: docId,
+                name: form['document-name'].value
+            });
+            // window.location.reload();
+        } catch (e) {
+            console.error(e);
+        } 
+    }
+
+    async addVersion(docId, manager, form) {
+
+        // create the form data that will be sent to the server
+        const data = new FormData();
+        data.append('file', form['document-file'].files[0]);
+        data.append('date', form['document-date'].value);
+ 
+        // add the document to the manager
+        try {
+            await manager.addVersion(docId, data);
+            window.location.reload();
+        } catch (e) {
+            console.error(e);
+        }
+
 
     }
 

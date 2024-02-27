@@ -26,11 +26,14 @@ class Version {
      * @param {number} id Database id of the version
      * @param {string} addDate Date of the version
      */
-    constructor(id = null, addDate = null) {
-        this.#id = id;
-        this.#path = null;
+    constructor(data = null) {
+        if (data == null) {
+            return;
+        }
+        this.#id = data.id;
+        this.#path = data.file_path;
         this.#file = null;
-        this.#addDate = addDate;
+        this.#addDate = new Date(data.created_date).toLocaleDateString();
         this.#preview = Utils.getRelativePathToRoot() + "img/Plastic_Omnium.svg";
     }
 

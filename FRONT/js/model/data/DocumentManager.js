@@ -23,7 +23,7 @@ class DocumentManager extends DataManager {
      * @param {Array} documents - The documents to be cached.
      * @returns {void}
      */
-    cacheDocuments(documents) {
+    #cacheDocuments(documents) {
         this.#documents = documents;
     }
 
@@ -55,12 +55,18 @@ class DocumentManager extends DataManager {
     async #init() {
         super.setDao(new DocumentDao());
     }
-    
+
     /**
      * Returns all the object
      * @returns {Array} - An array of all the object
      */
     async getAll() {
+
+        // if the documents are already loaded, we return them
+        if (this.#documents.length > 0) {
+            return this.#documents;
+        }
+
         let toReturn = [];
         let data;
 
@@ -77,6 +83,8 @@ class DocumentManager extends DataManager {
                 toReturn.push(new PoDocument(doc))
             });
 
+            this.#cacheDocuments(toReturn);
+
             return toReturn;
         }
 
@@ -89,10 +97,18 @@ class DocumentManager extends DataManager {
      * @returns object with the given id
      */
     async getById(id) {
+
+        // if the documents are already loaded, we return the one with the given id
+        for (let doc of this.#documents) {
+            if (doc.getId() == id) {
+                return doc;
+            }
+        }
+
         let data;
 
         try {
-            data = await this.getById(id);
+            data = await super.getById(id);
         } catch (e) {
             console.log(e);
         }
@@ -113,7 +129,7 @@ class DocumentManager extends DataManager {
         let data;
 
         try {
-            data = await this.add(object);
+            data = await super.add(object);
         } catch (e) {
             console.log(e);
         }
@@ -149,28 +165,22 @@ class DocumentManager extends DataManager {
     async update(object) {
         let data;
         try {
-            data = await this.update(object);
+            data = await super.update(object);
         } catch (e) {
             console.log(e);
         }
 
-        if (data) { } // TODO: update view / reload page
+        if (data && data.status === 200) {
+            window.location.reload();
+        }
     }
 
     /**
-     * Deletes the object with the given id
+     * archive the object with the given id
      * @param {number | string} id identifier of the object to delete  
      */
-    async delete(id) {
-        let data;
-
-        try {
-            data = await this.delete(id);
-        } catch (e) {
-            console.log(e);
-        }
-
-        if (data) { } // TODO: update view / reload page
+    async archive(id) {
+        await super.delete(id);
     }
 
     async generateSigningLink() {

@@ -22,9 +22,15 @@ class PoDocument {
      * @param {number} id Identifier of the document in the database
      * @param {string} fileName Name of the file
      */
-    constructor(id = null, fileName = null) {
-        this.#id = id;
-        this.#fileName = fileName;
+    constructor(data = null) {
+        if (data == null) {
+            return;
+        }
+        this.#id = data.id;
+        this.#fileName = data.name;
+        data.versions.forEach(version => {
+            this.#versions.push(new Version(version));
+        });
         this.#archivedDate = null;
     }
 

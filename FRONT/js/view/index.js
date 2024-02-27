@@ -92,11 +92,8 @@ class IndexView extends View {
 
     // get the template manager (and import its scripts if needed)
     let templateManager = await Instantiator.documentTemplateManager(container);
-
-    // let documents = await DocumentManager.getAll();
-    let documents = this.getDocs(); // TO BE REMOVED
-    this.documentManager.cacheDocuments(documents); // TO BE REMOVED (the cache should be done by the manager itself (but for now it's done here because the data are not fetched from the server))
-
+    let documents = await this.documentManager.getAll();
+    
     // add the documents to the container
     await templateManager.addDocuments(documents);
 
@@ -109,29 +106,5 @@ class IndexView extends View {
       });
     });
 
-  }
-
-  /**
-   * Temporary method to get documents (to be removed when the data will be fetched from the server)
-   * @returns A list of documents
-   */
-  getDocs() {
-    let documents = [
-      new PoDocument(1, 'Document 1'),
-      new PoDocument(2, 'Document 2'),
-      new PoDocument(3, 'Document 3'),
-      new PoDocument(4, 'Document 4'),
-      new PoDocument(5, 'Document 5'),
-      new PoDocument(6, 'Document 6'),
-      new PoDocument(7, 'Document 7'),
-      new PoDocument(8, 'Document 8')
-    ];
-
-    // add a version to each document
-    for (let doc of documents) {
-      doc.addVersion(new Version(1, '2020-01-01'));
-    }
-
-    return documents;
   }
 }

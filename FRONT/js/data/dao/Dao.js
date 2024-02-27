@@ -87,8 +87,8 @@ class Dao {
             },
             body: JSON.stringify(data)
         });
-        let result = await response.json();
-        return result;
+
+        return response;
     }
 
     /**
@@ -100,7 +100,7 @@ class Dao {
         let response = await fetch(this.url + this.endpoint + "/" + id, {
             method: 'DELETE'
         });
-        let result = await response.json();
-        return result;
+
+        return response;
     }
 }

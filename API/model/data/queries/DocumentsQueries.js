@@ -12,6 +12,8 @@ const getPool = require('../PoolGetter');
 async function getDocuments(id = null) {
     const toReturn = [];
 
+    id = parseInt(id);
+
     // Check if the ID is a number or null
     assert(id === null || typeof id === 'number', 'The ID must be a number or null');
 
@@ -65,7 +67,6 @@ async function getDocuments(id = null) {
  * Creates a document in the database.
  * 
  * @param {Object} data - The data of the document.
- * @param {string} file_path - The file path.
  * @throws {Error} If an error occurs while creating the document.
  */
 async function createDocument(data, file_path) {
@@ -74,8 +75,8 @@ async function createDocument(data, file_path) {
     const query = util.promisify(pool.query).bind(pool);
 
     // Check if the required fields are present
-    assert(data.file_name, 'The file name is required');
-    assert(data.created_date, 'The created date is required');
+    assert(data.title, 'The file name is required');
+    assert(data.date, 'The created date is required');
     assert(file_path, 'The file path is required');
 
     try {
@@ -83,11 +84,11 @@ async function createDocument(data, file_path) {
         const documentQuery = 'INSERT INTO document (file_name) VALUES (?)';
 
         // Get the result of the query
-        const result = await query(documentQuery, [data.file_name]);
+        const result = await query(documentQuery, [data.title]);
 
         // Insert the version into the database with the document ID from the previous query (result.insertId)
         const versionQuery = 'INSERT INTO version (doc_id, file_path, created_date) VALUES (?, ?, ?)';
-        await query(versionQuery, [result.insertId, file_path, data.created_date]);
+        await query(versionQuery, [result.insertId, file_path, data.date]);
 
     } catch (err) {
         // If an error is thrown, set gotAnError to true and log the error
@@ -120,6 +121,9 @@ async function changeDocumentName(id, name) {
         const documentQuery = 'UPDATE document SET file_name = ? WHERE id = ?';
         await query(documentQuery, [name, id]);
 
+        // Update the version file paths
+        await updateVersionPaths(id, name, query);
+
     } catch (err) {
         console.log(err);
         // throw the error for the controller to catch
@@ -129,6 +133,53 @@ async function changeDocumentName(id, name) {
         pool.end();
     }
 }
+
+
+/**
+ * Updates the file paths for all versions of a document.
+ * 
+ * @param {number} id - The ID of the document.
+ * @param {string} name - The new name of the document.
+ * @param {function} query - The function used to execute the database query.
+ * @returns {Promise<void>} - A promise that resolves when the file paths are updated successfully.
+ */
+async function updateVersionPaths(id, name, query) {
+    // Query to retrieve file paths for all versions of the document
+    const versionQuery = 'SELECT file_path FROM version WHERE doc_id = ?';
+    const currentFilePaths = await query(versionQuery, [id]);
+ 
+    // Check if file paths are found for the given doc_id else it's an error
+    if (currentFilePaths.length > 0) {
+        // Iterate over each version and update the file path
+        for (const currentFilePath of currentFilePaths) {
+            const filePath = currentFilePath.file_path;
+            const parts = filePath.split('/');
+
+            // Remove the filename & folder from the path
+            const filename = parts.pop();
+            const folderName = parts.pop();
+
+            // Update the folder name to the new document name
+            parts.push(name);
+
+            // Replace the filename with the new document name
+            const newFilename = filename.replace(folderName, name);
+            parts.push(newFilename);
+
+            // Join all parts back to form the new file path
+            const newFilePath = parts.join('/');
+
+            // Perform the update query for each version
+            const updateQuery = 'UPDATE version SET file_path = ? WHERE file_path = ?';
+            await query(updateQuery, [newFilePath, filePath]);
+        }
+
+        console.log('File paths updated successfully for document ID:', id);
+    } else {
+        console.error('No file paths found for the given doc_id:', id);
+    }
+}
+
 
 /**
  * Adds a new version of a document to the database.
@@ -145,15 +196,15 @@ async function addVersion(id, data, file_path) {
     const query = util.promisify(pool.query).bind(pool);
 
     // Check if the required fields are present
-    assert(data.doc_id, 'The document ID is required');
-    assert(data.created_date, 'The created date is required');
+    assert(id, 'The document ID is required');
+    assert(data.date, 'The created date is required');
     assert(file_path, 'The file path is required');
 
 
     try {
         // Insert the version into the database
         const versionQuery = 'INSERT INTO version (doc_id, file_path, created_date) VALUES (?, ?, ?)';
-        await query(versionQuery, [data.doc_id, file_path, data.created_date]);
+        await query(versionQuery, [id, file_path, data.date]);
 
     } catch (err) {
         console.log(err);
