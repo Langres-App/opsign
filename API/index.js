@@ -18,3 +18,4 @@ app.listen(PORT,
 // Import and use the DocumentController
 app.use('/documents', require('./controllers/DocumentController.js'));
 app.use('/auth', require('./controllers/AuthController.js'));
+app.use('/users', require('./controllers/UserController.js'));
