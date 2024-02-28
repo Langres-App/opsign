@@ -256,9 +256,8 @@ async function getSigningTokens() {
  * @param {string} blob - The document blob to be signed.
  * @returns {Promise<void>} - A promise that resolves when the document is signed.
  */
-async function signDoc(user_id, version_id, blob) {
-    assert(user_id, 'user_id is required');
-    assert(version_id, 'version_id is required');
+async function signDoc(signingToken, blob) {
+    assert(signingToken, 'signingToken is required');
     assert(blob, 'blob is required');
 
     // database pool
@@ -268,8 +267,15 @@ async function signDoc(user_id, version_id, blob) {
     const query = util.promisify(pool.query).bind(pool);
 
     try {
+
+        // get the ids thanks to the user identifier
+        const user_version_id = await getUserVersionIdByToken(signingToken);
+
+        // verify the user_version_id are not null
+        assert(user_version_id, 'user_version_id is required');
+
         // Insert the value into the database
-        await query('UPDATE user_version SET date = NOW(), signing_token = NULL, signature = ? WHERE user_id = ? AND version_id = ?', [blob, user_id, version_id]);
+        await query('UPDATE user_version SET date = NOW(), blob = ? WHERE id = ?', [blob, user_version_id]);
 
     } catch (err) {
         console.log(err);
@@ -277,6 +283,39 @@ async function signDoc(user_id, version_id, blob) {
     } finally {
         // Close the pool
         pool.end();
+    }
+}
+
+/**
+ * Retrieves the user_version ID associated with a given signing token.
+ *
+ * @param {string} signingToken - The signing token to search for.
+ * @returns {Promise<Object>} - A promise that resolves to an object containing the user ID and version ID.
+ * @throws {Error} - If a duplicate token is found.
+ */
+async function getUserVersionIdByToken(signingToken) {
+    // database pool
+    const pool = getPool();
+
+    // Promisify the pool query method to allow for async/await
+    const query = util.promisify(pool.query).bind(pool);
+
+    try {
+        let queryStr = `
+        SELECT uv.id
+        FROM user_version uv
+        WHERE signing_token = ?;`;
+
+        // Get all tokens
+        const result = await query(queryStr, [signingToken]);
+
+        // extract the token value from the result
+        if (result.length > 1) throw new Error('Token duplicate found');
+
+        return result[0];
+    }
+    catch (e) {
+        console.log(e);
     }
 }
 
