@@ -1,5 +1,6 @@
-const assert = require("../../Asserter");
-const { hashPassword, comparePassword } = require("../../PasswordHasher");
+const assert = require("../../model/Asserter");
+const { hashPassword, comparePassword } = require("../../model/PasswordHasher");
+const { generateRandomToken } = require("../../model/Utils");
 const getPool = require("../PoolGetter");
 const util = require('util');
 
@@ -139,8 +140,6 @@ async function userIsLogged(token) {
  */
 async function login(user) {
 
-    console.log('login', user);
-
     // make the query async
     const pool = getPool();
     const query = util.promisify(pool.query).bind(pool);
@@ -185,22 +184,6 @@ async function login(user) {
         // Close the pool
         pool.end();
     }
-}
-
-
-/**
- * Generates a random token of the specified length.
- * @param {number} length - The length of the token to generate.
- * @returns {string} The randomly generated token.
- */
-function generateRandomToken(length) {
-    let result = '';
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const charactersLength = characters.length;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
 }
 
 module.exports = {

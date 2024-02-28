@@ -1,4 +1,4 @@
-const assert = require('../../Asserter');
+const assert = require('../../model/Asserter');
 const util = require('util');
 const getPool = require('../PoolGetter');
 
