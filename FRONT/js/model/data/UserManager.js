@@ -47,6 +47,11 @@ class UserManager {
         return toReturn;
     }
 
+    /**
+     * Retrieves a user by their email.
+     * @param {string} email - The email of the user.
+     * @returns {Promise<User|null>} - A promise that resolves to the user object if found, or null if not found.
+     */
     async getByEmail(email) {
         try {
             return await this.#userDao.getByEmail(email);
