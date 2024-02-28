@@ -4,10 +4,17 @@ const getPool = require('../PoolGetter');
 const { generateRandomToken } = require('../../model/Utils');
 
 
+/**
+ * Retrieves a user from the database by their ID.
+ * @param {number} id - The ID of the user.
+ * @returns {Promise<Object>} - A promise that resolves to the user object.
+ * @throws {Error} - If the user is not found or if multiple users are found.
+ */
 async function getUserById(id) {
 
     assert(id, 'Id is required');
 
+    // Ensure the ID is a number
     id = parseInt(id);
     assert(typeof id === 'number', 'Id must be a number');
 
@@ -41,6 +48,12 @@ async function getUserById(id) {
 
 }
 
+/**
+ * Retrieves a user from the database based on the provided identifier.
+ * @param {string} identifier - The identifier of the user.
+ * @returns {Promise<Object>} - A promise that resolves to the user object.
+ * @throws {Error} - If the user is not found or if multiple users are found.
+ */
 async function getUser(identifier) {
 
     assert(identifier, 'identifier is required');
@@ -75,6 +88,15 @@ async function getUser(identifier) {
 
 }
 
+/**
+ * Adds a user to the database.
+ * @param {Object} data - The user data.
+ * @param {string} data.first_name - The first name of the user.
+ * @param {string} data.last_name - The last name of the user.
+ * @param {string} data.identifier - The identifier of the user.
+ * @returns {number} - The ID of the inserted user.
+ * @throws {Error} - If any required data is missing or if there is an error during the database operation.
+ */
 async function addUser(data) {
 
     assert(data, 'argument is required');
@@ -104,6 +126,11 @@ async function addUser(data) {
 
 }
 
+/**
+ * Retrieves signed users based on the provided ID.
+ * @param {number} id - The ID of the document.
+ * @returns {Promise<Array<Object>>} - A promise that resolves to an array of signed user objects.
+ */
 async function getSignedUsers(id) {
     // database pool
     const pool = getPool();
@@ -112,7 +139,7 @@ async function getSignedUsers(id) {
     const query = util.promisify(pool.query).bind(pool);
 
     try {
-
+        // query string to retrieve signed users depending on the document ID
         let queryStr = `
         SELECT uv.id id, CONCAT(u.first_name, ' ', u.last_name) displayName, uv.date signed_date, v.created_date version_date
         FROM user u
@@ -139,14 +166,23 @@ async function getSignedUsers(id) {
     }
 }
 
+/**
+ * Generates a signing token for a user and inserts it into the database.
+ * @param {string} user_id - The ID of the user.
+ * @param {string} doc_id - The ID of the document.
+ * @returns {string} The generated signing token.
+ * @throws {Error} If user_id or doc_id is missing.
+ */
 async function generateSigningToken(user_id, doc_id) {
     assert(user_id, 'user_id is required');
     assert(doc_id, 'doc_id is required');
 
+    // list of existing tokens
     const existingTokens = await getSigningTokens();
 
-    let token = generateRandomToken(10, false);
 
+    // generate a unique and random token
+    let token = generateRandomToken(10, false);
     while (existingTokens.includes(token)) {
         token = generateRandomToken(10, false);
     }
@@ -158,9 +194,10 @@ async function generateSigningToken(user_id, doc_id) {
     const query = util.promisify(pool.query).bind(pool);
 
     try {
-        // Insert the user into the database
+        // Insert the value into the database
         await query('INSERT INTO user_version (user_id, version_id, signing_token) VALUES (?, ?, ?)', [user_id, doc_id, token]);
 
+        // return the token to send it to the user
         return token;
 
     } catch (err) {
@@ -172,6 +209,10 @@ async function generateSigningToken(user_id, doc_id) {
     }
 }
 
+/**
+ * Retrieves the signing tokens from the database.
+ * @returns {Promise<Array<string>>} An array of signing tokens.
+ */
 async function getSigningTokens() {
     // database pool
     const pool = getPool();
@@ -180,7 +221,6 @@ async function getSigningTokens() {
     const query = util.promisify(pool.query).bind(pool);
 
     try {
-
         let queryStr = `
         SELECT signing_token token
         FROM user_version 
@@ -191,6 +231,7 @@ async function getSigningTokens() {
 
         let tokenList = [];
 
+        // extract the token value from the result
         for (let i = 0; i < tokens.length; i++) {
             tokenList.push(tokens[i].token);
         }
@@ -203,6 +244,13 @@ async function getSigningTokens() {
 
 }
 
+/**
+ * Signs a document for a specific user and version.
+ * @param {string} user_id - The ID of the user.
+ * @param {string} version_id - The ID of the version.
+ * @param {string} blob - The document blob to be signed.
+ * @returns {Promise<void>} - A promise that resolves when the document is signed.
+ */
 async function signDoc(user_id, version_id, blob) {
     assert(user_id, 'user_id is required');
     assert(version_id, 'version_id is required');
@@ -215,7 +263,7 @@ async function signDoc(user_id, version_id, blob) {
     const query = util.promisify(pool.query).bind(pool);
 
     try {
-        // Insert the user into the database
+        // Insert the value into the database
         await query('UPDATE user_version SET date = NOW(), signing_token = NULL, signature = ? WHERE user_id = ? AND version_id = ?', [blob, user_id, version_id]);
 
     } catch (err) {
