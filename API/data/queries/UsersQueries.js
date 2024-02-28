@@ -168,13 +168,13 @@ async function getSignedUsers(id) {
 
 /**
  * Generates a signing token for a user and inserts it into the database.
- * @param {string} user_id - The ID of the user.
+ * @param {string} user_identifier - The email of the user.
  * @param {string} doc_id - The ID of the document.
  * @returns {string} The generated signing token.
  * @throws {Error} If user_id or doc_id is missing.
  */
-async function generateSigningToken(user_id, doc_id) {
-    assert(user_id, 'user_id is required');
+async function generateSigningToken(user_identifier, doc_id) {
+    assert(user_identifier, 'user_id is required');
     assert(doc_id, 'doc_id is required');
 
     // list of existing tokens
@@ -194,6 +194,11 @@ async function generateSigningToken(user_id, doc_id) {
     const query = util.promisify(pool.query).bind(pool);
 
     try {
+
+        // get the user id thanks to the user identifier
+        const user = await getUser(user_identifier);
+        const user_id = user.id;
+
         // Insert the value into the database
         await query('INSERT INTO user_version (user_id, version_id, signing_token) VALUES (?, ?, ?)', [user_id, doc_id, token]);
 
