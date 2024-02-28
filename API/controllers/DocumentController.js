@@ -5,8 +5,8 @@
 
 const express = require('express');
 const router = express.Router();
-const { getDocuments, changeDocumentName, addVersion, archiveDocument, createDocument } = require('../model/data/queries/DocumentsQueries');
-const { createTables } = require('../model/data/TableCreation');
+const { getDocuments, changeDocumentName, addVersion, archiveDocument, createDocument } = require('../data/queries/DocumentsQueries');
+const { createTables } = require('../data/TableCreation');
 const { storeDocument, upload, deleteOriginal, changeFolderAndFilesNames } = require('../model/FileStore');
 const fs = require('fs');
 const { assert, log } = require('console');
@@ -198,16 +198,25 @@ router.get('/pdf/:id', async (req, res) => {
         const file = fs.createReadStream(filePath);
         const stat = fs.statSync(filePath);
 
+        // replace special characters in the filename with underscores (to prevent errors when loading the file)
+        let filename = doc.name.replace(/[^\w\s.-]/g, '_') + '.pdf';
+
+        // If filename contains spaces, surround it with double quotes
+        if (filename.includes(' ')) {
+            filename = `"${filename}"`;
+        }
+    
         // set the response headers that are required for a PDF file
         res.setHeader('Content-Length', stat.size);
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `inline; filename=${doc.name}.pdf`);
+        res.setHeader('Content-Disposition', `inline; filename=${filename}`);
 
         // pipe the file stream to the response
         file.pipe(res);
 
 
     } catch (error) {
+        console.log(error);
         res.status(500).send(error.message);
     }
 });

@@ -1,4 +1,4 @@
-const { userIsLogged } = require("../model/data/queries/AuthorizedUserQueries");
+const { userIsLogged } = require("../data/queries/AuthorizedUserQueries");
 
 /**
  * Middleware function to require authentication.
