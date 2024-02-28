@@ -8,7 +8,7 @@ class UserDao extends Dao {
      * @constructor
      */
     constructor() {
-        super('user');
+        super('users');
     }
 
     /**
@@ -38,6 +38,18 @@ class UserDao extends Dao {
         return Error('NOT IMPLEMENTED');
     }
 
+    async getByEmail(email) {
+        let response = await fetch(super.getUrl() + super.getEndpoint() + `?email=${email}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + AuthManager.getToken()
+            },
+        });
+        let result = await response.json();
+        return result;
+    }
+
     /**
      * Fetches and get the document with the user signature.
      * @param {string} docId - The ID of the document.
@@ -49,7 +61,7 @@ class UserDao extends Dao {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': '' + AuthManager.getToken()
+                'Authorization': 'Bearer ' + AuthManager.getToken()
             },
         });
         let result = await response.json();

@@ -2,4 +2,6 @@
 /API/node_modules
 /API/package-lock.json
 /database_data
+/API/Docs/
 .vscode
+config.user.inc.php

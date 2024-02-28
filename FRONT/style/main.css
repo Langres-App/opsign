@@ -95,6 +95,7 @@
 }
 
 .button {
+    user-select: none;
     width: fit-content;
     height: fit-content;
     cursor: pointer;
@@ -111,6 +112,10 @@
 
 .button:hover {
     scale: 1.05;
+}
+
+.button:active {
+    scale: 1.02;
 }
 
 .disabled {
@@ -274,4 +279,9 @@ input {
 
 input:required {
     border: 1px solid var(--red);
+}
+
+.deactivated {
+    pointer-events: none !important;
+    opacity: 0.5 !important;
 }

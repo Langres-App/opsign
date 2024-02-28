@@ -32,6 +32,7 @@ class Instantiator {
                 AddDocumentPopup: 'js/model/popups/AddDocumentPopup.js',
                 DocumentClickedPopup: 'js/model/popups/DocumentClickedPopup.js',
                 MessagePopup: 'js/model/popups/MessagePopup.js',
+                SigningLinkPopup: 'js/model/popups/SigningLinkPopup.js',
             },
 
             manager: 'js/model/popups/PopupManager.js',
@@ -160,7 +161,8 @@ class Instantiator {
                 this.#pathes.popup.model.Popup,
                 this.#pathes.popup.model.MessagePopup,
                 this.#pathes.popup.model.AddDocumentPopup,
-                this.#pathes.popup.model.DocumentClickedPopup
+                this.#pathes.popup.model.DocumentClickedPopup,
+                this.#pathes.popup.model.SigningLinkPopup
             ]),
         ]);
 

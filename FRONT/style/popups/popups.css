@@ -21,6 +21,11 @@
     border-radius: var(--radius);
     color: var(--text-dark-color);
     box-sizing: border-box;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
+
+    .admin-only {
+        display: none;
+    }
 }
 
 .popup .title {
@@ -104,4 +109,48 @@
 .message-popup .button {
     width: 100%;
     text-align: center;
+}
+
+/* Signing link popup */
+#signing-link-popup {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 420px;
+    max-width: 540px;
+    overflow: hidden;
+}
+
+#signing-link-popup h2 {
+    width: 100%;
+    text-align: center;
+}
+
+#signing-link-popup form {
+    width: 100%;
+}
+
+#signing-link-popup #signing-docName {
+    width: 100%;
+    font-size: 18px;
+    font-weight: 500;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#signing-link-popup form .field {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+#signing-link-popup form .inline {
+    display: flex;
+    width: 100% !important;
+    justify-content: space-around !important;
+}
+
+#signing-link-popup .button.close {
+    width: 80% !important;
+    text-align: center;
+    margin: 0 auto;
 }

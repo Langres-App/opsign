@@ -37,6 +37,7 @@ class PopupManager {
         this.#popupsScripts['message-popup'] = () => this.#addMessagePopup();
         this.#popupsScripts['document-popup'] = () => this.#addDocumentPopup();
         this.#popupsScripts['clicked-popup'] = () => this.#addDocumentClickedPopup();
+        this.#popupsScripts['signing-link-popup'] = () => this.#addSigningLinkPopup();
 
         // create an array to store the popups
         this.#popups = [];
@@ -84,6 +85,19 @@ class PopupManager {
         }
     }
 
+    /**
+     * Adds a signing link popup.
+     * @private
+     * @async
+     */
+    async #addSigningLinkPopup() {
+        await this.initialize();
+
+        if (!this.#popups['signing-link-popup']) {
+            this.#addPopup(new SigningLinkPopup());
+        }
+    }
+
     
     /**
      * Initializes the PopupManager.
@@ -126,12 +140,6 @@ class PopupManager {
 
         // we wait for the script to be added to the page before opening the popup
         await this.#popupsScripts[id]();
-
-        // check if the popup to be added to the PopupManager
-        // if (this.#popups[id] === undefined) {
-        //     console.log(this.#popups);
-        //     throw new Error('Popup with id ' + id + ' does not exist');
-        // }
 
         // open the popup and remove the disabled class from the popupContainer
         this.popupContainer.classList.remove('disabled');

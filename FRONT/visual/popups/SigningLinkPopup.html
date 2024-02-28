@@ -1,0 +1,33 @@
+<div id="signing-link-popup" class="popup">
+    <div class="field">
+        <h2>Générer un lien de signature pour :</h2>
+        <p id="signing-docName">{{docName}}</p>
+    </div>
+
+    <form action="">
+        <div class="field">
+            <label for="signing-email">Email :</label>
+            <input type="email" name="signing-email" id="signing-email" placeholder="<prenom>.<nom>@plasticomnium.com"
+                required>
+        </div>
+
+        <div class="field">
+            <label for="user-first-name">Prénom :</label>
+            <input type="text" name="firstName" id="user-first-name" required>
+        </div>
+
+        <div class="field">
+            <label for="user-last-name">Nom :</label>
+            <input type="text" name="lastName" id="user-last-name" required>
+        </div>
+
+        <div class="inline">
+            <input type="submit" value="Envoyer un mail" id="signing-link-mailto" class="button data-action"></input>
+            <input type="submit" value="Copier le lien" id="signing-link-copy" class="button data-action"></input>
+        </div>
+    </form>
+
+
+
+    <input id="popup-close" class="button close red" type="button" value="Annuler">
+</div>

@@ -66,12 +66,13 @@ class Dao {
         let response = await fetch(this.url + this.endpoint, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'authorization': 'Bearer ' + AuthManager.getToken() || ''
             },
             body: JSON.stringify(data)
         });
-        let result = await response.json();
-        return result;
+
+        return response;
     }
 
     /**

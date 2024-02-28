@@ -17,6 +17,16 @@ class UserManager {
         this.#userDao = new UserDao();
     }
 
+
+    /**
+     * Adds a user to the system.
+     * @param {Object} user - The user object to be added.
+     * @returns {Promise} A promise that resolves with the added user.
+     */
+    async addUser(user) {
+        return await this.#userDao.add(user);
+    }
+
     /**
      * Retrieves all users associated with a given document ID.
      * 
@@ -35,6 +45,19 @@ class UserManager {
         });
 
         return toReturn;
+    }
+
+    /**
+     * Retrieves a user by their email.
+     * @param {string} email - The email of the user.
+     * @returns {Promise<User|null>} - A promise that resolves to the user object if found, or null if not found.
+     */
+    async getByEmail(email) {
+        try {
+            return await this.#userDao.getByEmail(email);
+        } catch (_) {
+            return null;
+        }
     }
 
     /**
