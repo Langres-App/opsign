@@ -257,6 +257,7 @@ async function getSigningTokens() {
  * @returns {Promise<void>} - A promise that resolves when the document is signed.
  */
 async function signDoc(signingToken, blob) {
+    // check if the signingToken and blob are not null
     assert(signingToken, 'signingToken is required');
     assert(blob, 'blob is required');
 
