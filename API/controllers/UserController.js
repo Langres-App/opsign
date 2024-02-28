@@ -1,6 +1,6 @@
 const express = require('express');
 const assert = require('../model/Asserter');
-const { getUser, addUser, generateSigningToken, getSignedUsers } = require('../data/queries/UsersQueries');
+const { getUser, addUser, generateSigningToken, getSignedUsers, signDoc } = require('../data/queries/UsersQueries');
 const router = express.Router();
 
 /**
@@ -88,7 +88,14 @@ router.post('/generateSigningToken', async (req, res) => {
  * @returns {void} - The response indicating that the endpoint is not implemented.
  */
 router.post('/sign', async (req, res) => {
-    res.status(501).send('Not implemented');
+    try {
+        signDoc(req.query.token, req.body);
+        res.status(200).send('Document signed successfully');
+        // TODO: send a link to the signed document
+    } catch (e) {
+        console.log(e.message);
+        res.status(500).send(e.message);
+    }
 });
 
 module.exports = router;
