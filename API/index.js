@@ -15,6 +15,7 @@ app.get('/',
 app.listen(PORT,
     () => console.log(`[BOOTUP]: Server is running at port: ${PORT}`));
 
-// Import and use the DocumentController
+// Import and use the routes
 app.use('/documents', require('./controllers/DocumentController.js'));
 app.use('/auth', require('./controllers/AuthController.js'));
+app.use('/users', require('./controllers/UserController.js'));

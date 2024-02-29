@@ -4,7 +4,7 @@
  */
 
 const express = require('express');
-const { userExist, userIsLogged, createUser, login } = require('../model/data/queries/AuthorizedUserQueries');
+const { userExist, userIsLogged, createUser, login } = require('../data/queries/AuthorizedUserQueries');
 const router = express.Router();
 
 /**

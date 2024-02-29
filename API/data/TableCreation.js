@@ -47,6 +47,8 @@ async function createUserTable() {
   const versionQuery = `
   CREATE TABLE IF NOT EXISTS user (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
     identifier VARCHAR(255) NOT NULL,
     archived_date Datetime default NULL
   )`;
@@ -64,8 +66,9 @@ async function createUserVersionTable() {
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     version_id INT NOT NULL,
-    date Datetime NOT NULL,
-    signature BLOB NOT NULL,
+    date Datetime,
+    signature BLOB,
+    signing_token VARCHAR(255),
     FOREIGN KEY (user_id) REFERENCES user(id),
     FOREIGN KEY (version_id) REFERENCES version(id)
   )`;
@@ -87,7 +90,7 @@ async function createAuthTable() {
     token_expiration Datetime default NULL
   )`;
  
-  await query(authQuery); 
+  await query(authQuery);  
 }
 
 /**
@@ -96,7 +99,7 @@ async function createAuthTable() {
  */
 async function createTables() {
 
-  // create the database poolv
+  // create the database pool
   pool = getPool();
 
   // Promisify the pool query method to allow for async/await

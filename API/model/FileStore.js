@@ -1,8 +1,8 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { getDocuments } = require('./data/queries/DocumentsQueries');
 const assert = require('assert');
+const { getDocuments } = require('../data/queries/DocumentsQueries');
 
 
 /**
