@@ -1,5 +1,12 @@
+/**
+ * @class HeaderManager - Manages the header of the page.
+ */
 class HeaderManager {
 
+    /**
+     * Represents a HeaderManager object.
+     * @constructor
+     */
     constructor() {
         // make the back buttons go back
         const backButtons = document.querySelectorAll('.back-button');
@@ -29,10 +36,7 @@ class HeaderManager {
                 document.dispatchEvent(new CustomEvent('USER_NOT_LOGGED_IN', { detail: { userExist: true } }));
 
                 // remove the user from the local storage
-                // window.localStorage.removeItem('userToken');
-
-                // TODO: call the logout function from the loginManager
-                // Instantiator.loginManager().then(loginManager => loginManager.logout());
+                window.localStorage.removeItem('userToken');
             });
         });
 
@@ -44,6 +48,7 @@ class HeaderManager {
             accountButton.replaceWith(accountButton.cloneNode(true));
 
             accountButton = document.getElementById('account-button') || document.createElement('button');
+            accountButton.href = Utils.getRelativePathToRoot() + 'visual/pages/login.html';
 
             // add the event listener to log in
             accountButton.addEventListener('click', (e) => {
