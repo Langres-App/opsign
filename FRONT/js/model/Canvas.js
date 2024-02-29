@@ -64,8 +64,6 @@ class Canvas {
      */
     #moveDrawLine(event) {
 
-        console.log(event.offsetX, event.offsetY);
-
         // If the canvas is not in drawing mode, we return
         if (!this.#canvas.bDraw) return;
 
@@ -92,17 +90,11 @@ class Canvas {
      * @returns {Object} - The position of the event relative to the canvas, with properties posX and posY.
      */
     #getPosition(event) {
-        // Get the position of the canvas
-        const rect = this.#canvas.getBoundingClientRect();
-        const eventPos = event.changedTouches ? event.changedTouches[0] : event;
-
         // Return the position of the event relative to the canvas
         let position = {
-            posX: event.offsetX, // (eventPos.clientX - rect.left) / (rect.right - rect.left) * this.#canvas.width,
-            posY: event.offsetY, // (eventPos.clientY - rect.top) / (rect.bottom - rect.top) * this.#canvas.height
+            posX: event.offsetX,
+            posY: event.offsetY,
         };
-
-        console.log(position.posX, position.posY);
 
         return position;
     }
@@ -127,6 +119,14 @@ class Canvas {
      */
     #upDrawLine() {
         this.#canvas.bDraw = false;
+    }
+
+    /**
+     * Clears the canvas.
+     */
+    clearCanvas() {
+        const ctx = this.#canvas.getContext('2d');
+        ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
     }
 
     /**
