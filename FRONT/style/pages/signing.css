@@ -2,21 +2,21 @@ main {
     flex-direction: row;
 }
 
-main > object {
+main>object {
     width: 55vw;
 }
 
-main form {
+main #signing-form {
     overflow-y: auto;
     width: 40vw;
     margin: 0 2.5vw;
     padding: 0;
     background-clip: padding-box;
 }
+
 ::-webkit-scrollbar {
     width: 14px;
-  }
-  
+}
 
 ::-webkit-scrollbar-thumb {
     border-left: 8px solid rgba(0, 0, 0, 0);
@@ -25,45 +25,58 @@ main form {
     background-color: #aaaaaa;
 }
 
-main form h2 {
+main #signing-form h2 {
     font-size: 36px;
     margin: 20px 0;
 }
 
-main form p {
+main #signing-form p {
     font-size: 30px;
     margin: 20px 0;
 }
 
-main form .field {
-    width: 50%;
+main #signing-form #display-name {
+    font-weight: 500;
+    text-decoration: underline;
 }
 
-main form label {
+main #signing-form label {
     font-size: 24px;
     color: var(--lightText);
 }
 
-main form input {
+main #signing-form #canvas-container {
+    position: relative;
     width: 100%;
-    margin: 0 auto;
-    padding: 10px;
-    font-size: 20px;
+    margin: 10px auto;
     box-sizing: border-box;
 }
 
-main form canvas {
+main #signing-form #canvas-container button {
+    position: absolute;
+    top: 0;
+    right: 1px;
+    padding: 4px 10px;
+    font-size: 20px;
+    z-index: 1;
+    background: var(--white);
+    border-radius: var(--radius);
+}
+
+
+main #signing-form canvas {
     width: 100%;
     aspect-ratio: 2/5;
     height: 250px;
-    margin: 10px auto;
+    margin: auto;
     box-sizing: border-box;
     background-color: #fff;
     border-radius: var(--radius);
+    box-sizing: border-box;
     border: 1px solid black;
 }
 
-main form .button {
+main #signing-form .button {
     width: 100%;
     margin: 10px auto;
     padding: 10px;

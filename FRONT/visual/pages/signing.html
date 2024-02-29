@@ -18,7 +18,7 @@
             </svg>
         </div>
 
-        <h1 id="title" class="center fullcaps">Signature</h1>
+        <h1 id="title" class="center fullcaps"></h1>
 
         <div class="right">
             <a id="account-button" class="noLinkStyle link fullcaps" href=""></a>
@@ -26,30 +26,24 @@
     </header>
     <main>
 
-        <object id="document-viewer" data="https://www.univ-chlef.dz/fsnv/wp-content/uploads/cours-informatique-L3-Sol-et-Eau_compressed-1.pdf#toolbar=1&scrollbar=0&view=fitH&navpanes=0"
+        <object id="document-viewer" data="http://slanlp0033.ad.ponet/charteapi/documents/pdf/1#toolbar=1&scrollbar=0&view=fitH&navpanes=0"
             type="application/pdf"></object>
 
-        <form action="#" id="signing-form">
-            <h2 class="smallcaps">[NOM DOC]</h2>
+        <div id="signing-form">
+            <h2 id="doc-title" class="smallcaps">[NOM DOC]</h2>
             <p class="justified tabbed">En signant ce document, vous vous engagez à avoir lu le document et à le
                 respecter quotidiennement au sein de cette entreprise.</p>
 
-            <div class="aligned">
-                <div class="field">
-                    <label for="first-name">Prénom :</label>
-                    <input type="text" name="first-name" placeholder="Prénom" id="first-name">
-                </div>
+                
 
-                <div class="field">
-                    <label for="last-name">Nom :</label>
-                    <input type="text" name="last-name" placeholder="Nom" id="last-name">
-                </div>
+            <p>Signature au nom de <span id="display-name"></span> :</p>
+            
+            <div id="canvas-container">
+                <button id="clear-canvas">Vider</button>
+                <canvas id="signature">
+                    Votre navigateur ne supporte pas les canvas.
+                </canvas>
             </div>
-
-            <label for="signature">Signature :</label>
-            <canvas id="signature">
-                Votre navigateur ne supporte pas les canvas.
-            </canvas>
 
             <input type="submit" value="Signer" class="button green">
         </form>
