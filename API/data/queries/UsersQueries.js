@@ -139,14 +139,25 @@ async function getSignedUsers(id) {
     const query = util.promisify(pool.query).bind(pool);
 
     try {
-        // query string to retrieve signed users depending on the document ID
+        // query string to retrieve signed users depending on the document ID (only get the last version of the document signed for each user)
         let queryStr = `
         SELECT uv.id id, CONCAT(u.first_name, ' ', u.last_name) displayName, uv.date signed_date, v.created_date version_date
         FROM user u
         JOIN user_version uv ON u.id = uv.user_id
         JOIN version v ON uv.version_id = v.id
-        WHERE v.doc_id = ? AND uv.date IS NOT NULL
-        AND u.archived_date IS NULL;`;
+        JOIN 
+            (
+                SELECT user_id, MAX(v.created_date) max_version_date
+                    FROM user_version uv
+                    JOIN version v ON uv.version_id = v.id
+                    WHERE v.doc_id = ? AND uv.date IS NOT NULL
+                    GROUP BY user_id
+            ) max_versions 
+            ON uv.user_id = max_versions.user_id 
+            AND v.created_date = max_versions.max_version_date
+        WHERE 
+            v.doc_id = ? AND uv.date IS NOT NULL
+            AND u.archived_date IS NULL;`;
 
         if (!id) {
             throw new Error('No ID provided');
@@ -154,7 +165,7 @@ async function getSignedUsers(id) {
 
 
         // Get all users
-        const users = await query(queryStr, [id]);
+        const users = await query(queryStr, [id, id]);
 
         return users;
 
