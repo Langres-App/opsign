@@ -139,14 +139,25 @@ async function getSignedUsers(id) {
     const query = util.promisify(pool.query).bind(pool);
 
     try {
-        // query string to retrieve signed users depending on the document ID
+        // query string to retrieve signed users depending on the document ID (only get the last version of the document signed for each user)
         let queryStr = `
         SELECT uv.id id, CONCAT(u.first_name, ' ', u.last_name) displayName, uv.date signed_date, v.created_date version_date
         FROM user u
         JOIN user_version uv ON u.id = uv.user_id
         JOIN version v ON uv.version_id = v.id
-        WHERE v.doc_id = ? AND uv.date IS NOT NULL
-        AND u.archived_date IS NULL;`;
+        JOIN 
+            (
+                SELECT user_id, MAX(v.created_date) max_version_date
+                    FROM user_version uv
+                    JOIN version v ON uv.version_id = v.id
+                    WHERE v.doc_id = ? AND uv.date IS NOT NULL
+                    GROUP BY user_id
+            ) max_versions 
+            ON uv.user_id = max_versions.user_id 
+            AND v.created_date = max_versions.max_version_date
+        WHERE 
+            v.doc_id = ? AND uv.date IS NOT NULL
+            AND u.archived_date IS NULL;`;
 
         if (!id) {
             throw new Error('No ID provided');
@@ -154,7 +165,7 @@ async function getSignedUsers(id) {
 
 
         // Get all users
-        const users = await query(queryStr, [id]);
+        const users = await query(queryStr, [id, id]);
 
         return users;
 
@@ -186,18 +197,22 @@ async function generateSigningToken(user_identifier, doc_id) {
     // Promisify the pool query method to allow for async/await
     const query = util.promisify(pool.query).bind(pool);
 
-    // check if the user don't already have a token for this document
-    let queryStr = `
-    SELECT signing_token token
-    FROM user_version
-    WHERE user_id = (SELECT id FROM user WHERE identifier = ?)
-    AND version_id = ?;`;
 
 
     try {
-        
-        const result = await query(queryStr, [user_identifier, doc_id]);
+        // get the last version id of the document
+        const last_version_id = await getLastVersion(query, doc_id);
 
+        // check if the user don't already have a token for this document
+        let queryStr = `
+            SELECT signing_token token
+            FROM user_version
+            WHERE user_id = (SELECT id FROM user WHERE identifier = ?)
+            AND version_id = ?;`;
+
+        const result = await query(queryStr, [user_identifier, last_version_id]);
+
+        // if the user already have a token for this document, return it
         if (result.length > 0) {
             return result[0].token;
         }
@@ -213,20 +228,9 @@ async function generateSigningToken(user_identifier, doc_id) {
         const user = await getUser(user_identifier);
         const user_id = user.id;
 
-        
-        // get a list containing only the last version id of the document
-        let last_version_id = await query('SELECT id FROM version WHERE doc_id = ? ORDER BY created_date DESC LIMIT 1', [doc_id]);
-
-        // verify the last_version_id are not null
-        assert(last_version_id, 'last_version_id is required');
-
-        // get the id from the result
-        last_version_id = last_version_id[0];
-        assert(last_version_id.id, 'last_version_id is required');
-        
 
         // Insert the value into the database
-        await query('INSERT INTO user_version (user_id, version_id, signing_token) VALUES (?, ?, ?)', [user_id, last_version_id.id, token]);
+        await query('INSERT INTO user_version (user_id, version_id, signing_token) VALUES (?, ?, ?)', [user_id, last_version_id, token]);
 
         // return the token to send it to the user
         return token;
@@ -238,6 +242,21 @@ async function generateSigningToken(user_identifier, doc_id) {
         // Close the pool
         pool.end();
     }
+}
+
+async function getLastVersion(query, doc_id) {
+
+    // get a list containing only the last version id of the document
+    let last_version_id = await query('SELECT id FROM version WHERE doc_id = ? ORDER BY created_date DESC LIMIT 1', [doc_id]);
+
+    // verify the last_version_id are not null
+    assert(last_version_id, 'last_version_id is required');
+
+    // get the id from the result
+    last_version_id = last_version_id[0].id;
+    assert(last_version_id, 'last_version_id is required');
+
+    return last_version_id;
 }
 
 /**
