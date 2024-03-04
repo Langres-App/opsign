@@ -226,7 +226,7 @@ async function generateSigningToken(user_identifier, doc_id) {
         
 
         // Insert the value into the database
-        await query('INSERT INTO user_version (user_id, version_id, signing_token) VALUES (?, ?, ?)', [user_id, doc_id, token]);
+        await query('INSERT INTO user_version (user_id, version_id, signing_token) VALUES (?, ?, ?)', [user_id, last_version_id.id, token]);
 
         // return the token to send it to the user
         return token;
