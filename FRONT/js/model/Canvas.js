@@ -135,4 +135,12 @@ class Canvas {
     exportToImage() {
         return this.#canvas.toDataURL("image/png");
     }
+
+    exportToBlob() {
+        return new Promise((resolve) => {
+            this.#canvas.toBlob((blob) => {
+                resolve(blob);
+            });
+        });
+    }
 }
