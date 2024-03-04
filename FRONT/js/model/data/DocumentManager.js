@@ -183,9 +183,4 @@ class DocumentManager extends DataManager {
         await super.delete(id);
     }
 
-    async generateSigningLink() {
-        return 'http://tinyurl.com/38u9dv8f'; // TODO: : call api, generate token & send back url with token
-    }
-
-
 }

@@ -41,7 +41,7 @@ class UserManager {
 
         // create the signed users and add them to the list
         users.forEach(user => {
-            toReturn.push(new SignedUser(user.id, user.display_name, user.sig_date, user.sig_date));
+            toReturn.push(new SignedUser(user.id, user.displayName, user.signed_date, user.version_date));
         });
 
         return toReturn;
@@ -58,6 +58,38 @@ class UserManager {
         } catch (_) {
             return null;
         }
+    }
+
+    async getDocAndUserName(token) {
+        try {
+            return await this.#userDao.getDocAndUserName(token);
+        } catch (_) {
+            window.location.href = '/charte';
+        }
+    }
+
+    /**
+     * Generates a signing link for the given user.
+     * @param {Object} body - The user data.
+     * @param {string} body.email - The email of the user.
+     * @returns {Promise<string>} The signing link.
+     */
+    async generateSigningLink(body) {
+        if (!this.links) this.links = [];
+
+        let link = this.links[body.email];
+
+        if (!link) {
+            link = await (await this.#userDao.generateSigningLink(body)).text();
+            this.links[body.email] = link;
+        }
+
+        return '/charte/visual/pages/signing.html?token=' + link; // TODO: change the link with dynamic path
+        
+    }
+
+    async signDocument(token, blob) {
+        return await this.#userDao.signDocument(token, blob);
     }
 
     /**

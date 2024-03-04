@@ -26,18 +26,16 @@
     </header>
     <main>
 
-        <object id="document-viewer" data="http://slanlp0033.ad.ponet/charteapi/documents/pdf/1#toolbar=1&scrollbar=0&view=fitH&navpanes=0"
-            type="application/pdf"></object>
+        <object id="document-viewer" data="" type="application/pdf"></object>
 
         <div id="signing-form">
             <h2 id="doc-title" class="smallcaps">[NOM DOC]</h2>
-            <p class="justified tabbed">En signant ce document, vous vous engagez à avoir lu le document et à le
-                respecter quotidiennement au sein de cette entreprise.</p>
+            <p class="justified tabbed">En apposant votre signature dans le cadre ci-dessous, vous vous engagez à avoir
+                pris connaissance du contenu du document ci-contre et à respecter ses dispositions de manière
+                quotidienne au sein de cette entreprise.</p>
 
-                
+            <p>Signature de <span id="display-name"></span> :</p>
 
-            <p>Signature au nom de <span id="display-name"></span> :</p>
-            
             <div id="canvas-container">
                 <button id="clear-canvas">Vider</button>
                 <canvas id="signature">
@@ -45,8 +43,10 @@
                 </canvas>
             </div>
 
-            <input type="submit" value="Signer" class="button green">
-        </form>
+            <div id="signing-button" class="button green">
+                <p>Signer</p>
+            </div>
+        </div>
 
     </main>
 

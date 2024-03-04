@@ -31,6 +31,13 @@ const storage = multer.diskStorage({
     }
 });
 
+/**
+ * Multer disk storage configuration for blob uploads.
+ * @type {Object}
+ */
+const blobStorage = multer.memoryStorage();
+
+
 /** 
  * Middleware function for handling file uploads.
  * 
@@ -39,6 +46,7 @@ const storage = multer.diskStorage({
  * @param {Function} next - The next middleware function. 
  */
 const upload = multer({ storage: storage });
+const blobUpload = multer({ storage: blobStorage });
 
 /**
  * Stores a document in the file system.
@@ -181,7 +189,7 @@ function changeFolderAndFilesNames(folderPath, newName) {
                     return;
                 }
                 // Extract the date part from the file name
-                const [, datePart, ] = match;
+                const [, datePart,] = match;
 
                 // Construct the new file name using the newName parameter and the extracted date
                 const newFileName = `[${datePart}] - ${newName}.pdf`;
@@ -189,7 +197,7 @@ function changeFolderAndFilesNames(folderPath, newName) {
 
                 // Rename the file
                 fs.rename(oldFilePath, newFilePath, (err) => {
-                    if (err) { 
+                    if (err) {
                         console.error('Error renaming file:', err);
                     } else {
                         console.log(`File ${file} renamed to ${newFileName}`);
@@ -201,4 +209,4 @@ function changeFolderAndFilesNames(folderPath, newName) {
 }
 
 
-module.exports = { upload, storeDocument, deleteOriginal, changeFolderAndFilesNames };
+module.exports = { upload, blobUpload, storeDocument, deleteOriginal, changeFolderAndFilesNames };

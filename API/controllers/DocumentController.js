@@ -9,8 +9,8 @@ const { getDocuments, changeDocumentName, addVersion, archiveDocument, createDoc
 const { createTables } = require('../data/TableCreation');
 const { storeDocument, upload, deleteOriginal, changeFolderAndFilesNames } = require('../model/FileStore');
 const fs = require('fs');
-const { assert, log } = require('console');
 const path = require('path');
+const assert = require('../model/Asserter');
 
 /**
  * Route for getting all documents.
@@ -66,7 +66,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', upload.single('file'), storeDocument, deleteOriginal, async (req, res) => {
     // This middleware (upload.single('file')) handles the file upload
     await createTables(); // Create database tables (assuming this is an asynchronous operation)
-    
+
     try {
         // Store the document in the database
         await createDocument(req.body, req.filePath);
@@ -98,14 +98,14 @@ router.put('/:id', async (req, res) => {
 
         // change id to number
         req.params.id = parseInt(req.params.id);
-        
+
         changeFolderAndFilesNames(path.join(__dirname, '../Docs', oldName), req.body.name);
         await changeDocumentName(req.params.id, req.body.name);
- 
+
         res.status(200).send('Document updated successfully');
     } catch (error) {
         console.log(error);
-        res.status(500).send(error.message); 
+        res.status(500).send(error.message);
     }
 });
 
@@ -150,19 +150,18 @@ router.delete('/:id', async (req, res) => {
 
 /**
  * Route for getting a PDF file of a document by ID.
- * @name GET /documents/pdf/:id
+ * @name GET /documents/:id/view/:date
  * @function 
  * @async
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
-router.get('/pdf/:id', async (req, res) => {
+router.get('/:id/view/:date', async (req, res) => {
     await createTables();
     try {
-        if (!req.params.id) {
-            throw new Error('Document ID is required');
-        }
+        // check if the required fields are present
+        assert(req.params.id, 'Document ID is required');
 
         // change id to number
         req.params.id = parseInt(req.params.id);
@@ -170,42 +169,56 @@ router.get('/pdf/:id', async (req, res) => {
         const doc = await getDocuments(req.params.id);
 
         // check if the document exists and is not an array
-        if (!doc) {
-            throw new Error('Document not found');
-        }
-
-        if (doc instanceof Array) {
-            throw new Error('Multiple documents found');
-        }
+        assert(doc, 'Document not found');
+        assert(!(doc instanceof Array), 'Multiple documents found');
 
         // get the versions of the document
         const versions = doc.versions;
-        if (versions.length === 0) {
-            throw new Error('No versions found');
-        }
 
-        // get the latest version of the document
-        const latestVersion = versions.sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
-        // get the file path of the latest version
-        const filePath = latestVersion.file_path;
+        // check if the versions are not found
+        assert(versions, 'Versions not found');
+        assert(versions.length > 0, 'No version found for this document');
+
+
+        let filePath = '';
+
+        // check if the date is not provided or is not a valid date (or 'latest')
+        if (!req.params.date || (isNaN(new Date(req.params.date).getTime()) && req.params.date === 'latest')) {
+            // get the latest version of the document
+            const latestVersion = versions.sort((a, b) => new Date(b.created_date) - new Date(a.created_date))[0];
+            // get the file path of the latest version
+            filePath = latestVersion.file_path;
+
+        } else {
+            // get the version of the document by date
+            const version = versions.find(v => new Date(v.created_date).toLocaleDateString() === new Date(req.params.date).toLocaleDateString());
+
+            // check if the version is not found
+            assert(version, 'Version not found');
+
+            // get the file path of the version
+            filePath = version.file_path;
+
+        }
 
         // check if the file exists
-        if (!fs.existsSync(filePath)) {
-            throw new Error('File not found');
-        }
+        assert(fs.existsSync(filePath), 'File not found');
 
         // create a read stream to read the file
         const file = fs.createReadStream(filePath);
         const stat = fs.statSync(filePath);
 
-        // replace special characters in the filename with underscores (to prevent errors when loading the file)
-        let filename = doc.name.replace(/[^\w\s.-]/g, '_') + '.pdf';
+        const pathParts = filePath.split('/');
+        const fileName = pathParts[pathParts.length - 1];
+
+        // replace special characters in the filename with underscores (to prevent errors when loading the file) but keeps [] and spaces and - and let the .pdf
+        let filename = fileName.replace(/[^a-zA-Z0-9\[\]\s.-]/g, '_');
 
         // If filename contains spaces, surround it with double quotes
         if (filename.includes(' ')) {
             filename = `"${filename}"`;
         }
-    
+
         // set the response headers that are required for a PDF file
         res.setHeader('Content-Length', stat.size);
         res.setHeader('Content-Type', 'application/pdf');
@@ -216,9 +229,28 @@ router.get('/pdf/:id', async (req, res) => {
 
 
     } catch (error) {
-        console.log(error);
-        res.status(500).send(error.message);
+        console.log(error.message);
+        if (error.message.includes('not found')) {
+            res.status(404).send(error.message);
+        }
+        else {
+            res.status(500).send(error.message);
+        }
     }
+});
+
+/**
+ * Route for getting a PDF file of a document by ID.
+ * @name GET /documents/:id/view
+ * @function
+ * @async
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} - Promise that resolves when the response is sent.
+ */
+router.get('/:id/view', async (_, res) => {
+    // redirect to the latest version
+    res.redirect(`view/latest`);
 });
 
 module.exports = router;

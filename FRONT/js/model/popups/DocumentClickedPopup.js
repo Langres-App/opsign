@@ -45,13 +45,6 @@ class DocumentClickedPopup extends Popup {
         this.document = await dataMap['manager'].getById(docId);
         title.innerHTML = this.document.getFileName() || 'Document';
 
-        let authManager = dataMap['authManager'];
-
-        // if the user is not logged in, we hide the sign button
-        if (!authManager.logged()) {
-            super.getPopup().querySelector('.admin-only').style.display = 'none';
-        }
-
         // manage the click events
         this.manageClick(dataMap);
 
@@ -67,6 +60,14 @@ class DocumentClickedPopup extends Popup {
         let docId = dataMap['id'];
         let popupManager = dataMap['popupManager'];
         let documentManager = dataMap['manager'];
+        let authManager = dataMap['authManager'];
+
+        // if the user is not logged in, we hide the admin-only buttons
+        authManager.isLogged().then(isLogged => {
+            super.getPopup().querySelectorAll('.admin-only').forEach(async btn => {
+                btn.style.display = isLogged ? 'block' : 'none';
+            })
+        });
 
         // get the buttons
         let buttons = super.getPopup().querySelectorAll('.button:not(#close-button)');
@@ -77,14 +78,13 @@ class DocumentClickedPopup extends Popup {
         super.getPopup().querySelector('#view-document-button').addEventListener('click', () => {
             super.close();
             // open a new page with the same root page path 
-            window.open('/charteapi/documents/pdf/' + docId, '_blank');
+            window.open(`/charteapi/documents/${docId}/view/latest`, '_blank');
         });
 
         // add the eventListeners to the buttons
         super.getPopup().querySelector('#sign-button').addEventListener('click', async () => {
             super.close();
-            let link = await (await Instantiator.getDocumentManager()).generateSigningLink();
-            popupManager.open('message-popup', { title: 'Lien généré avec succès', message: `Le lien de signature pour ce document est : ${link}` });
+            popupManager.open('signing-link-popup', dataMap);
         });
 
         // signing list button clicked, redirect to the signing list page

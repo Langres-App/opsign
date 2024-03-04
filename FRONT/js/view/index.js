@@ -93,7 +93,7 @@ class IndexView extends View {
     // get the template manager (and import its scripts if needed)
     let templateManager = await Instantiator.documentTemplateManager(container);
     let documents = await this.documentManager.getAll();
-    
+
     // add the documents to the container
     await templateManager.addDocuments(documents);
 
@@ -101,6 +101,7 @@ class IndexView extends View {
     templateManager.onDocumentClicked((id) => {
       this.popupManager.open('clicked-popup', {
         id: id,
+        authManager: this.manager,
         popupManager: this.popupManager,
         manager: this.documentManager
       });

@@ -50,6 +50,44 @@ class UserDao extends Dao {
         return result;
     }
 
+    async generateSigningLink(body) {
+        let response = await fetch(super.getUrl() + super.getEndpoint() + '/generateSigningToken', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + AuthManager.getToken()
+            },
+            body: JSON.stringify(body)
+        });
+
+        return response;
+    }
+
+    async getDocAndUserName(token) {
+        let response = await fetch(super.getUrl() + super.getEndpoint() + `/signingData/${token}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + AuthManager.getToken()
+            },
+        });
+        let result = await response.json();
+        return result;
+    }
+
+    async signDocument(token, blob) {
+        let formData = new FormData(); 
+        formData.append('blob', blob);
+
+
+        let response = await fetch(super.getUrl() + super.getEndpoint() + `/sign/${token}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        return response;
+    }
+
     /**
      * Fetches and get the document with the user signature.
      * @param {string} docId - The ID of the document.

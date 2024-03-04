@@ -31,8 +31,13 @@ class SigningLinkPopup extends Popup {
 
         let popup = this.getPopup();
 
+        const docId = dataMap['id'];
+        const popupManager = dataMap['popupManager'];
+        const documentManager = dataMap['manager'];
+        const authManager = dataMap['authManager'];
+
         // get the doc title
-        const docName = dataMap['name'] || 'Nom du document';
+        const docName = (await documentManager.getById(docId)).getFileName() || 'Nom du document';
         super.getPopup().querySelector('#signing-docName').innerText = docName;
 
         // reset the form & remove the disabled style
@@ -140,11 +145,12 @@ class SigningLinkPopup extends Popup {
         // actions to be taken when the popup is clicked
         const actions = {
             'signing-link-copy': async (user) => {
-                let link = '<URL>'; // this.userManager.generateSigningLink(user.identifier);
+                let link = await this.userManager.generateSigningLink({ email: user.identifier, documentId: dataMap['id'] });
+                
                 await this.copyToClipboard(link);
             },
-            'signing-link-mailto': (user) => {
-                let link = '<URL>'; // this.userManager.generateSigningLink(user.identifier);
+            'signing-link-mailto': async (user) => {
+                let link = await this.userManager.generateSigningLink({ email: user.identifier, documentId: dataMap['id'] });
 
                 // on another windows
                 window.location.href = `mailto:${user.identifier}?subject=Signature du document ${docName}&body=Bonjour ${user.first_name} ${user.last_name},%0D%0AMerci de signer ce document à l'adresse suivante : ${link}.%0D%0ACordialement.`;
