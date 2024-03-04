@@ -36,7 +36,7 @@ main #signing-form p {
 }
 
 main #signing-form #display-name {
-    font-weight: 500;
+    font-weight: 400;
     text-decoration: underline;
 }
 
@@ -78,8 +78,17 @@ main #signing-form canvas {
 
 main #signing-form .button {
     width: 100%;
+    height: fit-content;
     margin: 10px auto;
-    padding: 10px;
+    padding: 10px; 
     font-size: 20px;
     box-sizing: border-box;
+}
+
+
+main #signing-form .button p {
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+    text-align: center;
 }
