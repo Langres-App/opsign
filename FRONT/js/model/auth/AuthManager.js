@@ -17,6 +17,11 @@ class AuthManager {
     constructor() {
     }
 
+    async isLogged() {
+        await this.check();
+        return !!AuthManager.getToken();
+    }
+
     /**
      * Checks if the user is logged in.
      * @returns {Promise<boolean>} A promise that resolves to true if the user is logged in, false otherwise.
@@ -36,7 +41,7 @@ class AuthManager {
                 if (responseBody.logged) document.dispatchEvent(new Event('USER_LOGGED_IN'));
                 else {
                     document.dispatchEvent(new CustomEvent('USER_NOT_LOGGED_IN', { detail: { userExist: true } }));
-                    // localStorage.removeItem(AuthManager.#key);
+                    localStorage.removeItem(AuthManager.#key);
                 }
             } else {
                 document.dispatchEvent(new CustomEvent('USER_NOT_LOGGED_IN', { detail: { userExist: false } }));
