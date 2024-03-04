@@ -180,8 +180,6 @@ async function generateSigningToken(user_identifier, doc_id) {
     // list of existing tokens
     const existingTokens = await getSigningTokens();
 
-
-
     // database pool
     const pool = getPool();
 
@@ -215,8 +213,20 @@ async function generateSigningToken(user_identifier, doc_id) {
         const user = await getUser(user_identifier);
         const user_id = user.id;
 
+        
+        // get a list containing only the last version id of the document
+        let last_version_id = await query('SELECT id FROM version WHERE doc_id = ? ORDER BY created_date DESC LIMIT 1', [doc_id]);
+
+        // verify the last_version_id are not null
+        assert(last_version_id, 'last_version_id is required');
+
+        // get the id from the result
+        last_version_id = last_version_id[0];
+        assert(last_version_id.id, 'last_version_id is required');
+        
+
         // Insert the value into the database
-        await query('INSERT INTO user_version (user_id, version_id, signing_token) VALUES (?, ?, ?)', [user_id, doc_id, token]);
+        await query('INSERT INTO user_version (user_id, version_id, signing_token) VALUES (?, ?, ?)', [user_id, last_version_id.id, token]);
 
         // return the token to send it to the user
         return token;

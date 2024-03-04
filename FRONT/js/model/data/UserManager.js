@@ -41,7 +41,7 @@ class UserManager {
 
         // create the signed users and add them to the list
         users.forEach(user => {
-            toReturn.push(new SignedUser(user.id, user.displayName, user.signed_date, user.version_date));
+            toReturn.push(new SignedUser(user.id, user.displayName, user.version_date, user.signed_date)); 
         });
 
         return toReturn;
@@ -84,7 +84,7 @@ class UserManager {
             this.links[body.email] = link;
         }
 
-        return '/charte/visual/pages/signing.html?token=' + link; // TODO: change the link with dynamic path
+        return window.location.origin + '/charte/visual/pages/signing.html?token=' + link; // TODO: change the link with dynamic path
         
     }
 
