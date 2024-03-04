@@ -152,7 +152,7 @@ class SigningLinkPopup extends Popup {
             'signing-link-mailto': async (user) => {
                 let link = await this.userManager.generateSigningLink({ email: user.identifier, documentId: dataMap['id'] });
 
-                // on another windows
+                // send the mail
                 window.location.href = `mailto:${user.identifier}?subject=Signature du document ${docName}&body=Bonjour ${user.first_name} ${user.last_name},%0D%0AMerci de signer ce document à l'adresse suivante : ${link}.%0D%0ACordialement.`;
 
             }
