@@ -181,11 +181,6 @@ async function generateSigningToken(user_identifier, doc_id) {
     const existingTokens = await getSigningTokens();
 
 
-    // generate a unique and random token
-    let token = generateRandomToken(10, false);
-    while (existingTokens.includes(token)) {
-        token = generateRandomToken(10, false);
-    }
 
     // database pool
     const pool = getPool();
@@ -193,7 +188,28 @@ async function generateSigningToken(user_identifier, doc_id) {
     // Promisify the pool query method to allow for async/await
     const query = util.promisify(pool.query).bind(pool);
 
+    // check if the user don't already have a token for this document
+    let queryStr = `
+    SELECT signing_token token
+    FROM user_version
+    WHERE user_id = (SELECT id FROM user WHERE identifier = ?)
+    AND version_id = ?;`;
+
+
     try {
+        
+        const result = await query(queryStr, [user_identifier, doc_id]);
+
+        if (result.length > 0) {
+            return result[0].token;
+        }
+
+
+        // generate a unique and random token
+        let token = generateRandomToken(10, false);
+        while (existingTokens.includes(token)) {
+            token = generateRandomToken(10, false);
+        }
 
         // get the user id thanks to the user identifier
         const user = await getUser(user_identifier);
@@ -251,8 +267,7 @@ async function getSigningTokens() {
 
 /**
  * Signs a document for a specific user and version.
- * @param {string} user_id - The ID of the user.
- * @param {string} version_id - The ID of the version.
+ * @param {string} signingToken - The signing token for the user.
  * @param {string} blob - The document blob to be signed.
  * @returns {Promise<void>} - A promise that resolves when the document is signed.
  */
@@ -274,9 +289,12 @@ async function signDoc(signingToken, blob) {
 
         // verify the user_version_id are not null
         assert(user_version_id, 'user_version_id is required');
+        assert(user_version_id.id, 'user_version_id is required');
 
-        // Insert the value into the database
-        await query('UPDATE user_version SET date = NOW(), blob = ? WHERE id = ?', [blob, user_version_id]);
+        // update the value into the database
+        await query('UPDATE user_version SET date = NOW(), signature = ?, signing_token = NULL WHERE id = ?', [blob, user_version_id.id]);
+
+        return user_version_id.id;
 
     } catch (err) {
         console.log(err);
@@ -320,6 +338,38 @@ async function getUserVersionIdByToken(signingToken) {
     }
 }
 
+/**
+ * Retrieves signing data based on the provided token.
+ * @param {string} token - The signing token.
+ * @returns {Promise<Object>} - A promise that resolves to the signing data object.
+ */
+async function getSigningData(token) {
+    // database pool
+    const pool = getPool();
+
+    // Promisify the pool query method to allow for async/await
+    const query = util.promisify(pool.query).bind(pool);
+
+    try {
+        let queryStr = `
+        SELECT CONCAT(u.first_name, ' ', u.last_name) userName, d.file_name docName, v.doc_id docId, v.created_date docDate
+        FROM user_version uv
+        JOIN version v ON uv.version_id = v.id
+        JOIN document d ON v.doc_id = d.id
+        JOIN user u ON uv.user_id = u.id
+        WHERE signing_token = ?;`;
+
+        // Get all tokens
+        const result = await query(queryStr, [token]);
+
+        return result[0];
+    }
+    catch (e) {
+        console.log(e);
+    }
+
+}
+
 module.exports = {
-    getSignedUsers, getUserById, getUser, addUser, signDoc, generateSigningToken
+    getSignedUsers, getUserById, getUser, addUser, signDoc, generateSigningToken, getSigningData, getSigningUserImage
 };
