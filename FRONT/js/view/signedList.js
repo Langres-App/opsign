@@ -28,9 +28,10 @@ class SignedListView extends View {
   }
 
   #init(authManager) {
+    this.#setPageTitle();
+
     // Wait for auth Check
     document.addEventListener('USER_LOGGED_IN', () => {
-      this.#setPageTitle();
       this.#displayUsers().then(() => {
         this.#manageSearch();
       });
@@ -66,10 +67,12 @@ class SignedListView extends View {
    * Sets the page title based on the document name.
    * @private
    */
-  #setPageTitle() {
+  async #setPageTitle() {
     // get docName and set it
-    // let docName = await DocumentManager.getDocName(this.#docId);
-    let docName = 'Charte d\'informatique et des libertés';
+    Instantiator.addDocumentScripts();
+    const docManager = await Instantiator.getDocumentManager();
+    const doc = await docManager.getById(this.#docId);
+    let docName = doc.getFileName();
 
     // set the title of the page
     document.title = 'Signataires - ' + docName;
