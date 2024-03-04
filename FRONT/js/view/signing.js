@@ -57,7 +57,7 @@ class SigningView extends View {
 
     // define the document viewer
     const documentViewer = document.getElementById('document-viewer');
-    documentViewer.data = `/charteapi/documents/${docId}/view/${docDate}#toolbar=1&scrollbar=0&view=fitH&navpanes=0`; // TODO: variable path
+    documentViewer.data = `/charteapi/documents/${docId}/view/${docDate}#toolbar=1&scrollbar=0&view=fitH&navpanes=0`;
 
   }
 
@@ -88,7 +88,7 @@ class SigningView extends View {
 
     // add the signing button event listener
     signingButton.addEventListener('click', async () => {
-      
+
       // get the blob from the canvas
       const blob = await this.canvasClass.exportToBlob();
 
