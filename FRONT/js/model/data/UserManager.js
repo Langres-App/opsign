@@ -84,7 +84,7 @@ class UserManager {
             this.links[body.email] = link;
         }
 
-        return window.location.origin + '/charte/visual/pages/signing.html?token=' + link; // TODO: change the link with dynamic path
+        return window.location.origin + '/charte/visual/pages/signing.html?token=' + link;
         
     }
 
