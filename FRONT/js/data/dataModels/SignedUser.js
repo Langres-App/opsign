@@ -27,8 +27,8 @@ class SignedUser {
     constructor(id = null, displayName = null, docDate = null, signedDate = null) {
         this.#id = id;
         this.#displayName = displayName;
-        this.#docDate = docDate;
-        this.#signedDate = signedDate;
+        this.#docDate = new Date(docDate);
+        this.#signedDate = new Date(signedDate);
     }
 
     /**
@@ -60,7 +60,7 @@ class SignedUser {
      * @returns {string} The date of the document signed by the user
      */
     getDocDate() {
-        return this.#docDate;
+        return this.#docDate.toLocaleDateString();
     }
 
     /**
@@ -68,7 +68,7 @@ class SignedUser {
      * @param {string} value The date of the document signed by the user
      */
     getSignedDate() {
-        return this.#signedDate;
+        return this.#signedDate.toLocaleDateString();
     }
 
     /**
