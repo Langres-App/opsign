@@ -290,6 +290,10 @@ async function getSigningTokens() {
     }
     catch (e) {
         console.log(e);
+        throw e;
+    }
+    finally {
+        pool.end();
     }
 
 }
@@ -364,6 +368,10 @@ async function getUserVersionIdByToken(signingToken) {
     }
     catch (e) {
         console.log(e);
+        throw e;
+    }
+    finally {
+        pool.end();
     }
 }
 
@@ -380,6 +388,7 @@ async function getSigningData(token) {
     const query = util.promisify(pool.query).bind(pool);
 
     try {
+        // get the signing data from the database
         let queryStr = `
         SELECT CONCAT(u.first_name, ' ', u.last_name) userName, d.file_name docName, v.doc_id docId, v.created_date docDate
         FROM user_version uv
@@ -388,17 +397,97 @@ async function getSigningData(token) {
         JOIN user u ON uv.user_id = u.id
         WHERE signing_token = ?;`;
 
-        // Get all tokens
+        // Get all the data needed
         const result = await query(queryStr, [token]);
 
         return result[0];
     }
     catch (e) {
         console.log(e);
+        throw e;
+    }
+    finally {
+        pool.end();
     }
 
 }
 
+/**
+ * Retrieves signing user data based on the provided ID.
+ * @param {number} id - The ID of the user.
+ * @returns {Promise<Object>} - A promise that resolves to an object containing the display name and signed date of the user.
+ * @throws {Error} - If there is an error while retrieving the user data.
+ */
+async function getSigningUserData(id) {
+    // database pool
+    const pool = getPool();
+
+    // Promisify the pool query method to allow for async/await
+    const query = util.promisify(pool.query).bind(pool);
+
+    try {
+        let queryStr = `
+        SELECT CONCAT(u.first_name, ' ', u.last_name) displayName, uv.date signed_date
+        FROM user_version uv
+        JOIN user u ON uv.user_id = u.id
+        WHERE uv.id = ?;`;
+
+        // Get the user data
+        const result = await query(queryStr, [id]);
+
+        return result[0];
+    }
+    catch (e) {
+        console.log(e);
+        throw e;
+    }
+    finally {
+        pool.end();
+    }
+}
+
+/**
+ * Retrieves the signature of a signing user based on the provided ID.
+ *
+ * @param {number} id - The ID of the user.
+ * @returns {string} The signature of the user.
+ */
+async function getSigningUserImage(id) {
+    // database pool
+    const pool = getPool();
+
+    // Promisify the pool query method to allow for async/await
+    const query = util.promisify(pool.query).bind(pool);
+
+    try {
+        // get the signature from the database
+        let queryStr = `
+        SELECT signature
+        FROM user_version
+        WHERE id = ?;`;
+
+        // Get all tokens
+        const result = await query(queryStr, [id]);
+
+        return result[0].signature;
+    }
+    catch (e) {
+        console.log(e);
+        throw e;
+    }
+    finally {
+        pool.end();
+    }
+}
+
 module.exports = {
-    getSignedUsers, getUserById, getUser, addUser, signDoc, generateSigningToken, getSigningData, getSigningUserImage
+    getSignedUsers,
+    getUserById,
+    getUser,
+    addUser,
+    signDoc,
+    generateSigningToken,
+    getSigningData,
+    getSigningUserData,
+    getSigningUserImage,
 };
