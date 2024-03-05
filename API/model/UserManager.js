@@ -1,8 +1,43 @@
-const { getSigningUserImage, getSigningUserData } = require('../data/queries/UsersQueries');
+const { getSigningUserImage, getSigningUserData, getDocumentPath } = require('../data/queries/UsersQueries');
 const assert = require('./Asserter');
 const textToImage = require('text-to-image');
 const Canvas = require('canvas');
 const sharp = require('sharp');
+const { addImageToPDF } = require('./pdfHandler');
+
+/**
+ * Retrieves a signed document based on the provided user verification ID.
+ * @param {number} uvId - The user verification ID.
+ * @returns {Promise<{pdf: Buffer, docName: string}>} The signed document in PDF format.
+ * @throws {Error} If the ID is not provided or is not a number, or if there is an error during the process.
+ */
+async function getSignedDocument(uvId) {
+    // verify the id is a number
+    assert(uvId, 'ID must be provided');
+    uvId = Number(uvId);
+    assert(Number(uvId), 'ID must be a number');
+
+    // get the document path and the signature image
+    const documentPath = await getDocumentPath(uvId);
+    const signatureBuffer = await getSignature(uvId);
+
+    const docName = documentPath.split('/').pop();
+    console.log(`Document name: ${docName}`);
+
+    // set the placement of the signature | in the future, this could be dynamic to adapt to any document
+    const imageData = {
+        imageBuffer: signatureBuffer,   // the signature image
+        imagePage: undefined,           // the page on which the signature will be placed (if not provided, the last page will be used)
+        x: 50,                          // from which percentage of the page's width the signature will start (from the left of the page)
+        y: 16,                          // from which percentage of the page's height the signature will start (from the bottom of the page)
+        pWidth: 36                      // the width of the signature as a percentage of the page's width
+    }
+
+    // add the signature to the document
+    const pdf = await addImageToPDF(documentPath, imageData);
+
+    return { pdf, docName };
+}
 
 /**
  * Retrieves the signature image for a given ID and combines it with a signature header.
@@ -111,4 +146,4 @@ async function getSignatureImage(id) {
     return await sharp(bin).trim().toBuffer();
 }
 
-module.exports = getSignature;
+module.exports = { getSignedDocument };
