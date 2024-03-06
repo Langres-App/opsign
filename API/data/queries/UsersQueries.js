@@ -583,6 +583,11 @@ async function getArchivedUsers() {
     }
 }
 
+/**
+ * Deletes an archived user from the database if it has been archived for 5 years.
+ * @param {number} id - The ID of the user to delete.
+ * @throws {Error} If the user is not found or has not been archived for 5 years.
+ */
 async function deleteArchivedUser(id) {
     // database pool
     const pool = getPool();
