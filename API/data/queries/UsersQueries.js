@@ -540,8 +540,26 @@ async function archiveUser(id) {
     const query = util.promisify(pool.query).bind(pool);
 
     try {
+        // get the user id from the user_version id passed in parameter
+        const user = await query('SELECT user_id FROM user_version WHERE id = ?', [id]);
+
+        // check if the result is not null
+        assert(user, 'user is required');
+        assert(user.length > 0, 'User not found');
+        
+        // get the user id
+        id = user[0].user_id;
+
+        // check if the id is not null
+        assert(id, 'id from user_version not_found');
+
         // archive the user
-        await query('UPDATE user SET archived_date = NOW() WHERE id = ?', [id]);
+        const rep = await query('UPDATE user SET archived_date = NOW() WHERE id = ?', [id]);
+        
+        // check if the result is not null
+        assert(rep, 'rep is required');
+
+        console.log(rep);
 
     } catch (err) {
         console.log(err);
