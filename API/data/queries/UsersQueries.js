@@ -516,8 +516,6 @@ async function getDocumentPath(id) {
         assert(result, 'result is required');
         assert(result.length > 0, 'File not found');
 
-        console.log(result[0]);
-
         return result[0].path;
     }
     catch (e) {
