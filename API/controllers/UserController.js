@@ -1,6 +1,6 @@
 const express = require('express');
 const assert = require('../model/Asserter');
-const { getUser, addUser, generateSigningToken, getSignedUsers, signDoc, getSigningData } = require('../data/queries/UsersQueries');
+const { getUser, addUser, generateSigningToken, getSignedUsers, signDoc, getSigningData, archiveUser } = require('../data/queries/UsersQueries');
 const { blobUpload } = require('../model/FileStore');
 const { getSignedDocument } = require('../model/UserManager');
 const router = express.Router();
@@ -78,6 +78,18 @@ router.post('/', async (req, res) => {
         res.status(200).send('User created successfully');
     } catch (error) {
         console.log(error.message);
+        res.status(500).send(error.message);
+    }
+});
+
+router.delete('/:id', async (req, res) => {
+    try {
+        assert(req.params.id, 'Document ID is required');
+        await archiveUser(req.params.id);
+
+        res.status(200).send('User archived successfully');
+        
+    } catch (error) {
         res.status(500).send(error.message);
     }
 });
