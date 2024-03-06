@@ -61,18 +61,22 @@ async function placeImage(pdfDoc, pages, imageData) {
     // get the size of the page
     const { width: pageWidth, height: pageHeight } = page.getSize();
 
+    // how much percent the signature must take at max
     const pWidth = 40;
+
+    // calculate the position of the image
     const width = pageWidth * x / 100;
+
+    // calculate the size of the image
     let imageRoom = pageWidth - width;
+
+    // if the image is too big (out of screen), reduce it
     let imageWidth = x > 100 - pWidth ? imageRoom - 45 : pageWidth * (pWidth / 100);
 
-    // calculate the width and height of the image depending on the x & y provided and the page size
-    
-
-    // calculate the width of the image knowing that the x is the percent pos of the image on the page and it must not exceed the page width
-    
+    // calculate the height of the image (16/9 ratio)
     let imageHeight = (imageWidth / 16) * 9;
 
+    // calculate the y position of the image
     const height = pageHeight - imageHeight - pageHeight * y / 100;
 
     // place the image on the page
