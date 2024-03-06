@@ -2,6 +2,7 @@ const express = require('express');
 const assert = require('../model/Asserter');
 const { getUser, addUser, generateSigningToken, getSignedUsers, signDoc, getSigningData } = require('../data/queries/UsersQueries');
 const { blobUpload } = require('../model/FileStore');
+const { getSignedDocument } = require('../model/UserManager');
 const router = express.Router();
 
 /**
@@ -112,16 +113,35 @@ router.post('/generateSigningToken', async (req, res) => {
  */
 router.post('/sign/:token', blobUpload.single('blob'), async (req, res) => {
     try {
-        // await signDoc(req.params.token, req.file.buffer);
+        // sign the document
         const user_version_id = await signDoc(req.params.token, req.file.buffer);
     
-        // TODO: send a link to the signed document
-        // await getSignedDocument(user_version_id);
+        // send the signed document
+        const signedDoc = await getSignedDocument(user_version_id);
 
-        res.status(200).send('Document signed successfully');
+        // send the signed document as a response
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachement; filename="${signedDoc.docName}"`);
+        res.send(signedDoc.pdf);
+
     } catch (e) {
         console.log(e.message);
         res.status(500).send(e.message);
+    }
+});
+
+router.get('/signedDocument/:id', async (req, res) => {
+    try {
+        // get the signed document
+        const signedDoc = await getSignedDocument(req.params.id);
+
+        // send the signed document as a response
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="${signedDoc.docName}"`);
+
+        res.send(signedDoc.pdf);
+    } catch (error) {
+        res.status(500).send(error.message);
     }
 });
 

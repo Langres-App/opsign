@@ -1,56 +1,44 @@
-const { getSigningUserImage, getSigningUserData } = require('../data/queries/UsersQueries');
+const { getSigningUserImage, getSigningUserData, getDocumentPath } = require('../data/queries/UsersQueries');
 const assert = require('./Asserter');
-const textToImage = require('text-to-image');
-const Canvas = require('canvas');
 const sharp = require('sharp');
+const { addSignaturesToPDF } = require('./pdfHandler');
 
 /**
- * Retrieves the signature image for a given ID and combines it with a signature header.
- * @param {string} id - The ID of the signature.
- * @returns {Promise<Buffer>} - A promise that resolves to the combined image as a buffer.
- * @throws {Error} - If an error occurs while retrieving or processing the images.
+ * Retrieves a signed document based on the provided user verification ID.
+ * @param {number} uvId - The user verification ID.
+ * @returns {Promise<{pdf: Buffer, docName: string}>} The signed document in PDF format.
+ * @throws {Error} If the ID is not provided or is not a number, or if there is an error during the process.
  */
+async function getSignedDocument(uvId) {
+    // verify the id is a number
+    assert(uvId, 'ID must be provided');
+    uvId = Number(uvId);
+    assert(Number(uvId), 'ID must be a number');
+
+    // get the document path
+    const documentPath = await getDocumentPath(uvId);
+    const docName = documentPath.split('/').pop();
+
+    // add the signature to the document
+    const pdf = await addSignaturesToPDF(documentPath, [await getSignature(uvId)]);
+
+    return { pdf, docName };
+}
+
 async function getSignature(id) {
-    try {
-        // get the signature's header and the signature images
-        const header = await getSignatureHeader(id);
-        const imgBuffer = await getSignatureImage(id);
-
-        // get the metadata of the images
-        const { width, height } = await sharp(imgBuffer).metadata();
-        const { width: headerWidth, height: headerHeight } = await sharp(header).metadata();
-
-        // calculate the new width and height of the image
-        const newWidth = Math.max(width, headerWidth);
-        const newHeight = height + headerHeight;
-
-        // create a new image with the header and the image
-        const img = await sharp({
-            create: {
-                width: newWidth,
-                height: newHeight,
-                channels: 4,
-                background: { r: 0, g: 0, b: 0, alpha: 0 }
-            }
-        }).composite([
-            { input: header, left: 0, top: 0 },
-            { input: imgBuffer, gravity: 'south' },
-        ])
-            .png()          // used to allow transparency
-            .toBuffer();    // convert the image to a buffer (to be sent as a response)
-
-        return img;
-    } catch (e) {
-        console.log(e.message);
-        throw new Error(e.message);
-    }
+    return {
+        text: await getSignatureHeader(id),         // get the signature header as a string
+        imageBuffer: await getSignatureImage(id),   // get the signature image as a buffer
+        x: 50,                                      // set the x-coordinate (percent) of the signature placement
+        y: 74.7,                                    // set the y-coordinate (percent) of the signature placement
+    };
 
 }
 
 /**
  * Retrieves the signature header for a user.
  * @param {string} id - The ID of the user.
- * @returns {Promise<Buffer>} The signature header as a Buffer object.
+ * @returns {Promise<string>} The signature header as a string
  */
 async function getSignatureHeader(id) {
 
@@ -60,36 +48,10 @@ async function getSignatureHeader(id) {
     // format the date
     const date = new Date(signed_date).toLocaleDateString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit' });
 
-    // set the parameters for the text to be generated
-    const textParams = {
-        maxWidth: 0,
-        lineHeight: 30,
-        fontSize: 24,
-        fontFamily: 'Arial',
-        margin: 5,
-        textColor: 'black',
-        bgColor: 'transparent'
-    };
-
-    // get text width of a text variable
-    const canvas = Canvas.createCanvas(200, 200);
-    const ctx = canvas.getContext('2d');
-    ctx.font = `${textParams.fontSize}px ${textParams.fontFamily}`;
-
     // Set the text to be generated
     const text = `${displayName},\nFait le ${date}`;
-    const textWidth = ctx.measureText(text).width + 10;
+    return text;
 
-    // Set the max width of the text to the width of the text to be generated
-    textParams.maxWidth = textWidth;
-
-    // Generate the SVG overlay
-    const dataUri = await textToImage.generate(text, textParams);
-
-    // Create a new image with the SVG overlay 
-    const result = await sharp(Buffer.from(dataUri.split(',')[1], 'base64')).toBuffer();
-
-    return result;
 
 }
 
@@ -107,8 +69,26 @@ async function getSignatureImage(id) {
     // get the image from the user_version table (id is provided in the request params)
     const bin = await getSigningUserImage(id);
 
-    // trim the image and send it as a buffer
-    return await sharp(bin).trim().toBuffer();
+    // get the image metadata
+    const metadata = await sharp(bin).metadata();
+
+    // get a trimmed version of the signature image
+    let imgBuff = await sharp(bin).png().trim().toBuffer();
+
+    // create a 16/9 container which take the image and put it in the top left corner, the container must take in consideration that the image must fit so have a min-width of 100% and a min-height of 100% of the width
+    imgBuff = await sharp({
+        create: {
+            width: metadata.width,
+            height: Math.round(metadata.width / 16 * 9),
+            channels: 4,
+            background: { r: 0, g: 0, b: 0, alpha: 0 }
+        }
+    })
+        .png()
+        .composite([{ input: imgBuff, gravity: 'northwest' }])
+        .toBuffer();
+
+    return imgBuff;
 }
 
-module.exports = getSignature;
+module.exports = { getSignedDocument };

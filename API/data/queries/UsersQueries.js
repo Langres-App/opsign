@@ -361,6 +361,8 @@ async function getUserVersionIdByToken(signingToken) {
         // Get all tokens
         const result = await query(queryStr, [signingToken]);
 
+        assert(result.length > 0, 'Token not found');
+
         // extract the token value from the result
         if (result.length > 1) throw new Error('Token duplicate found');
 
@@ -400,6 +402,8 @@ async function getSigningData(token) {
         // Get all the data needed
         const result = await query(queryStr, [token]);
 
+        assert(result.length > 0, 'Signing Data not found');
+
         return result[0];
     }
     catch (e) {
@@ -435,6 +439,8 @@ async function getSigningUserData(id) {
         // Get the user data
         const result = await query(queryStr, [id]);
 
+        assert(result.length > 0, 'Signing user data not found');
+
         return result[0];
     }
     catch (e) {
@@ -469,6 +475,8 @@ async function getSigningUserImage(id) {
         // Get all tokens
         const result = await query(queryStr, [id]);
 
+        assert(result.length > 0, 'Signature not found');
+
         return result[0].signature;
     }
     catch (e) {
@@ -478,6 +486,45 @@ async function getSigningUserImage(id) {
     finally {
         pool.end();
     }
+}
+
+/**
+ * Retrieves the document path for a given ID from the database.
+ * @param {number} id - The ID of the document.
+ * @returns {string} The document path.
+ * @throws {Error} If the document is not found or an error occurs during the retrieval process.
+ */
+async function getDocumentPath(id) {
+    // database pool
+    const pool = getPool();
+
+    // Promisify the pool query method to allow for async/await
+    const query = util.promisify(pool.query).bind(pool);
+
+    try {
+        // get the document path from the database
+        let queryStr = `
+        SELECT file_path path
+        FROM user_version uv
+        JOIN version v ON uv.version_id = v.id
+        WHERE uv.id = ?;`;
+
+        // Get all tokens
+        const result = await query(queryStr, [id]);
+
+        // check if the result is not null
+        assert(result, 'result is required');
+        assert(result.length > 0, 'File not found');
+
+        return result[0].path;
+    }
+    catch (e) {
+       console.log(e.message);
+        throw e;
+    }
+    finally {
+        pool.end();
+    } 
 }
 
 module.exports = {
@@ -490,4 +537,5 @@ module.exports = {
     getSigningData,
     getSigningUserData,
     getSigningUserImage,
+    getDocumentPath,
 };
