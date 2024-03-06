@@ -69,7 +69,7 @@ async function createUserVersionTable() {
     date Datetime,
     signature BLOB,
     signing_token VARCHAR(255),
-    FOREIGN KEY (user_id) REFERENCES user(id),
+    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
     FOREIGN KEY (version_id) REFERENCES version(id)
   )`;
 
