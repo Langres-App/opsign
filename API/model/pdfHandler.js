@@ -85,6 +85,18 @@ async function placeImage(pdfDoc, pages, imageData) {
 
 }
 
+/**
+ * Places text on a PDF document.
+ * @param {PDFDocument} pdfDoc - The PDF document object.
+ * @param {PDFPage[]} pages - An array of PDFPage objects representing the pages of the document.
+ * @param {Object} textData - The data for the text to be placed.
+ * @param {string} textData.text - The text to be placed.
+ * @param {number} [textData.textPage] - The page number where the text should be placed. If not provided, the text will be placed on the last page.
+ * @param {number} textData.x - The x-coordinate (in percentage) where the text should be placed on the page.
+ * @param {number} textData.y - The y-coordinate (in percentage) where the text should be placed on the page.
+ * @param {string} [textData.fontColor] - The color of the text in RGB format (e.g., "rgb(255, 0, 0)"). If not provided, the default color is black.
+ * @returns {number} - The number of lines of text placed on the page.
+ */
 async function placeText(pdfDoc, pages, textData) {
 
     const { text, textPage, x, y, fontColor } = textData;
