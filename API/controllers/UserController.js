@@ -1,6 +1,6 @@
 const express = require('express');
 const assert = require('../model/Asserter');
-const { getUser, addUser, generateSigningToken, getSignedUsers, signDoc, getSigningData } = require('../data/queries/UsersQueries');
+const { getUser, addUser, generateSigningToken, getSignedUsers, signDoc, getSigningData, archiveUser } = require('../data/queries/UsersQueries');
 const { blobUpload } = require('../model/FileStore');
 const { getSignedDocument } = require('../model/UserManager');
 const router = express.Router();
@@ -82,6 +82,19 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.delete('/:id', async (req, res) => {
+    try {
+        assert(req.params.id, 'Document ID is required');
+
+        await archiveUser(req.params.id);
+
+        res.status(200).send('User archived successfully');
+
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
 /**
  * POST /users/generateSigningToken
  * @description Generate a signing token for a user and document.
@@ -115,7 +128,7 @@ router.post('/sign/:token', blobUpload.single('blob'), async (req, res) => {
     try {
         // sign the document
         const user_version_id = await signDoc(req.params.token, req.file.buffer);
-    
+
         // send the signed document
         const signedDoc = await getSignedDocument(user_version_id);
 

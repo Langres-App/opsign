@@ -1,7 +1,24 @@
-const { getSigningUserImage, getSigningUserData, getDocumentPath } = require('../data/queries/UsersQueries');
+const { getSigningUserImage, getSigningUserData, getDocumentPath, getArchivedUsers, deleteArchivedUser } = require('../data/queries/UsersQueries');
 const assert = require('./Asserter');
 const sharp = require('sharp');
 const { addSignaturesToPDF } = require('./pdfHandler');
+
+/**
+ * Deletes all archived users.
+ * 
+ * @returns {Promise<void>} A promise that resolves when all archived users are deleted.
+ */
+async function deleteArchivedUsers() {
+    const archivedUsers = await getArchivedUsers();
+
+    for (const user of archivedUsers) {
+        try {
+            await deleteArchivedUser(user.id);
+        } catch (error) {
+            console.error(`Error deleting user with ID ${user.id}: ${error.message}`);
+        }
+    }
+}
 
 /**
  * Retrieves a signed document based on the provided user verification ID.
@@ -91,4 +108,4 @@ async function getSignatureImage(id) {
     return imgBuff;
 }
 
-module.exports = { getSignedDocument };
+module.exports = { deleteArchivedUsers, getSignedDocument };

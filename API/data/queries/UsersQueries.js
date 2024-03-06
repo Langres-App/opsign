@@ -519,12 +519,131 @@ async function getDocumentPath(id) {
         return result[0].path;
     }
     catch (e) {
-       console.log(e.message);
+        console.log(e.message);
         throw e;
     }
     finally {
         pool.end();
-    } 
+    }
+}
+
+/**
+ * Archives a user by setting the archived_date to the current date and time.
+ * @param {number} id - The ID of the user to be archived.
+ * @returns {Promise<void>} - A promise that resolves when the user is successfully archived.
+ */
+async function archiveUser(id) {
+    // database pool
+    const pool = getPool();
+
+    // Promisify the pool query method to allow for async/await
+    const query = util.promisify(pool.query).bind(pool);
+
+    try {
+        // get the user id from the user_version id passed in parameter
+        const user = await query('SELECT user_id FROM user_version WHERE id = ?', [id]);
+
+        // check if the result is not null
+        assert(user, 'user is required');
+        assert(user.length > 0, 'User not found');
+        
+        // get the user id
+        id = user[0].user_id;
+
+        // check if the id is not null
+        assert(id, 'id from user_version not_found');
+
+        // archive the user
+        const rep = await query('UPDATE user SET archived_date = NOW() WHERE id = ?', [id]);
+        
+        // check if the result is not null
+        assert(rep, 'rep is required');
+
+        console.log(rep);
+
+    } catch (err) {
+        console.log(err);
+        throw err;
+    } finally {
+        // Close the pool
+        pool.end();
+    }
+
+}
+
+/**
+ * Retrieves archived users from the database.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of archived user objects.
+ * @throws {Error} If there is an error retrieving the archived users.
+ */
+async function getArchivedUsers() {
+    // database pool
+    const pool = getPool();
+
+    // Promisify the pool query method to allow for async/await
+    const query = util.promisify(pool.query).bind(pool);
+
+    try {
+        // archive the user
+        const resp = await query('SELECT * FROM user WHERE archived_date IS NOT NULL');
+
+        // check if the result is not null
+        assert(resp, 'resp is required');
+
+        // return the result
+        return resp;
+    } catch (err) {
+        console.log(err);
+        throw err;
+    } finally {
+        // Close the pool
+        pool.end();
+    }
+}
+
+/**
+ * Deletes an archived user from the database if it has been archived for 5 years.
+ * @param {number} id - The ID of the user to delete.
+ * @throws {Error} If the user is not found or has not been archived for 5 years.
+ */
+async function deleteArchivedUser(id) {
+    // database pool
+    const pool = getPool();
+
+    // Promisify the pool query method to allow for async/await
+    const query = util.promisify(pool.query).bind(pool);
+
+    try {
+        // get the user & check if it has been 5 years since it was archived
+        const user = await query('SELECT * FROM user WHERE id = ? AND archived_date IS NOT NULL', [id]);
+
+        // check if the result is not null
+        assert(user, 'user is required');
+        assert(user.length > 0, 'User not found');
+
+        // check for the 5 years
+        const twSec = 20000;
+        const fiveYears = 157680000000;
+        const currentDate = new Date();
+        const archivedDate = new Date(user[0].archived_date);
+        const diff = archivedDate - currentDate;
+
+        assert(diff < twSec, 'The user has not been archived for 5 years');
+
+        // delete the user
+        await query('DELETE FROM user WHERE id = ?', [id]);
+
+        // archive the user
+        await query('DELETE FROM user WHERE id = ?', [id]);
+
+    } catch (err) {
+        console.log(err);
+        throw err;
+    } finally {
+        // Close the pool
+        pool.end();
+    }
+
 }
 
 module.exports = {
@@ -538,4 +657,7 @@ module.exports = {
     getSigningUserData,
     getSigningUserImage,
     getDocumentPath,
+    archiveUser,
+    getArchivedUsers,
+    deleteArchivedUser
 };

@@ -23,11 +23,11 @@ async function getDocuments(id = null) {
 
     try {
         // Create the query string
-        let queryStr = 'SELECT * FROM document';
+        let queryStr = 'SELECT * FROM document WHERE archived_date IS NULL';
 
         // If an ID is provided, add a WHERE clause to the query, the function become a getById
         if (id) {
-            queryStr += ' WHERE id = ?';
+            queryStr += ' AND id = ?';
         }
 
         // Get all documents | Get the document by ID

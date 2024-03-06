@@ -24,7 +24,7 @@ class SignedListView extends View {
     Instantiator.getUserManager().then((manager) => {
       this.manager = manager;
       this.#init(authManager);
-    });  
+    });
   }
 
   #init(authManager) {
@@ -131,15 +131,19 @@ class SignedListView extends View {
 
     // add the event listener
     templateManager.onSeeClicked((id) => {
-      // TODO: call manager & open the document
-      console.log('print', id);
+      // open the signed document on a new tab
+      const link = '/charteapi/users/signedDocument/' + id;
+      window.open(link, '_blank');
     });
 
-    templateManager.onArchiveClicked((id) => {
-      // TODO: call manager & archive the document => open message popup
-      console.log('archive', id);
-    });
+    templateManager.onArchiveClicked(async (id) => {
 
+      try {
+        await this.manager.archive(id);
+        window.location.reload();
+      } catch (e) {
+        // TODO: error message
+      }
+    });
   }
-
 }
