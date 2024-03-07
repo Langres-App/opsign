@@ -10,7 +10,6 @@ const { userIsLogged } = require("../data/queries/AuthorizedUserQueries");
 async function requireAuth(req, res, next) {
     // Check if the request has the authorization header
     if (!req.headers.authorization || req.headers.authorization.indexOf('Bearer ') === -1) {
-        console.log(req.headers.authorization);
         return res.status(401).json({ message: 'Unauthorized!' })
     }
 
