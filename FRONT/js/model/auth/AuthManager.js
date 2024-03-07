@@ -89,10 +89,7 @@ class AuthManager {
      * @param {string} token - The user token to be set.
      * @param {Date} expire - The expiration date of the token.
      */
-    #setToken(message) {
-        // get the user token & the expiration date
-        const token = message.token;
-
+    #setToken(token) {
         if (!token) return;
 
         // set the user token in local storage

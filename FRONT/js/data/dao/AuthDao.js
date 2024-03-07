@@ -26,7 +26,7 @@ class AuthDao extends Dao {
      */
     async login(user) {
         let resp = await this.post('/login', user);
-        return await resp.json();
+        return await resp.text();
     }
 
     /**
