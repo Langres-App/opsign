@@ -1,9 +1,9 @@
 const express = require('express');
-const assert = require('../model/Asserter');
-const { getUser, addUser, generateSigningToken, getSignedUsers, signDoc, getSigningData, archiveUser } = require('../data/queries/UsersQueries');
 const { blobUpload } = require('../model/FileStore');
-const { getSignedDocument } = require('../model/UserManager');
+const handle = require('./functionHandler');
 const router = express.Router();
+const UserManager = require('../model/Managers/UserManager');
+const { getSignedDocument } = require('../model/Managers/SignedDocumentManager');
 
 /**
  * GET /users/:id
@@ -12,15 +12,9 @@ const router = express.Router();
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the signed users are retrieved.
  */
-router.get('/:id', async (req, res) => {
-    try {
-        assert(req.params.id, 'Document ID is required');
-
-        res.status(200).send(await getSignedUsers(req.params.id));
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
-});
+router.get('/:id', handle(async (req, res) => {
+    res.status(200).send(await UserManager.getByDocId(req.params.id));
+}));
 
 /**
  * GET /users?email=:email
@@ -29,37 +23,22 @@ router.get('/:id', async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the user is retrieved.
  */
-router.get('', async (req, res) => {
-    try {
-        assert(req.query.email, 'user email is required');
+router.get('', handle(async (req, res) => {
+    let data = await UserManager.getByEmail(req.query.email);
+    res.status(200).send({ first_name: data.first_name, last_name: data.last_name });
+}));
 
-        let data = await getUser(req.query.email);
-        res.status(200).send({ first_name: data.first_name, last_name: data.last_name });
-    } catch (error) {
-        res.status(404).send(error.message);
-    }
-});
-
-router.get('/signingData/:token', async (req, res) => {
-    try {
-        assert(req.params.token, 'token is required');
-        const rep = await getSigningData(req.params.token);
-
-        assert(rep, 'No data found for the given token');
-
-        let currentDate = rep.docDate;
-
-        const year = currentDate.getFullYear();
-        const month = ('0' + (currentDate.getMonth() + 1)).slice(-2); // Adding 1 because getMonth() returns zero-based month index
-        const day = ('0' + currentDate.getDate()).slice(-2);
-
-        rep.docDate = year + '-' + month + '-' + day;
-
-        res.status(200).send(rep);
-    } catch (error) {
-        res.status(404).send(error.message);
-    }
-});
+/**
+ * GET /users/signingData/:token
+ * @description Get signing data by token.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - The promise that resolves when the signing data is retrieved.
+ */
+router.get('/signingData/:token', handle(async (req, res) => {
+    const data = await UserManager.getSigningPageData(req.params.token);
+    res.status(200).send(data);
+}));
 
 /**
  * POST /users
@@ -68,32 +47,27 @@ router.get('/signingData/:token', async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the user is created.
  */
-router.post('/', async (req, res) => {
-    try {
-        assert(req.body.first_name, 'first name is required');
-        assert(req.body.last_name, 'last name is required');
-        assert(req.body.identifier, 'identifier is required');
+router.post('/', handle(async (req, res) => {
 
-        await addUser(req.body);
-        res.status(200).send('User created successfully');
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send(error.message);
+    if (req.body.identifier != undefined) {
+        req.body.email = req.body.identifier;
     }
-});
 
-router.delete('/:id', async (req, res) => {
-    try {
-        assert(req.params.id, 'Document ID is required');
+    await UserManager.add(req.body);
+    res.status(200).send('User created successfully');
+}));
 
-        await archiveUser(req.params.id);
-
-        res.status(200).send('User archived successfully');
-
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
-});
+/**
+ * DELETE /users/:id
+ * @description Archive a user by user_version ID.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - The promise that resolves when the user is archived.
+ */
+router.delete('/:id', handle(async (req, res) => {
+    await UserManager.archive(req.params.id);
+    res.status(200).send('User archived successfully');
+}));
 
 /**
  * POST /users/generateSigningToken
@@ -102,60 +76,45 @@ router.delete('/:id', async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the signing token is generated.
  */
-router.post('/generateSigningToken', async (req, res) => {
-    try {
-        assert(req.body.email, 'user email is required');
-        assert(req.body.documentId, 'documentId is required');
-
-        let token = await generateSigningToken(req.body.email, req.body.documentId);
-
-        res.status(200).send(token);
-    } catch (error) {
-        console.log(error.message);
-        res.status(500).send(error.message);
-    }
-});
-
+router.post('/generateSigningToken', handle(async (req, res) => {
+    const token = await UserManager.generateSigningToken(req.body.email, req.body.documentId);
+    res.status(200).send(token);
+}));
 
 /**
- * POST /users/sign
+ * POST /users/sign/:token
  * @description Sign a document.
  * @param {Object} req - The request object.
  * @param {Object} res - The response object.
  * @returns {void} - The response indicating that the endpoint is not implemented.
  */
-router.post('/sign/:token', blobUpload.single('blob'), async (req, res) => {
-    try {
-        // sign the document
-        const user_version_id = await signDoc(req.params.token, req.file.buffer);
+router.post('/sign/:token', blobUpload.single('blob'), handle(async (req, res) => {
 
-        // send the signed document
-        const signedDoc = await getSignedDocument(user_version_id);
+    // send the signed document
+    const signedDoc = await UserManager.sign(req.params.token, req.file.buffer);
 
-        // send the signed document as a response
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachement; filename="${signedDoc.docName}"`);
-        res.send(signedDoc.pdf);
+    // send the signed document as a response
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachement; filename="${signedDoc.docName}"`);
+    res.send(signedDoc.pdf);
+}));
 
-    } catch (e) {
-        console.log(e.message);
-        res.status(500).send(e.message);
-    }
-});
+/**
+ * GET /users/signedDocument/:id
+ * @description Get a signed document by ID.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - The promise that resolves when the signed document is retrieved.
+ */
+router.get('/signedDocument/:id', handle(async (req, res) => {
+    // get the signed document
+    const signedDoc = await getSignedDocument(req.params.id);
 
-router.get('/signedDocument/:id', async (req, res) => {
-    try {
-        // get the signed document
-        const signedDoc = await getSignedDocument(req.params.id);
+    // send the signed document as a response
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${signedDoc.docName}"`);
 
-        // send the signed document as a response
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `inline; filename="${signedDoc.docName}"`);
-
-        res.send(signedDoc.pdf);
-    } catch (error) {
-        res.status(500).send(error.message);
-    }
-});
+    res.send(signedDoc.pdf);
+}));
 
 module.exports = router;
