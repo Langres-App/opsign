@@ -9,15 +9,15 @@ const { addSignaturesToPDF } = require('./pdfHandler');
  * @returns {Promise<void>} A promise that resolves when all archived users are deleted.
  */
 async function deleteArchivedUsers() {
-    const archivedUsers = await getArchivedUsers();
+    // const archivedUsers = await getArchivedUsers();
 
-    for (const user of archivedUsers) {
-        try {
-            await deleteArchivedUser(user.id);
-        } catch (error) {
-            console.error(`Error deleting user with ID ${user.id}: ${error.message}`);
-        }
-    }
+    // for (const user of archivedUsers) {
+    //     try {
+    //         await deleteArchivedUser(user.id);
+    //     } catch (error) {
+    //         console.error(`Error deleting user with ID ${user.id}: ${error.message}`);
+    //     }
+    // }
 }
 
 /**
@@ -28,7 +28,7 @@ async function deleteArchivedUsers() {
  */
 async function getSignedDocument(uvId) {
     // verify the id is a number
-    assert(uvId, 'ID must be provided');
+    assert(uvId, '[] ID must be provided');
     uvId = Number(uvId);
     assert(Number(uvId), 'ID must be a number');
 
