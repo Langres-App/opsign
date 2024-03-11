@@ -1,6 +1,7 @@
 const queries = require('../../data/queries/DocumentsQueries');
 const versionQueries = require('../../data/queries/VersionQueries');
 const assert = require('../Asserter');
+const path = require('path');
 const fs = require('fs');
 const { changeFolderAndFilesNames } = require('../FileStore');
 
@@ -28,23 +29,6 @@ async function getById(id) {
     assert(Number(id), 'Document ID must be a number');
 
     return await queries.getById(id);
-
-}
-
-/**
- * Retrieves a document by its version ID.
- * @param {number} id - The ID of the document.
- * @returns {Promise<Object>} - A promise that resolves to the document object.
- */
-async function getByVersionId(id) {
-
-    // Check if the required fields are present
-    assert(id, 'Document ID is required');
-    id = parseInt(id);
-    assert(Number(id), 'Document ID must be a number');
-
-    return await queries.getByVersionId(id);
-
 
 }
 
@@ -82,7 +66,7 @@ async function add(data) {
     assert(data.date, '[DocumentManager.add] The created date is required');
     assert(data.file_path, '[DocumentManager.add] The file path is required');
 
-    return await queries.add(req.body, req.filePath);
+    return await queries.add(data, data.file_path);
 
 }
 
@@ -219,6 +203,5 @@ module.exports = {
     updateTitle,
     archive,
     getPdfPath,
-    getByVersionId,
     getVersionById,
 }
