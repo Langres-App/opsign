@@ -2,7 +2,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const assert = require('assert');
-const { getDocuments } = require('../data/queries/DocumentsQueries');
+const DocumentQueries = require('../data/queries/DocumentsQueries');
 
 
 /**
@@ -15,7 +15,7 @@ const storage = multer.diskStorage({
         let id = req.params.id;
         let { title } = req.body;
         if (!title) {
-            title = (await getDocuments(id)).name;
+            title = (await DocumentQueries.getById(id)).name;
             assert(title, 'Property "title" is required in the request body');
         }
 
@@ -83,7 +83,7 @@ async function storeDocument(req, res, next) {
         // Get the title from the database if it's not present in the request body
         if (!title) {
             //get the title from the database
-            title = (await getDocuments(id)).name;
+            title = (await DocumentQueries.getById(id)).name;
         }
 
         // Create the pathes for the folder and file

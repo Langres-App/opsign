@@ -1,41 +1,73 @@
 const assert = require('../../model/Asserter');
-const util = require('util');
-const getPool = require('../PoolGetter');
+const executeWithCleanup = require('../databaseCleanup');
+const versionQueries = require('./VersionQueries');
+
+// #region CREATE
 
 /**
- * Retrieves documents from the database.
- * If an ID is provided, retrieves a specific document by ID.
- * @param {number|null} id - The ID of the document to retrieve. If null, retrieves all documents.
- * @returns {Promise<Array<Object>|Object>} - A promise that resolves to an array of documents or a single document object.
- * @throws {Error} - If an error occurs while retrieving the documents.
+ * Creates a document in the database.
+ * @param {Object} data - The data of the document.
+ * @param {string} file_path - The file path of the document.
+ * @throws {Error} If an error occurs while creating the document.
  */
-async function getDocuments(id = null) {
-    const toReturn = [];
+async function add(data, file_path) {
 
-    id = parseInt(id);
+    // Check if the required fields are present
+    assert(data.title, '[DocumentQueries.add] The file name is required');
+    assert(data.date, '[DocumentQueries.add] The created date is required');
+    assert(file_path, '[DocumentQueries.add] The file path is required');
 
-    // Check if the ID is a number or null
-    assert(id === null || typeof id === 'number', 'The ID must be a number or null');
+    return await executeWithCleanup(async (query) => {
+        // Insert the document into the database
+        const documentQuery = 'INSERT INTO document (file_name) VALUES (?)';
 
-    // make the query async
-    const pool = getPool();
-    const query = util.promisify(pool.query).bind(pool);
+        // Get the result of the query
+        const result = await query(documentQuery, [data.title]);
 
-    try {
+        return await versionQueries.add({ docId: result.insertId, filePath: file_path, date: data.date });
+    });
+}
+
+/**
+ * Adds a new version of a document.
+ * @param {string} docId - The ID of the document.
+ * @param {string} date - The created date of the version.
+ * @param {string} file_path - The file path of the version.
+ * @returns {Promise} A promise that resolves with the added version.
+ */
+async function addVersion(docId, date, file_path) {
+
+    // Check if the required fields are present
+    assert(docId, '[DocumentsQueries.addVersion] The document ID is required');
+    assert(date, '[DocumentsQueries.addVersion] The created date is required');
+    assert(file_path, '[DocumentsQueries.addVersion] The file path is required');
+
+    return await versionQueries.add({ docId: docId, filePath: file_path, date });
+
+}
+
+// #endregion
+
+// #region READ
+
+/**
+ * Retrieves all documents from the database.
+ * @returns {Promise<Array<Object>>} An array of documents with their versions.
+ */
+async function getAll() {
+
+    return await executeWithCleanup(async (query) => {
+
+        const toReturn = [];
+
         // Create the query string
         let queryStr = 'SELECT * FROM document WHERE archived_date IS NULL';
 
-        // If an ID is provided, add a WHERE clause to the query, the function become a getById
-        if (id) {
-            queryStr += ' AND id = ?';
-        }
+        // Get the document by ID
+        const documents = (await query(queryStr));
 
-        // Get all documents | Get the document by ID
-        const documents = await query(queryStr, [id]);
-
-        // Get all versions for each document and add them to the return object
         for (const document of documents) {
-            const versions = await query('SELECT * FROM version WHERE doc_id = ?', [document.id]);
+            const versions = await versionQueries.getAll(document.id);
 
             // Add the document to the return object
             toReturn.push({
@@ -44,211 +76,118 @@ async function getDocuments(id = null) {
                 versions
             });
         }
+        // Return the array
+        return toReturn;
 
-    } catch (err) {
-        console.log(err);
-        // throw the error for the controller to catch
-        throw new Error('An error occurred while getting the documents');
-    } finally {
-        // Close the pool
-        pool.end();
-    }
+    });
 
-    // If an ID is provided, return the first element of the array
-    if (id) {
-        return toReturn[0];
-    }
-
-    // Return the array
-    return toReturn;
 }
 
 /**
- * Creates a document in the database.
- * 
- * @param {Object} data - The data of the document.
- * @throws {Error} If an error occurs while creating the document.
+ * Retrieves a document by its ID.
+ * @param {number} id - The ID of the document to retrieve.
+ * @returns {Promise<Object>} A promise that resolves to an object representing the document.
+ * @throws {Error} If the document ID is not provided or is not a number.
  */
-async function createDocument(data, file_path) {
-    // make the query async
-    const pool = getPool();
-    const query = util.promisify(pool.query).bind(pool);
+async function getById(id) {
 
     // Check if the required fields are present
-    assert(data.title, 'The file name is required');
-    assert(data.date, 'The created date is required');
-    assert(file_path, 'The file path is required');
+    assert(id, '[DocumentsQueries.getById] Document ID is required');
+    id = parseInt(id);
+    assert(Number(id), '[DocumentsQueries.getById] Document ID must be a number');
 
-    try {
-        // Insert the document into the database
-        const documentQuery = 'INSERT INTO document (file_name) VALUES (?)';
+    return await executeWithCleanup(async (query) => {
+        // Create the query string
+        let queryStr = 'SELECT * FROM document WHERE archived_date IS NULL AND id = ?';
 
-        // Get the result of the query
-        const result = await query(documentQuery, [data.title]);
+        // Get the document by ID
+        const document = (await query(queryStr, [id]))[0];
 
-        // Insert the version into the database with the document ID from the previous query (result.insertId)
-        const versionQuery = 'INSERT INTO version (doc_id, file_path, created_date) VALUES (?, ?, ?)';
-        await query(versionQuery, [result.insertId, file_path, data.date]);
+        // Get all versions for the document
+        const versions = await versionQueries.getAll(document.id);
 
-    } catch (err) {
-        // If an error is thrown, set gotAnError to true and log the error
-        console.log(err);
-        // throw the error for the controller to catch
-        throw new Error('An error occurred while creating the document');
-    } finally {
-        // Close the pool
-        pool.end();
-
-    }
+        // Return the array
+        return {
+            id: document.id,
+            name: document.file_name,
+            versions
+        };
+    });
 }
 
 /**
- * Updates the name of a document.
- * @param {number} id - The ID of the document.
- * @param {string} name - The new name for the document.
- * @throws {Error} If an error occurs while updating the document name.
+ * Retrieves the PDF path for a document.
+ * @param {string} id - The ID of the document.
+ * @param {string} [date] - The date for which to retrieve the PDF path. If not provided, the latest version will be used.
+ * @returns {Promise<string>} The PDF path.
  */
-async function changeDocumentName(id, name) {
-    // make the query async
-    const pool = getPool();
-    const query = util.promisify(pool.query).bind(pool);
+async function getPdfPath(id, date = undefined) {
 
     // Check if the required fields are present
-    assert(name, 'The file name is required');
+    assert(id, '[DocumentsQueries.getPdfPath] The document ID is required');
 
-    try {
+    // if date is provided, get the pdf path for the given date, else get the latest version
+    return date && date.toLowerCase() !== 'latest'
+        ? await versionQueries.getPdfPath(id, date)
+        : (await versionQueries.getLatest(id)).file_path;
+}
+
+// #endregion
+
+// #region UPDATE
+
+/**
+ * Renames a document with the specified ID to the given title.
+ * @param {number} id - The ID of the document to rename.
+ * @param {string} title - The new title for the document.
+ * @returns {Promise<void>} A Promise that resolves when the document is renamed.
+ */
+async function rename(id, title) {
+
+    return await executeWithCleanup(async (query) => {
+        // Check if the required fields are present
+        assert(id, '[DocumentsQueries.rename] The document ID is required');
+        assert(title, '[DocumentsQueries.rename] The file name is required');
+
         // Update the document name
         const documentQuery = 'UPDATE document SET file_name = ? WHERE id = ?';
-        await query(documentQuery, [name, id]);
+        await query(documentQuery, [title, id]);
 
         // Update the version file paths
-        await updateVersionPaths(id, name, query);
+        await versionQueries.updatePathes(id, title);
+    });
 
-    } catch (err) {
-        console.log(err);
-        // throw the error for the controller to catch
-        throw new Error('An error occurred while updating the document name');
-    } finally {
-        // Close the pool
-        pool.end();
-    }
-}
-
-
-/**
- * Updates the file paths for all versions of a document.
- * 
- * @param {number} id - The ID of the document.
- * @param {string} name - The new name of the document.
- * @param {function} query - The function used to execute the database query.
- * @returns {Promise<void>} - A promise that resolves when the file paths are updated successfully.
- */
-async function updateVersionPaths(id, name, query) {
-    // Query to retrieve file paths for all versions of the document
-    const versionQuery = 'SELECT file_path FROM version WHERE doc_id = ?';
-    const currentFilePaths = await query(versionQuery, [id]);
- 
-    // Check if file paths are found for the given doc_id else it's an error
-    if (currentFilePaths.length > 0) {
-        // Iterate over each version and update the file path
-        for (const currentFilePath of currentFilePaths) {
-            const filePath = currentFilePath.file_path;
-            const parts = filePath.split('/');
-
-            // Remove the filename & folder from the path
-            const filename = parts.pop();
-            const folderName = parts.pop();
-
-            // Update the folder name to the new document name
-            parts.push(name);
-
-            // Replace the filename with the new document name
-            const newFilename = filename.replace(folderName, name);
-            parts.push(newFilename);
-
-            // Join all parts back to form the new file path
-            const newFilePath = parts.join('/');
-
-            // Perform the update query for each version
-            const updateQuery = 'UPDATE version SET file_path = ? WHERE file_path = ?';
-            await query(updateQuery, [newFilePath, filePath]);
-        }
-
-        console.log('File paths updated successfully for document ID:', id);
-    } else {
-        console.error('No file paths found for the given doc_id:', id);
-    }
-}
-
-
-/**
- * Adds a new version of a document to the database.
- * 
- * @param {number} id - The ID of the document.
- * @param {object} data - The data of the new version.
- * @param {string} file_path - The file path of the new version.
- * @returns {Promise<void>} - A promise that resolves when the version is added successfully.
- * @throws {Error} - If an error occurs while adding the version.
- */
-async function addVersion(id, data, file_path) {
-    // make the query async
-    const pool = getPool();
-    const query = util.promisify(pool.query).bind(pool);
-
-    // Check if the required fields are present
-    assert(id, 'The document ID is required');
-    assert(data.date, 'The created date is required');
-    assert(file_path, 'The file path is required');
-
-
-    try {
-        // Insert the version into the database
-        const versionQuery = 'INSERT INTO version (doc_id, file_path, created_date) VALUES (?, ?, ?)';
-        await query(versionQuery, [id, file_path, data.date]);
-
-    } catch (err) {
-        console.log(err);
-        // throw the error for the controller to catch
-        throw new Error('An error occurred while adding the version');
-    } finally {
-        // Close the pool
-        pool.end();
-    }
 }
 
 /**
  * Archives a document by setting the archived_date to the current date.
  * @param {number} id - The ID of the document to be archived.
- * @throws {Error} If an error occurs while archiving the document.
+ * @returns {Promise<void>} - A promise that resolves when the document is successfully archived.
  */
-async function archiveDocument(id) {
-
-    // make the query async
-    const pool = getPool();
-    const query = util.promisify(pool.query).bind(pool);
+async function archive(id) {
 
     // Check if the required fields are present
-    assert(id, 'The document ID is required');
+    assert(id, '[DocumentsQueries.archive] The document ID is required');
 
-    try {
+    return await executeWithCleanup(async (query) => {
+
         // Archive the document by setting the archived_date to the current date
         const documentQuery = 'UPDATE document SET archived_date = ? WHERE id = ?';
         await query(documentQuery, [new Date(), id]);
+    });
 
-    } catch (err) {
-        console.log(err);
-        // throw the error for the controller to catch
-        throw new Error('An error occurred while archiving the document');
-    } finally {
-        // Close the pool
-        pool.end();
-    }
 }
 
+// #endregion
+
 module.exports = {
-    getDocuments,
-    createDocument,
-    changeDocumentName,
+    add,
     addVersion,
-    archiveDocument
+
+    getAll,
+    getById,
+    getPdfPath,
+    
+    rename,
+    archive,
 };

@@ -1,16 +1,10 @@
-// import the pool & util module
-const util = require('util');
-const getPool = require('./PoolGetter');
-
-// declare the pool and query variables
-let pool;
-let query;
+const executeWithCleanup = require('./databaseCleanup');
 
 /**
  * Creates the document table in the database if it doesn't exist.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  */
-async function createDocumentTable() { 
+async function createDocumentTable(query) {
   const documentQuery = ` 
   CREATE TABLE IF NOT EXISTS document (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -25,7 +19,7 @@ async function createDocumentTable() {
  * Creates the version table in the database if it doesn't exist.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  */
-async function createVersionTable() {
+async function createVersionTable(query) {
   const versionQuery = `
   CREATE TABLE IF NOT EXISTS version (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -42,7 +36,7 @@ async function createVersionTable() {
  * Creates the user table in the database.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  */
-async function createUserTable() {
+async function createUserTable(query) {
   // identifier is the email identifier (first-[first2-first3...].lastname) of the user
   const versionQuery = `
   CREATE TABLE IF NOT EXISTS user (
@@ -60,7 +54,7 @@ async function createUserTable() {
  * Creates the user_version table in the database if it doesn't exist.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  */
-async function createUserVersionTable() {
+async function createUserVersionTable(query) {
   const userVersionQuery = `
   CREATE TABLE IF NOT EXISTS user_version (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -80,7 +74,7 @@ async function createUserVersionTable() {
  * Creates the authorized_user table in the database if it doesn't exist.
  * @returns {Promise<void>} A promise that resolves when the table is created.
  */
-async function createAuthTable() {
+async function createAuthTable(query) {
   const authQuery = `
   CREATE TABLE IF NOT EXISTS authorized_user (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -89,8 +83,8 @@ async function createAuthTable() {
     token VARCHAR(255) default NULL,
     token_expiration Datetime default NULL
   )`;
- 
-  await query(authQuery);  
+
+  await query(authQuery);
 }
 
 /**
@@ -99,20 +93,13 @@ async function createAuthTable() {
  */
 async function createTables() {
 
-  // create the database pool
-  pool = getPool();
-
-  // Promisify the pool query method to allow for async/await
-  query = util.promisify(pool.query).bind(pool);
-
-  // create the tables 
-  await createDocumentTable();
-  await createVersionTable();
-  await createUserTable();
-  await createUserVersionTable();
-  await createAuthTable();
-
-  pool.end();
+  executeWithCleanup(async (query) => {
+    await createDocumentTable(query);
+    await createVersionTable(query);
+    await createUserTable(query);
+    await createUserVersionTable(query);
+    await createAuthTable(query);
+  });
 }
 
 module.exports = {

@@ -1,24 +1,9 @@
-const { getSigningUserImage, getSigningUserData, getDocumentPath, getArchivedUsers, deleteArchivedUser } = require('../data/queries/UsersQueries');
-const assert = require('./Asserter');
+const DocumentManager = require('./DocumentManager');
+const UserManager = require('./UserManager');
+const assert = require('../Asserter');
 const sharp = require('sharp');
-const { addSignaturesToPDF } = require('./pdfHandler');
+const { addSignaturesToPDF } = require('../pdfHandler');
 
-/**
- * Deletes all archived users.
- * 
- * @returns {Promise<void>} A promise that resolves when all archived users are deleted.
- */
-async function deleteArchivedUsers() {
-    // const archivedUsers = await getArchivedUsers();
-
-    // for (const user of archivedUsers) {
-    //     try {
-    //         await deleteArchivedUser(user.id);
-    //     } catch (error) {
-    //         console.error(`Error deleting user with ID ${user.id}: ${error.message}`);
-    //     }
-    // }
-}
 
 /**
  * Retrieves a signed document based on the provided user verification ID.
@@ -33,7 +18,15 @@ async function getSignedDocument(uvId) {
     assert(Number(uvId), 'ID must be a number');
 
     // get the document path
-    const documentPath = await getDocumentPath(uvId);
+
+    // get doc id & version date from user_version
+    const { version_id } = await UserManager.getById(uvId);
+
+    assert(version_id, '[SignedDocumentManager.getSignedDocument] Version ID must be provided');
+
+    // get the document Id, version date and file name
+    const { file_path: documentPath } = await DocumentManager.getVersionById(version_id);
+
     const docName = documentPath.split('/').pop();
 
     // add the signature to the document
@@ -42,6 +35,11 @@ async function getSignedDocument(uvId) {
     return { pdf, docName };
 }
 
+/**
+ * Retrieves the signature details for a given ID.
+ * @param {string} id - The ID of the signature.
+ * @returns {Promise<Object>} - A promise that resolves to an object containing the signature details.
+ */
 async function getSignature(id) {
     return {
         text: await getSignatureHeader(id),         // get the signature header as a string
@@ -60,7 +58,7 @@ async function getSignature(id) {
 async function getSignatureHeader(id) {
 
     // get the user's data
-    const { displayName, signed_date } = await getSigningUserData(id);
+    const { displayName, signed_date } = await UserManager.getSigningUserData(id);
 
     // format the date
     const date = new Date(signed_date).toLocaleDateString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -84,7 +82,7 @@ async function getSignatureImage(id) {
     assert(Number(id), 'id must be a number');
 
     // get the image from the user_version table (id is provided in the request params)
-    const bin = await getSigningUserImage(id);
+    const bin = await UserManager.getSigningUserImage(id);
 
     // get the image metadata
     const metadata = await sharp(bin).metadata();
@@ -108,4 +106,6 @@ async function getSignatureImage(id) {
     return imgBuff;
 }
 
-module.exports = { deleteArchivedUsers, getSignedDocument };
+module.exports = {
+    getSignedDocument
+};

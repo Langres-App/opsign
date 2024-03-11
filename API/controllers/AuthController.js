@@ -4,7 +4,9 @@
  */
 
 const express = require('express');
-const { userExist, userIsLogged, createUser, login } = require('../data/queries/AuthorizedUserQueries');
+const { login } = require('../data/queries/AuthorizedUserQueries');
+const handle = require('./functionHandler');
+const AuthManager = require('../model/Managers/AuthManager');
 const router = express.Router();
 
 /**
@@ -17,29 +19,10 @@ const router = express.Router();
  * @returns {Object} The response object containing the logged status of the user.
  * @throws {Object} The error object if an error occurs.
  */
-router.get('/check', async (req, res) => {
-    try {
-        const exist = await userExist();
-
-        if (!exist) {
-            res.status(404).send({ data: 'No user found' });
-        } else {
-            // get token from header 
-            if (req.headers.authorization) {
-                let token = req.headers.authorization.split('Bearer ')[1];
-                if (token && token !== "null") {
-                    res.status(200).send({ logged: await userIsLogged(token) });
-                } else { 
-                    res.status(200).send({ logged: false });
-                }
-            } else {
-                res.status(200).send({ logged: false });
-            }
-        }
-    } catch (error) {
-        res.status(500).send({ data: error.message });
-    }
-});
+router.get('/check', handle(async (req, res) => {
+    const result = await AuthManager.check(req.headers.authorization);
+    res.status(200).json({ logged: result });
+}));
 
 /**
  * Route handler for user login.
@@ -51,14 +34,10 @@ router.get('/check', async (req, res) => {
  * @returns {Object} The response object containing the login result.
  * @throws {Object} The error object if an error occurs.
  */
-router.post('/login', async (req, res) => {
-    try {
-        const result = await login(req.body); 
-        res.status(200).send(result);
-    } catch (error) {
-        res.status(500).send({ data: error.message });
-    }
-});
+router.post('/login', handle(async (req, res) => {
+    const result = await AuthManager.login(req.body);
+    res.status(200).send(result);
+}));
 
 /**
  * Route handler for user registration.
@@ -70,15 +49,11 @@ router.post('/login', async (req, res) => {
  * @returns {Object} The response object containing the registration result.
  * @throws {Object} The error object if an error occurs.
  */
-router.post('/register', async (req, res) => {
-    try {
-        await createUser(req.body);
-        const result = await login(req.body);
- 
-        res.status(201).send(result);
-    } catch (error) {
-        res.status(500).send({ data: error.message }); 
-    }
-});
+router.post('/register', handle(async (req, res) => {
+    await AuthManager.createUser(req.body);
+    const result = await login(req.body);
+
+    res.status(201).send(result);
+}));
 
 module.exports = router;
