@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js -e js"
+    "start": "nodemon index.js -e js",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,7 @@
     "text-to-image": "^5.2.0"
   },
   "devDependencies": {
+    "jest": "^29.7.0",
     "nodemon": "^3.0.3"
   }
 }
