@@ -1,5 +1,63 @@
-main {
+#mainHeader {
+    width: 100%;
+    height: 50px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    backdrop-filter: blur(10px);
+}
+
+#tabs {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+#mainHeader .tab {
+    min-width: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    padding: 6px 4px;
+    transition: 0.2s ease-in-out all;
+}
+
+
+#mainHeader .tab.active {
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--text-light-color);
+    background: var(--blue);
+
+}
+
+#mainHeader .tab:not(.active) {
+    color: rgba(255, 255, 255, .8);
+    background: rgba(255, 255, 255, .2);
+}
+
+#mainHeader .tab:not(.active):hover {
+    background: var(--light-gray);
+    color: var(--text-light-color);
+    cursor: pointer;
+}
+
+#mainHeader #opt {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+#mainBody {
     width: auto;
+    height: calc(100% - 75px);
     padding: 2vh 5vw;
     display: flex !important;
     flex-direction: row;
@@ -8,9 +66,10 @@ main {
     justify-content: center;
     align-items: center;
     overflow-y: scroll;
+    box-shadow: inset 0 0 10px 0 rgba(0, 0, 0, 0.51);
 }
 
-main #add-card {
+#mainBody #add-card {
     flex-basis: auto;
     align-self: center;
     justify-self: center;
@@ -23,6 +82,6 @@ main #add-card {
     transition: 0.2s ease-in-out all;
 }
 
-main #add-card:active {
+#mainBody #add-card:active {
     scale: 1.02;
 }
