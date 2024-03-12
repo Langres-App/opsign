@@ -47,6 +47,8 @@ class SigningView extends View {
     // define the document date if it is not present
     if (!docDate) docDate = 'latest';
 
+    const date = docDate.split('/').reverse().join('-');
+
     // define the document name
     const docTitle = document.getElementById('doc-title');
     docTitle.innerText = docName;
@@ -57,7 +59,7 @@ class SigningView extends View {
 
     // define the document viewer
     const documentViewer = document.getElementById('document-viewer');
-    documentViewer.data = `/charteapi/documents/${docId}/view/${docDate}#toolbar=1&scrollbar=0&view=fitH&navpanes=0`;
+    documentViewer.data = `/charteapi/documents/${docId}/view/${date}#toolbar=1&scrollbar=0&view=fitH&navpanes=0`;
 
   }
 
@@ -92,14 +94,18 @@ class SigningView extends View {
       // get the blob from the canvas
       const blob = await this.canvasClass.exportToBlob();
 
-      // send the token & blob to api
+      // send the token & blob to api and retreive the signed doc as a blob
       const token = Utils.getParamValue('token');
-      const link = await this.usersManager.signDocument(token, blob);
-      console.log(link);
+      const signedDocBlob = await this.usersManager.signDocument(token, blob);
 
+      alert('Votre document signé va être ouvert dans un nouvel onglet (usage unique), si vous avez besoin de le télécharger, veuillez le faire maintenant.\nVous pourrez toujours le redemander par la suite à l\'administrateur.\nMerci de votre compréhension.');
 
-      // // open the signing link
-      // window.open(link, '_blank');
+      // open the signed document
+      const link = URL.createObjectURL(signedDocBlob);
+      window.open(link, '_blank');
+
+      window.location.href = '/charte';
+
     });
   }
 }
