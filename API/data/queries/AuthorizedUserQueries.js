@@ -48,7 +48,7 @@ async function userExist() {
         const users = await query(queryStr);
 
         assert(users.length <= 1, 'There is more than one user in the database');
-        assert(users.length >= 0, 'Administrator not found, please register first.');
+        assert(users.length > 0, 'Administrator not found, please register first.');
 
         return true;
 
