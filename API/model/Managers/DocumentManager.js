@@ -64,9 +64,9 @@ async function add(data) {
     // Check if the required fields are present
     assert(data.title, '[DocumentManager.add] The file name is required');
     assert(data.date, '[DocumentManager.add] The created date is required');
-    assert(data.file_path, '[DocumentManager.add] The file path is required');
+    assert(data.filePath, '[DocumentManager.add] The file path is required');
 
-    return await queries.add(data, data.file_path);
+    return await queries.add(data, data.filePath);
 
 }
 
