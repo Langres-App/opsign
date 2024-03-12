@@ -41,7 +41,7 @@ class UserManager {
 
         // create the signed users and add them to the list
         users.forEach(user => {
-            toReturn.push(new SignedUser(user.id, user.displayName, user.version_date, user.signed_date)); 
+            toReturn.push(new SignedUser(user.id, user.displayName, user.version_date, user.signed_date));
         });
 
         return toReturn;
@@ -80,12 +80,22 @@ class UserManager {
         let link = this.links[body.email];
 
         if (!link) {
-            link = await (await this.#userDao.generateSigningLink(body)).text();
+            const resp = await this.#userDao.generateSigningLink(body);
+
+            if (resp.status === 409) {
+                throw new Error('L\'utilisateur à déjà été invité à signer ce document. Si la signature n\'a pas encore été effectuée, vous trouverez le lien [placeholder].');
+            }
+            if (resp.status !== 200) {
+                throw new Error('Erreur lors de la génération du lien de signature');
+            }
+
+            link = await resp.text();
             this.links[body.email] = link;
+
         }
 
         return window.location.origin + '/charte/visual/pages/signing.html?token=' + link;
-        
+
     }
 
     async signDocument(token, blob) {
