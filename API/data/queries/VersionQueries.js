@@ -19,7 +19,7 @@ async function add(data) {
     assert(data.date, '[VersionQueries.add] The created date is required');
 
     return await executeWithCleanup(async (query) => {
-        let queryStr = 'INSERT INTO version (doc_id, file_path, date) VALUES (?, ?, ?)';
+        let queryStr = 'INSERT INTO version (doc_id, file_path, created_date) VALUES (?, ?, ?)';
         return await query(queryStr, [data.docId, data.filePath, data.date]);
     });
 }
