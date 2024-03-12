@@ -57,7 +57,7 @@
 
 #mainBody {
     width: auto;
-    height: calc(100% - 75px);
+    height: 100%;
     padding: 2vh 5vw;
     display: flex !important;
     flex-direction: row;
