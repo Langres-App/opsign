@@ -131,13 +131,20 @@ async function archive(userVersionId) {
 
 /**
  * Generates a signing token for a user and a document.
- * @param {string} email - The email of the user.
+ * @param {string} data - The data of the user.
  * @param {string} documentId - The ID of the document.
  * @returns {Promise<string>} The generated signing token.
  */
-async function generateSigningToken(email, documentId) {
+async function generateSigningToken(data, documentId) {
 
-    assert(email, '[UserManager.generateSigningToken] The email is required');
+    let userId;
+
+    // check for the user / add it if needed
+    if (!await UserQueries.getByEmail(data.email)) {
+        userId = await UserQueries.add(data);
+    }
+
+    assert(data.email, '[UserManager.generateSigningToken] The email is required');
     assert(documentId, '[UserManager.generateSigningToken] The documentId is required');
 
     // Generate a random token
@@ -149,7 +156,9 @@ async function generateSigningToken(email, documentId) {
     }
 
     // Get the user and version IDs
-    const userId = (await UserQueries.getByEmail(email)).id;
+    if (!userId) {
+        userId = (await UserQueries.getByEmail(data.email)).id;
+    }
     const versionId = (await VersionQueries.getLatest(documentId)).id;
 
     // Add the token to the database
@@ -177,9 +186,9 @@ async function sign(token, signature) {
     // Sign the document
     await UserVersionQueries.signDoc(token, signature);
 
-    const signedDocument = await UserManager.getSignedDoc(userVersionId);
 
-    return signedDocument;
+    const signedDocManager = require('./SignedDocumentManager');
+    return await signedDocManager.getSignedDocument(userVersionId);
 
 }
 
