@@ -88,7 +88,7 @@ class IndexView extends View {
    */
   async displayFetchedDocuments() {
     // get the container
-    const container = document.querySelector('main');
+    const container = document.querySelector('#mainBody');
 
     // get the template manager (and import its scripts if needed)
     let templateManager = await Instantiator.documentTemplateManager(container);
