@@ -18,7 +18,6 @@ async function executeWithCleanup(handler) {
 
         return await handler(query);
     } catch (error) {
-        console.log(error);
         throw error;
     }
     finally {
