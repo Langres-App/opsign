@@ -20,15 +20,26 @@ function handle(handler) {
             // Log the error
             console.log(error.message);
 
-            // Send the error message to the client with the appropriate status code
-            if (error.message.toLowerCase().includes('not found')) {
-                return res.status(404).send(error.message);
+            let code;
+
+            let errorMessage = error.message.toLowerCase();
+
+            // Set the status code based on the error message
+            if (errorMessage.includes('not found')) {
+                code = 404;
+            } else if (errorMessage.includes('unauthorized')) {
+                code = 401;
+            } else if (errorMessage.includes('duplicate')) {
+                code = 409;
+            } else {
+                code = 500;
             }
 
-            return res.status(500).send(error.message);
+            // Send the error message to the client with the appropriate status code
+            return res.status(code).send(error.message);
 
         }
     };
 }
 
-module.exports = {handle};
+module.exports = { handle };
