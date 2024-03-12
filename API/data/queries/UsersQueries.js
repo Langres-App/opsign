@@ -123,7 +123,11 @@ async function getByEmail(email) {
 
     return await executeWithCleanup(async (query) => {
 
-        return (await query('SELECT * FROM user WHERE identifier = ?', [email]))[0];
+        const user = (await query('SELECT * FROM user WHERE identifier = ?', [email]))[0];
+
+        assert(user, '[UserQueries.getByEmail] User not found');
+
+        return user;
 
     });
 
