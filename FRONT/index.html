@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Page Name -->
     <title>Charte - Documents</title>
 </head>
@@ -28,10 +28,33 @@
     </header>
 
     <main>
-        <div id="add-card" class="document disabled clickable">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="var(--blue)" height="100" viewBox="0 -960 960 960">
-                <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
-            </svg>
+        <div id="mainHeader">
+            <div id="tabs">
+                <div class="tab clickable active">
+                    <p>Documents</p>
+                </div>
+                <div class="tab clickable">
+                    <p>Utilisateurs</p>
+                </div>
+            </div>
+            <div id="opt">
+                <div class="aligned">
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider round"></span>
+                    </label>
+                    <p>Archivés</p>
+                </div>
+            </div>
+        </div>
+        <div id="mainBody">
+
+            <div id="add-card" class="document disabled clickable">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="var(--blue)" height="100" viewBox="0 -960 960 960">
+                    <path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z" />
+                </svg>
+            </div>
+
         </div>
     </main>
 
