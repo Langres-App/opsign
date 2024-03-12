@@ -89,7 +89,12 @@ class UserManager {
     }
 
     async signDocument(token, blob) {
-        return await this.#userDao.signDocument(token, blob);
+        const response = await this.#userDao.signDocument(token, blob);
+        if (response.status !== 200) {
+            throw new Error('Error signing the document');
+        }
+
+        return await response.blob();
     }
 
     /**
