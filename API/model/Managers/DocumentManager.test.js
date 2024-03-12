@@ -69,13 +69,13 @@ describe('DocumentManager', () => {
       const data = {
         title: 'Document Title',
         date: '2022-01-01',
-        file_path: '/path/to/document.pdf',
+        filePath: '/path/to/document.pdf',
       };
       queries.add.mockResolvedValueOnce({});
 
       await DocumentManager.add(data);
 
-      expect(queries.add).toHaveBeenCalledWith(data, data.file_path);
+      expect(queries.add).toHaveBeenCalledWith(data, data.filePath);
 
       queries.add.mockRestore();
     });
