@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const DocumentManager = require('../model/Managers/DocumentManager');
 const { storeDocument, upload, deleteOriginal } = require('../model/FileStore');
-const handle = require('./functionHandler');
+const { handle } = require('./functionHandler');
 
 /**
  * Route for getting all documents.
@@ -45,7 +45,8 @@ router.get('/:id', handle(async (req, res) => {
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
 router.post('/', upload.single('file'), storeDocument, deleteOriginal, handle(async (req, res) => {
-    await DocumentManager.add(req.body, req.filePath);      // Store the document in the database | multer middleware stored the file in Docs folder and the path in req.filePath
+    req.body.filePath = req.filePath;
+    await DocumentManager.add(req.body);                    // Store the document in the database | multer middleware stored the file in Docs folder and the path in req.filePath
     res.status(201).send('Document created successfully');  // Send success response
 
 }));

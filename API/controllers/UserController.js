@@ -1,6 +1,6 @@
 const express = require('express');
 const { blobUpload } = require('../model/FileStore');
-const handle = require('./functionHandler');
+const { handle } = require('./functionHandler');
 const router = express.Router();
 const UserManager = require('../model/Managers/UserManager');
 const { getSignedDocument } = require('../model/Managers/SignedDocumentManager');
@@ -77,7 +77,7 @@ router.delete('/:id', handle(async (req, res) => {
  * @returns {Promise<void>} - The promise that resolves when the signing token is generated.
  */
 router.post('/generateSigningToken', handle(async (req, res) => {
-    const token = await UserManager.generateSigningToken(req.body.email, req.body.documentId);
+    const token = await UserManager.generateSigningToken(req.body, req.body.documentId);
     res.status(200).send(token);
 }));
 

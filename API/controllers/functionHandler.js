@@ -19,7 +19,6 @@ function handle(handler) {
 
             // Log the error
             console.log(error.message);
-            console.log(error);
 
             // Send the error message to the client with the appropriate status code
             if (error.message.toLowerCase().includes('not found')) {
@@ -32,4 +31,4 @@ function handle(handler) {
     };
 }
 
-module.exports = handle;
+module.exports = {handle};
