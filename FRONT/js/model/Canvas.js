@@ -76,12 +76,14 @@ class Canvas {
         ctx.lineCap = 'round'; // Set line cap to round
         ctx.beginPath();
         ctx.moveTo(this.#canvas.posX, this.#canvas.posY);
-        ctx.lineTo(event.offsetX, event.offsetY);
+
+        const pos = this.#getPosition(event);
+        ctx.lineTo(pos.posX, pos.posY);
         ctx.stroke();
 
         // Update the position
-        this.#canvas.posX = event.offsetX;
-        this.#canvas.posY = event.offsetY;
+        this.#canvas.posX = pos.posX;
+        this.#canvas.posY = pos.posY;
     }
 
     /**
@@ -92,8 +94,8 @@ class Canvas {
     #getPosition(event) {
         // Return the position of the event relative to the canvas
         let position = {
-            posX: event.offsetX,
-            posY: event.offsetY,
+            posX: event.offsetX || event.touches[0].clientX - this.#canvas.getBoundingClientRect().left,
+            posY: event.offsetY || event.touches[0].clientY - this.#canvas.getBoundingClientRect().top,
         };
 
         return position;
