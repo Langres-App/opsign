@@ -176,6 +176,27 @@ async function archive(userVersionId) {
 
 }
 
+/**
+ * Unarchives a user by setting the archived_date to null.
+ * @param {number} id - The ID of the user to unarchive.
+ * @returns {Promise<void>} - A promise that resolves when the user is unarchived.
+ * @throws {Error} - If the user ID is missing or not a number.
+ */
+async function unarchive(id) {
+
+    assert(id, '[UserQueries.unarchive] The user ID is required');
+
+    id = parseInt(id);
+    assert(id, '[UserQueries.unarchive] The user ID must be a number');
+
+    return await executeWithCleanup(async (query) => {
+
+        return await query('UPDATE user SET archived_date = NULL WHERE id = ?', [id]);
+
+    });
+
+}
+
 // #endregion
 
 // #region DELETE
@@ -195,7 +216,7 @@ async function deleteArchived(id) {
 
     return await executeWithCleanup(async (query) => {
 
-        return await query('DELETE FROM user WHERE id = ?', [id]);
+        return await query('DELETE FROM user WHERE id = ? AND archived_date IS NOT NULL', [id]);
 
     });
 
@@ -213,6 +234,7 @@ module.exports = {
     getArchived,
 
     archive,
+    unarchive,
     
     deleteArchived
 };
