@@ -19,7 +19,20 @@ const { handle } = require('./functionHandler');
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
 router.get('/', handle(async (req, res) => {
-    res.status(200).send(await DocumentManager.getAll());
+    res.status(200).json(await DocumentManager.getAll());
+}));
+
+/**
+ * Route for getting all archived documents.
+ * @name GET /documents
+ * @function
+ * @async
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} - Promise that resolves when the response is sent.
+ */
+router.get('/archived', handle(async (req, res) => {
+    res.status(200).json(await DocumentManager.getAllArchived());
 }));
 
 /**
@@ -79,6 +92,11 @@ router.post('/:id', upload.single('file'), storeDocument, deleteOriginal, handle
     res.status(200).send('Version added successfully');
 }));
 
+router.put('/archived/:id', handle(async (req, res) => {
+    await DocumentManager.unarchive(req.params.id);
+    res.status(200).send('Document restored successfully');
+}));
+
 /**
  * Route for archiving a document by ID.
  * @name DELETE /documents/:id
@@ -91,6 +109,20 @@ router.post('/:id', upload.single('file'), storeDocument, deleteOriginal, handle
 router.delete('/:id', handle(async (req, res) => {
     await DocumentManager.archive(req.params.id);
     res.status(204).send('Document archived successfully');
+}));
+
+/**
+ * Route for deleting a document by ID.
+ * @name DELETE /documents/archived/:id
+ * @function
+ * @async
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} - Promise that resolves when the response is sent.
+ */
+router.delete('/archived/:id', handle(async (req, res) => {
+    await DocumentManager.deleteArchivedDoc(req.params.id);
+    res.status(204).send('Document deleted successfully');
 }));
 
 /**
