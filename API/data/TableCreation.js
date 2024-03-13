@@ -26,7 +26,7 @@ async function createVersionTable(query) {
     doc_id INT NOT NULL,
     file_path VARCHAR(255) NOT NULL,
     created_date Date NOT NULL,
-    FOREIGN KEY (doc_id) REFERENCES document(id)
+    FOREIGN KEY (doc_id) REFERENCES document(id) ON DELETE CASCADE
   )`;
 
   await query(versionQuery);
@@ -64,7 +64,7 @@ async function createUserVersionTable(query) {
     signature BLOB,
     signing_token VARCHAR(255),
     FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE,
-    FOREIGN KEY (version_id) REFERENCES version(id),
+    FOREIGN KEY (version_id) REFERENCES version(id) ON DELETE CASCADE,
     UNIQUE(user_id, version_id)
   )`;
 
