@@ -84,6 +84,38 @@ async function getAll() {
 }
 
 /**
+ * Retrieves all archived documents from the database.
+ * @returns {Promise<Array<Object>>} An array of archived documents, each containing the document ID, name, and versions.
+ */
+async function getAllArchived() {
+
+    return await executeWithCleanup(async (query) => {
+
+        const toReturn = [];
+
+        // Create the query string
+        let queryStr = 'SELECT * FROM document WHERE archived_date IS NOT NULL';
+
+        // Get the document by ID
+        const documents = (await query(queryStr));
+
+        for (const document of documents) {
+            const versions = await versionQueries.getAll(document.id);
+
+            // Add the document to the return object
+            toReturn.push({
+                id: document.id,
+                name: document.file_name,
+                versions
+            });
+        }
+        // Return the array
+        return toReturn;
+
+    });
+}
+
+/**
  * Retrieves a document by its ID.
  * @param {number} id - The ID of the document to retrieve.
  * @returns {Promise<Object>} A promise that resolves to an object representing the document.
@@ -178,6 +210,49 @@ async function archive(id) {
 
 }
 
+/**
+ * Unarchives a document by setting the archived_date to null.
+ * @param {number} id - The ID of the document to unarchive.
+ * @returns {Promise<void>} - A promise that resolves when the document is unarchived.
+ */
+async function unarchive(id) {
+
+    // Check if the required fields are present
+    assert(id, '[DocumentsQueries.unarchive] The document ID is required');
+
+    return await executeWithCleanup(async (query) => {
+
+        // Archive the document by setting the archived_date to the current date
+        const documentQuery = 'UPDATE document SET archived_date = NULL WHERE id = ?';
+        await query(documentQuery, [id]);
+    });
+
+
+}
+
+// #endregion
+
+// #region DELETE
+
+/**
+ * Deletes an archived document by ID.
+ * @param {number} id - The ID of the document to delete.
+ * @returns {Promise<void>} - A Promise that resolves when the document is deleted.
+ * @throws {Error} - If the document ID is not provided.
+ */
+async function deleteArchivedDoc(id) {
+
+    // Check if the required fields are present
+    assert(id, '[DocumentsQueries.deleteArchivedDoc] The document ID is required');
+
+    return await executeWithCleanup(async (query) => {
+        // Delete the document by ID
+        const documentQuery = 'DELETE FROM document WHERE id = ? AND archived_date IS NOT NULL';
+        await query(documentQuery, [id]);
+    });
+    
+}
+
 // #endregion
 
 module.exports = {
@@ -185,9 +260,13 @@ module.exports = {
     addVersion,
 
     getAll,
+    getAllArchived,
     getById,
     getPdfPath,
-    
+
     rename,
     archive,
+    unarchive,
+
+    deleteArchivedDoc,
 };

@@ -16,6 +16,16 @@ async function getAll() {
 }
 
 /**
+ * Retrieves all archived documents.
+ * @returns {Promise<Array>} A promise that resolves to an array of archived documents.
+ */
+async function getAllArchived() {
+    
+        return await queries.getAllArchived();
+
+}
+
+/**
  * Retrieves a document by its ID.
  * @param {number} id - The ID of the document to retrieve.
  * @returns {Promise<Object>} A promise that resolves to the retrieved document.
@@ -134,6 +144,24 @@ async function archive(id) {
 }
 
 /**
+ * Unarchives a document by its ID.
+ * @param {number} id - The ID of the document to unarchive.
+ * @returns {Promise<void>} - A promise that resolves when the document is unarchived.
+ * @throws {Error} - If the required fields are not present or if the document ID is not a number.
+ */
+async function unarchive(id) {
+
+    // Check if the required fields are present
+    assert(id, '[DocumentManager.unarchive] Document ID is required');
+
+    id = parseInt(id);
+    assert(Number(id), '[DocumentManager.unarchive] Document ID must be a number');
+
+    await queries.unarchive(id);
+
+}
+
+/**
  * Retrieves the PDF path for a document.
  * @param {number} id - The ID of the document.
  * @param {Date} [date] - The optional date for which to retrieve the PDF path.
@@ -194,6 +222,34 @@ async function getPdf(id, date = undefined) {
 
 }
 
+/**
+ * Deletes an archived document by its ID.
+ * @param {number} id - The ID of the document to be deleted.
+ * @returns {Promise<void>} - A promise that resolves when the document is deleted.
+ * @throws {Error} - If the required fields are not present or if the document ID is not a number.
+ */
+async function deleteArchivedDoc(id) {
+    
+    // Check if the required fields are present
+    assert(id, '[DocumentManager.delete] Document ID is required');
+
+    id = parseInt(id);
+    assert(Number(id), '[DocumentManager.delete] Document ID must be a number');
+
+    // First, get the document to be deleted
+    const doc = await getById(id);
+
+    // delete the document from the database
+    await queries.deleteArchivedDoc(id);
+
+    /* If deleteArchivedDoc throw an error (couldn't delete) the physical delete don't happen */
+
+    // delete physical file
+    const filePath = path.join(__dirname, '../Docs', doc.name);
+    fs.rmdirSync(filePath, { recursive: true });
+
+}
+
 module.exports = {
     getPdf,
     getAll,
@@ -202,6 +258,9 @@ module.exports = {
     addVersion,
     updateTitle,
     archive,
+    unarchive,
     getPdfPath,
     getVersionById,
+    getAllArchived,
+    deleteArchivedDoc,
 }
