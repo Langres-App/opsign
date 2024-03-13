@@ -6,6 +6,17 @@ const UserManager = require('../model/Managers/UserManager');
 const { getSignedDocument } = require('../model/Managers/SignedDocumentManager');
 
 /**
+ * GET /users/archived
+ * @description Get all archived users.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - The promise that resolves when the users are retrieved.
+ */
+router.get('/archived', handle(async (req, res) => {
+    res.status(200).send(await UserManager.getArchived());
+}));
+
+/**
  * GET /users/:id
  * @description Get signed users by document ID.
  * @param {Object} req - The request object.
@@ -58,6 +69,18 @@ router.post('/', handle(async (req, res) => {
 }));
 
 /**
+ * POST /unarchive/:id
+ * @description Unarchive a specific user
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - The promise that resolves when the user is updated.
+ */
+router.put('/unarchive/:id', handle(async (req, res) => {
+    await UserManager.unarchive(req.params.id);
+    res.status(200).send('User unarchived successfully');
+}));
+
+/**
  * DELETE /users/:id
  * @description Archive a user by user_version ID.
  * @param {Object} req - The request object.
@@ -67,6 +90,18 @@ router.post('/', handle(async (req, res) => {
 router.delete('/:id', handle(async (req, res) => {
     await UserManager.archive(req.params.id);
     res.status(200).send('User archived successfully');
+}));
+
+/**
+ * DELETE /users/archived/:id
+ * @description Delete a user by user_version ID.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - The promise that resolves when the user is deleted.
+ */
+router.delete('/archived/:id', handle(async (req, res) => {
+    await UserManager.deleteArchived(req.params.id);
+    res.status(200).send('User deleted successfully');
 }));
 
 /**
