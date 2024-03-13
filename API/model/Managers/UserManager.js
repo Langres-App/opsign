@@ -91,6 +91,16 @@ async function getByDocId(id) {
 }
 
 /**
+ * Retrieves archived users.
+ * @returns {Promise<Array>} A promise that resolves to an array of archived users.
+ */
+async function getArchived() {
+    
+        return await UserQueries.getArchived();
+    
+}
+
+/**
  * Retrieves signing page data based on the provided token.
  * @param {string} token - The token used to retrieve the signing page data.
  * @returns {Promise<Object>} The signing page data.
@@ -130,6 +140,25 @@ async function archive(userVersionId) {
 }
 
 /**
+ * Unarchives a user by ID.
+ *
+ * @param {number} id - The ID of the user to unarchive.
+ * @returns {Promise} A promise that resolves when the user is unarchived.
+ * @throws {Error} If the user ID is missing or not a number.
+ */
+async function unarchive(id) {
+    
+        assert(id, '[UserManager.unarchive] The user ID is required');
+    
+        id = parseInt(id);
+        assert(id, '[UserManager.unarchive] The user ID must be a number');
+    
+        return await UserQueries.unarchive(id);
+    
+    
+}
+
+/**
  * Generates a signing token for a user and a document.
  * @param {string} data - The data of the user.
  * @param {string} documentId - The ID of the document.
@@ -152,7 +181,7 @@ async function generateSigningToken(data, documentId) {
 
     let token = null;
     while (token == null || tokens.includes(token)) {
-        token = utils.generateRandomToken(10, false);
+        token = utils.generateRandomToken(5, false);
     }
 
     // Get the user and version IDs
@@ -240,16 +269,40 @@ async function getSigningUserImage(userVersionId) {
 
 }
 
+/**
+ * Deletes a user by their ID.
+ *
+ * @param {number} id - The ID of the user to delete.
+ * @returns {Promise} A promise that resolves when the user is deleted.
+ * @throws {Error} If the user ID is missing or not a number.
+ */
+async function deleteArchived(id) {
+
+    assert(id, '[UserManager.deleteUser] The user ID is required');
+
+    id = parseInt(id);
+    assert(id, '[UserManager.deleteUser] The user ID must be a number');
+
+    return await UserQueries.deleteArchived(id);
+
+}
+
 module.exports = {
     add,
+    generateSigningToken,
+    
     getById,
     getByEmail,
     getByDocId,
+    getArchived,
     getSigningPageData,
     getSigningUserData,
     getSigningUserImage,
+    getVersion,
+
     archive,
-    generateSigningToken,
+    unarchive,
     sign,
-    getVersion
+
+    deleteArchived,
 }
