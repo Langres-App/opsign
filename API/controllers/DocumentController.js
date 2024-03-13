@@ -92,6 +92,15 @@ router.post('/:id', upload.single('file'), storeDocument, deleteOriginal, handle
     res.status(200).send('Version added successfully');
 }));
 
+/**
+ * Route for archiving a document by ID.
+ * @name PUT /documents/:id
+ * @function
+ * @async
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} - Promise that resolves when the response is sent.
+ */
 router.put('/archived/:id', handle(async (req, res) => {
     await DocumentManager.unarchive(req.params.id);
     res.status(200).send('Document restored successfully');
