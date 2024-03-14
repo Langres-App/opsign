@@ -130,7 +130,7 @@ async function getById(id) {
 
     return await executeWithCleanup(async (query) => {
         // Create the query string
-        let queryStr = 'SELECT * FROM document WHERE archived_date IS NULL AND id = ?';
+        let queryStr = 'SELECT * FROM document WHERE id = ?';
 
         // Get the document by ID
         const document = (await query(queryStr, [id]))[0];
