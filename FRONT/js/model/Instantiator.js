@@ -41,6 +41,7 @@ class Instantiator {
         template: {
             manager: 'js/model/template/TemplateManager.js',
             DocumentTemplateManager: 'js/model/template/DocumentTemplateManager.js',
+            MainUserTemplateManager: 'js/model/template/MainUserTemplateManager.js',
             SignedUserTemplateManager: 'js/model/template/SignedUserTemplateManager.js',
         },
 
@@ -182,6 +183,20 @@ class Instantiator {
         ]);
 
         return new DocumentTemplateManager(container);
+    }
+
+    /**
+     * Creates a new instance of the MainUserTemplateManager class and initializes it with the provided container.
+     * @param {HTMLElement} container - The container element for the MainUserTemplateManager.
+     * @returns {MainUserTemplateManager} - The newly created MainUserTemplateManager instance.
+     */
+    static async mainUserTemplateManager(container) {
+        await Promise.all([
+            this.#loadSequentially([this.#pathes.template.manager, this.#pathes.template.MainUserTemplateManager]),
+            this.#addScript(this.#pathes.data.model.SignedUser),
+        ]);
+
+        return new MainUserTemplateManager(container);
     }
 
 

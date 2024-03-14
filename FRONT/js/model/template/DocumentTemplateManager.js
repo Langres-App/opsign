@@ -78,6 +78,6 @@ class DocumentTemplateManager extends TemplateManager {
     }
 
     onDocumentClicked(callback) {
-        super.onClick(callback, '', 'document', '#list');
+        super.onClick(callback, '', 'document', '#mainBody');
     }
 }
