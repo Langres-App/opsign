@@ -36,13 +36,20 @@ class Dao {
     }
 
     /**
-     * Get all the objects in the database
-     * @returns All the objects in the database
+     * Retrieves all data from the server.
+     * @param {boolean} [archived=false] - Indicates whether to query the archived data.
+     * @returns {Promise<any>} - A promise that resolves to the retrieved data.
      */
-    async getAll() {
-        let response = await fetch(this.url + this.endpoint);
-        let data = await response.json();
-        return data;
+    async getAll(archived = false) {
+        let response = await fetch(this.url + this.endpoint + (archived ? '/archived' : ''), {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + AuthManager.getToken()
+            },
+        });
+        let result = await response.json();
+        return result;
     }
 
     /**

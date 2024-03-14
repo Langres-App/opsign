@@ -18,8 +18,7 @@ class AuthManager {
     }
 
     async isLogged() {
-        await this.check();
-        return !!AuthManager.getToken();
+        return (await this.check()).logged;
     }
 
     /**
@@ -29,16 +28,23 @@ class AuthManager {
     async check() {
         this.dao = await Instantiator.getAuthDao();
 
-        let toReturn = false;
+        let toReturn = {
+            userExists: false,
+            logged: false
+        };
+        
         let response = null;
 
         try {
             response = await this.dao.checkForExistingUser();
-            toReturn = response.status === 200;
+            toReturn.userExists = response.status === 200;
 
             if (toReturn) {
                 let responseBody = await response.json();
-                if (responseBody.logged) document.dispatchEvent(new Event('USER_LOGGED_IN'));
+                if (responseBody.logged) {
+                    document.dispatchEvent(new Event('USER_LOGGED_IN'));
+                    toReturn.logged = true;
+                }
                 else {
                     document.dispatchEvent(new CustomEvent('USER_NOT_LOGGED_IN', { detail: { userExist: true } }));
                     localStorage.removeItem(AuthManager.#key);
@@ -105,6 +111,6 @@ class AuthManager {
     static getToken() {
         // get the user token from local storage
         const item = localStorage.getItem(AuthManager.#key);
-        return item || null;
+        return item;
     }
 }

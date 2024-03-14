@@ -34,9 +34,9 @@ class DataManager {
      * Returns all the object
      * @returns {Array} - An array of all the object
      */
-     async getAll() {
+     async getAll(archived = false) {
         let dao = await this.getDao();
-        return await dao.getAll();
+        return await dao.getAll(archived);
     }
 
     /**

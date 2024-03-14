@@ -2,21 +2,13 @@
  * @class UserDao - A class to manage the users.
  */
 class UserDao extends Dao {
-    
+
     /**
      * Constructs a new UserDao object.
      * @constructor
      */
     constructor() {
         super('users');
-    }
-
-    /**
-     * Retrieves all users. Not implemented because we need to specify the document.
-     * @returns {Promise} A promise that resolves with the list of users.
-     */
-    async getAll() {
-        return Error('NOT IMPLEMENTED');
     }
 
     /**
@@ -76,7 +68,7 @@ class UserDao extends Dao {
     }
 
     async signDocument(token, blob) {
-        let formData = new FormData(); 
+        let formData = new FormData();
         formData.append('blob', blob);
 
 
