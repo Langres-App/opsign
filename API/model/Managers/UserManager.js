@@ -91,6 +91,16 @@ async function getByDocId(id) {
 }
 
 /**
+ * Retrieves all users along with their display names and the number of document signed.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of user objects.
+ */
+async function getAll() {
+
+    return await UserQueries.getAll();
+
+}
+
+/**
  * Retrieves archived users.
  * @returns {Promise<Array>} A promise that resolves to an array of archived users.
  */
@@ -294,6 +304,7 @@ module.exports = {
     getById,
     getByEmail,
     getByDocId,
+    getAll,
     getArchived,
     getSigningPageData,
     getSigningUserData,
