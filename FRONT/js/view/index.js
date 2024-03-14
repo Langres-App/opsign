@@ -12,39 +12,144 @@ class IndexView extends View {
     this.manager = authManager;
     this.documentManager = null;
     Utils.addStyleSheet('style/templates/document-template.css');
+    Utils.addStyleSheet('style/templates/main-user-template.css');
 
-    // add the add button functionality if the user is logged in
-    document.addEventListener('USER_LOGGED_IN', () => this.enableAddButton());
-    document.addEventListener('USER_NOT_LOGGED_IN', () => this.disableAddButton());
+    this.loadPage();
+  }
 
-    this.instantiateDocumentManager().then(() => {
-      // add the documents to the container (and import its scripts if needed) and display them
-      // after that, check if the user is logged in (to enable the add button if needed)
-      this.manageDisplayDocument().then(() => this.manager.check());
+  async loadPage() {
+    // import the differents scripts
+    await this.instantiateManagers();
 
+    await this.displayFetchedDocuments();
+
+    // manage what to display depending on the user state
+    if (await this.manager.isLogged()) {
+      this.enableNavButtons();
+      this.enableAddButton();
+    } else {
+      this.disableNavButtons();
+      this.disableAddButton();
+    }
+
+  }
+
+  enableNavButtons() {
+    const header = document.getElementById('mainHeader');
+    header.classList.add('enabled');
+
+    // clone it and add back every listener
+    header.replaceWith(header.cloneNode(true));
+
+    // get the buttons and the switch
+    const docBtn = document.getElementById('docs_menu');
+    const usersBtn = document.getElementById('users_menu');
+    const toggleSwitch = document.getElementById('archived_cb');
+
+    // set the switch to false (unchecked)
+    toggleSwitch.checked = false;
+
+    /**
+     * Toggles the state of the buttons.
+     */
+    const toggleState = () => {
+      docBtn.classList.toggle('active');
+      usersBtn.classList.toggle('active');
+    };
+
+    // add the event listeners
+    docBtn.addEventListener('click', async () => {
+      if (!docBtn.classList.contains('active')) {
+        toggleState();
+        await this.reload(toggleSwitch.checked);
+      }
     });
 
+    usersBtn.addEventListener('click', async () => {
+      if (!usersBtn.classList.contains('active')) {
+        toggleState();
+        await this.reload(toggleSwitch.checked);
+      }
+    });
+
+    // reload the view when the switch is toggled
+    toggleSwitch.addEventListener('change', async () => await this.reload(toggleSwitch.checked));
+
+  }
+
+
+  /**
+   * Reloads the view based on the selected state.
+   * If the documents button is active, it displays the documents.
+   * If the users button is active, it displays the users.
+   * @param {boolean} archived - Indicates whether to fetch archived data or not.
+   * @returns {Promise<void>} - A promise that resolves when the view is reloaded.
+   */
+  async reload(archived) {
+    const docBtn = document.getElementById('docs_menu');
+
+    // if the documents button is active, display the documents, else display the users (using the switch state for the archived state)
+    if (docBtn.classList.contains('active')) {
+      await this.displayFetchedDocuments(archived);
+
+      if (archived) this.disableAddButton();
+      else this.enableAddButton();
+
+    } else {
+      await this.displayUsers(archived);
+      this.disableAddButton();
+    }
+  }
+
+  /**
+   * Disables the navigation buttons in the main header.
+   * Clones the header element and adds it back with all the listeners.
+   * @returns {Promise<void>} A promise that resolves once the navigation buttons are disabled.
+   */
+  disableNavButtons() {
+    let header = document.getElementById('mainHeader');
+    header.classList.remove('enabled');
+
+    // clone it and add back every listener
+    header.replaceWith(header.cloneNode(true));
+
+    console.log('nav buttons disabled');
   }
 
   /**
    * Instantiates the document manager by adding the documents to the container and importing its scripts if needed.
    * @returns {Promise<void>} A promise that resolves when the document manager is instantiated.
    */
-  async instantiateDocumentManager() {
+  async instantiateManagers() {
     // add the documents to the container (and import its scripts if needed)
-    this.documentManager = await Instantiator.getDocumentManager();
-  }
-
-  /**
-   * Manages the display of documents.
-   * Adds the necessary scripts and styles, then displays the fetched documents.
-   * @returns {Promise<void>} A promise that resolves when the display is complete.
-   */
-  async manageDisplayDocument() {
-    // after adding the script and the style, add the documents (using the added scripts)
     await Instantiator.addDocumentScripts();
 
-    await this.displayFetchedDocuments();
+    this.documentManager = await Instantiator.getDocumentManager();
+    this.userManager = await Instantiator.getUserManager();
+
+    // get the container (same for the documents and the users)
+    const container = document.querySelector('#mainBody');
+
+    // init the template managers
+    this.docTemplateManager = await Instantiator.documentTemplateManager(container);
+    this.userTemplateManager = await Instantiator.mainUserTemplateManager(container);
+
+    
+    // when a document is clicked open the clicked popup
+    this.docTemplateManager.onDocumentClicked((id) => {
+      this.popupManager.open('clicked-popup', {
+        id: id,
+        authManager: this.manager,
+        popupManager: this.popupManager,
+        manager: this.documentManager
+      });
+    });
+
+
+    // when a user is clicked open the clicked popup
+    this.userTemplateManager.onUserClicked((id) => {
+      console.log('user clicked', id);
+    });
   }
 
   /**
@@ -62,6 +167,7 @@ class IndexView extends View {
 
     // when the add is clicked open the popup and pass the needed data
     btn.addEventListener('click', () => {
+      console.log('add button clicked');
       this.popupManager.open('document-popup', {
         state: AddDocumentPopup.state.ADD,
         manager: this.documentManager
@@ -86,26 +192,23 @@ class IndexView extends View {
    * Displays the fetched documents on the page.
    * @returns {Promise<void>} A promise that resolves when the documents are displayed.
    */
-  async displayFetchedDocuments() {
-    // get the container
-    const container = document.querySelector('#mainBody');
+  async displayFetchedDocuments(archived = false) {
+    await this.docTemplateManager.clearContainer();
 
-    // get the template manager (and import its scripts if needed)
-    let templateManager = await Instantiator.documentTemplateManager(container);
-    let documents = await this.documentManager.getAll();
+    // get the template manager    
+    let documents = await this.documentManager.getAll(archived);
 
     // add the documents to the container
-    await templateManager.addDocuments(documents);
+    await this.docTemplateManager.addDocuments(documents);
+  }
 
-    // when a document is clicked open the clicked popup
-    templateManager.onDocumentClicked((id) => {
-      this.popupManager.open('clicked-popup', {
-        id: id,
-        authManager: this.manager,
-        popupManager: this.popupManager,
-        manager: this.documentManager
-      });
-    });
+  async displayUsers(archived = false) {
+    await this.userTemplateManager.clearContainer();
 
+    // get the template manager
+    let users = await this.userManager.getAll(archived);
+
+    // add the users to the container
+    await this.userTemplateManager.addUsers(users);
   }
 }
