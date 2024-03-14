@@ -25,9 +25,11 @@ class IndexView extends View {
 
     // manage what to display depending on the user state
     if (await this.manager.isLogged()) {
+      this.isLogged = true;
       this.enableNavButtons();
       this.enableAddButton();
     } else {
+      this.isLogged = false;
       this.disableNavButtons();
       this.disableAddButton();
     }
@@ -87,11 +89,11 @@ class IndexView extends View {
    */
   async reload(archived) {
     const docBtn = document.getElementById('docs_menu');
+    this.isArchiveView = archived;
 
     // if the documents button is active, display the documents, else display the users (using the switch state for the archived state)
     if (docBtn.classList.contains('active')) {
       await this.displayFetchedDocuments(archived);
-
       if (archived) this.disableAddButton();
       else this.enableAddButton();
 
@@ -139,6 +141,8 @@ class IndexView extends View {
     this.docTemplateManager.onDocumentClicked((id) => {
       this.popupManager.open('clicked-popup', {
         id: id,
+        archived: this.isArchiveView || false, 
+        logged: this.isLogged,
         authManager: this.manager,
         popupManager: this.popupManager,
         manager: this.documentManager

@@ -172,7 +172,6 @@ class SigningLinkPopup extends Popup {
                 let link = await this.userManager.generateSigningLink({ email: user.identifier, documentId: dataMap['id'] });
                 actions[e.submitter.id](user, link);
             } catch (e) {
-                
                 alert(e.message);
             }
 
