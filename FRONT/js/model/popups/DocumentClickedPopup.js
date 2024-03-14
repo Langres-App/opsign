@@ -11,6 +11,136 @@ class DocumentClickedPopup extends Popup {
     static id = 'clicked-popup';
 
     /**
+     * Array of actions for the document clicked popup.
+     * @type {Array<Object>}
+     */
+    #actions = [
+        {
+            name: 'Voir le document',
+            id: 'view-document-button',
+            admin_only: false,
+            action: (_, docId) => {
+                super.close();
+                // open a new page with the same root page path 
+                window.open(`/charteapi/documents/${docId}/view/latest`, '_blank');
+            },
+            archive_button: false
+        },
+        {
+            name: 'Signer le document',
+            id: 'sign-document-button',
+            admin_only: false,
+            action: (_, __) => { 
+                window.location.href = Utils.getRelativePathToRoot() + 'visual/pages/signing.html';
+             },
+            archive_button: false
+        },
+        {
+            name: 'Signataires',
+            id: 'sign-button',
+            admin_only: false,
+            action: (_, docId) => {
+                // redirect to the signing list page with the document id
+                window.location.href = Utils.getRelativePathToRoot() + 'visual/pages/signedList.html?id=' + docId;
+            },
+            archive_button: false
+        },
+        {
+            name: 'Générer un lien de signature',
+            id: 'signing-link-button',
+            admin_only: true,
+            action: (dataMap, _) => {
+                const popupManager = dataMap['popupManager'];
+
+                // open the generation of the signing link popup
+                super.close();
+                popupManager.open('signing-link-popup', dataMap);
+            },
+            archive_button: false
+        },
+        {
+            name: 'Nouvelle Version',
+            id: 'add-version-button',
+            admin_only: true,
+            action: (dataMap, docId) => {
+                const popupManager = dataMap['popupManager'];
+
+                super.close();
+                popupManager.open('document-popup', {
+                    state: AddDocumentPopup.state.ADD_VERSION,
+                    id: docId,
+                    popupManager: dataMap['popupManager'],
+                    manager: dataMap['manager'],
+                    logged: dataMap['logged'],
+                    archived: dataMap['archived']
+                });
+            },
+            archive_button: false
+        },
+        {
+            name: 'Renommer',
+            id: 'rename-button',
+            admin_only: true,
+            action: (dataMap, docId) => {
+                const popupManager = dataMap['popupManager'];
+
+                super.close();
+                popupManager.open('document-popup', {
+                    state: AddDocumentPopup.state.EDIT,
+                    id: docId,
+                    popupManager: dataMap['popupManager'],
+                    manager: dataMap['manager'],
+                    logged: dataMap['logged'],
+                    archived: dataMap['archived']
+                });
+            },
+            archive_button: false
+        },
+        {
+            name: 'Archiver',
+            id: 'archive-button',
+            admin_only: true,
+            action: async (dataMap, docId) => {
+                const documentManager = dataMap['manager'];
+                const popupManager = dataMap['popupManager'];
+
+                super.close();
+
+                let messageContent;
+                try {
+                    // archive the document
+                    await documentManager.archive(docId);
+                    messageContent = `Le document ${this.document.getFileName()} a été archivé avec succès.
+                    Vous pouvez le retrouver dans la liste des documents archivés. (connexion requise)`;
+                } catch (e) {
+                    console.log(e);
+                    messageContent = `Une erreur est survenue lors de l'archivage du document ${this.document.getFileName()}. Veuillez réessayer.`;
+                } finally {
+                    popupManager.open('message-popup', {
+                        title: 'Archivage du document',
+                        message: messageContent
+                    });
+                }
+            },
+            archive_button: false
+        },
+        {
+            name: 'Restaurer',
+            id: 'restore-button',
+            admin_only: true,
+            action: (_, docId) => { console.log('restore', docId); },
+            archive_button: true
+        },
+        {
+            name: 'Supprimer définitivement',
+            id: 'delete-button',
+            admin_only: true,
+            action: (_, docId) => { console.log('delete', docId); },
+            archive_button: true
+        }
+    ]
+
+    /**
      * Represents a DocumentClickedPopup.
      * @constructor
      */
@@ -45,96 +175,37 @@ class DocumentClickedPopup extends Popup {
         this.document = await dataMap['manager'].getById(docId);
         title.innerHTML = this.document.getFileName() || 'Document';
 
-        // manage the click events
-        this.manageClick(dataMap);
+        // add the action buttons depending on the user's and page's state
+        this.addActionButtons(dataMap);
 
     }
 
     /**
-     * Handles the click events for the document popup.
-     * @param {Object} dataMap - The data map containing the necessary information.
+     * Adds action buttons to the popup.
+     * 
+     * @param {Object} dataMap - The data map containing information for the buttons.
      */
-    manageClick(dataMap) {
+    addActionButtons(dataMap) {
+        const isLogged = dataMap['logged'];
+        const isArchived = dataMap['archived'];
 
-        // get the data from the dataMap
-        let docId = dataMap['id'];
-        let popupManager = dataMap['popupManager'];
-        let documentManager = dataMap['manager'];
-        let authManager = dataMap['authManager'];
+        // get the container for the buttons
+        const buttonsContainer = super.getPopup().querySelector('.buttons');
+        buttonsContainer.innerHTML = '';
 
-        // if the user is not logged in, we hide the admin-only buttons
-        authManager.isLogged().then(isLogged => {
-            super.getPopup().querySelectorAll('.admin-only').forEach(async btn => {
-                btn.style.display = isLogged ? 'block' : 'none';
-            })
+        // get the buttons to display (depending on the user's state and the page's state)
+        const buttons = this.#actions.filter(action => {
+            return (action.admin_only ? isLogged : true) && isArchived === action.archive_button;
         });
 
-        // get the buttons
-        let buttons = super.getPopup().querySelectorAll('.button:not(#close-button)');
-
-        // replace every button by a clone (which don't have any eventListener)
-        buttons.forEach(button => button.replaceWith(button.cloneNode(true)));
-
-        super.getPopup().querySelector('#view-document-button').addEventListener('click', () => {
-            super.close();
-            // open a new page with the same root page path 
-            window.open(`/charteapi/documents/${docId}/view/latest`, '_blank');
-        });
-
-        // add the eventListeners to the buttons
-        super.getPopup().querySelector('#sign-button').addEventListener('click', async () => {
-            super.close();
-            popupManager.open('signing-link-popup', dataMap);
-        });
-
-        // signing list button clicked, redirect to the signing list page
-        super.getPopup().querySelector('#signing-list-button').addEventListener('click', () => {
-            // redirect to the signing list page with the document id
-            window.location.href = Utils.getRelativePathToRoot() + 'visual/pages/signedList.html?id=' + docId;
-        });
-
-        // add version button clicked, open the document popup with the add version state
-        super.getPopup().querySelector('#add-version-button').addEventListener('click', () => {
-            super.close();
-            popupManager.open('document-popup', {
-                state: AddDocumentPopup.state.ADD_VERSION,
-                id: docId,
-                popupManager, popupManager,
-                manager: documentManager
-            });
-        });
-
-        // update button clicked, open the document popup with the edit state
-        super.getPopup().querySelector('#update-button').addEventListener('click', () => {
-            super.close();
-            popupManager.open('document-popup', {
-                state: AddDocumentPopup.state.EDIT,
-                id: docId,
-                popupManager, popupManager,
-                manager: documentManager
-            });
-        });
-
-        // archive button clicked, archive the document
-        super.getPopup().querySelector('#archive-button').addEventListener('click', async () => {
-            super.close();
-
-            let messageContent;
-            try {
-                // archive the document
-                await documentManager.archive(docId);
-                messageContent = `Le document ${this.document.getFileName()} a été archivé avec succès. Vous pouvez le retrouver dans la liste des documents archivés. (connexion requise)`;
-            } catch (e) {
-                console.log(e);
-                messageContent = `Une erreur est survenue lors de l'archivage du document ${this.document.getFileName()}. Veuillez réessayer.`;
-            } finally {
-                popupManager.open('message-popup', {
-                    title: 'Archivage du document',
-                    message: messageContent
-                });
-            }
-
-
+        // add the buttons to the container
+        buttons.forEach(button => {
+            const btn = Utils.createHTMLElement('div', '', 'button');
+            const text = Utils.createHTMLElement('p');
+            text.innerHTML = button.name;
+            btn.appendChild(text);
+            btn.addEventListener('click', () => button.action(dataMap, dataMap['id']));
+            buttonsContainer.appendChild(btn);
         });
     }
 }
