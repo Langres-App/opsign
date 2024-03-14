@@ -23,9 +23,10 @@ class LoginView extends View {
 
         // if the user is logged in, redirect to index
         document.addEventListener('USER_LOGGED_IN', () => window.location = '/charte');
-        
+        const res = await manager.check();
+        console.log(res);
         // check if the user exist is logged in
-        this.userExists = await manager.check();
+        this.userExists = res.userExists;
 
         // if the user exists (but is not logged in), we display the login form
         if (!this.userExists) {
