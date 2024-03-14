@@ -26,6 +26,10 @@ class UserManager {
     async addUser(user) {
         return await this.#userDao.add(user);
     }
+    
+    async getAll(archived = false) {
+        return await this.#userDao.getAll(archived);
+    }
 
     /**
      * Retrieves all users associated with a given document ID.
