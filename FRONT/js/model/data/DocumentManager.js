@@ -7,6 +7,7 @@ class DocumentManager extends DataManager {
      * The documents that are currently in the system (cached)
      */
     #documents = [];
+    #archivedDocuments = [];
 
     /**
      * Represents a DocumentManager object.
@@ -23,16 +24,20 @@ class DocumentManager extends DataManager {
      * @param {Array} documents - The documents to be cached.
      * @returns {void}
      */
-    #cacheDocuments(documents) {
-        this.#documents = documents;
+    #cacheDocuments(documents, archived = false) {
+        if (archived) {
+            this.#archivedDocuments = documents;
+        } else {
+            this.#documents = documents;
+        }
     }
 
     /**
      * Retrieves the documents stored in the DocumentManager.
      * @returns {Array} An array of documents.
      */
-    getDocuments() {
-        return this.#documents;
+    getDocuments(archived = false) {
+        return archived ? this.#archivedDocuments : this.#documents;
     }
 
     /**
@@ -40,8 +45,8 @@ class DocumentManager extends DataManager {
      * @param {string} id - The ID of the document.
      * @returns {Document|null} - The document object if found, or null if not found.
      */
-    getDocument(id) {
-        for (let doc of this.#documents) {
+    getDocument(id, archived = false) {
+        for (let doc of (archived ? this.#archivedDocuments : this.#documents)) {
             if (doc.getId() == id) {
                 return doc;
             }
@@ -60,19 +65,26 @@ class DocumentManager extends DataManager {
      * Returns all the object
      * @returns {Array} - An array of all the object
      */
-    async getAll() {
+    async getAll(archived = false) {
 
         // if the documents are already loaded, we return them
-        if (this.#documents.length > 0) {
-            return this.#documents;
+        if (archived) {
+            if (this.#archivedDocuments.length > 0) {
+                return this.#archivedDocuments;
+            }
+        } else {
+            if (this.#documents.length > 0) {
+                return this.#documents;
+            }
         }
 
+        
         let toReturn = [];
         let data;
 
         // we try to get the data
         try {
-            data = await super.getAll();
+            data = await super.getAll(archived);
         } catch (e) {
             console.log(e);
         }
@@ -83,7 +95,7 @@ class DocumentManager extends DataManager {
                 toReturn.push(new PoDocument(doc))
             });
 
-            this.#cacheDocuments(toReturn);
+            this.#cacheDocuments(toReturn, archived);
 
             return toReturn;
         }
