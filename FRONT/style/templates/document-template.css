@@ -1,6 +1,8 @@
 .document {
+    z-index: 1;
     width: 280px;
     flex-shrink: 0;
+    user-select: none !important;
     height: fit-content;
     background: var(--white);
     border-radius: var(--radius);
