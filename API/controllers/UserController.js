@@ -28,14 +28,23 @@ router.get('/:id', handle(async (req, res) => {
 }));
 
 /**
- * GET /users?email=:email
- * @description Get user by email.
+ * GET /users(?email=:email)
+ * @description Get user by email / get every users.
  * @param {Object} req - The request object.
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the user is retrieved.
  */
 router.get('', handle(async (req, res) => {
-    let data = await UserManager.getByEmail(req.query.email);
+    
+    let data;
+
+    if (!req.query.email) {
+        data = await UserManager.getAll();
+        res.status(200).send(data);
+        return;
+    }
+    
+    data = await UserManager.getByEmail(req.query.email);
     res.status(200).send({ first_name: data.first_name, last_name: data.last_name });
 }));
 

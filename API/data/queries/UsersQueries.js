@@ -134,6 +134,30 @@ async function getByEmail(email) {
 }
 
 /**
+ * Retrieves all users along with their display names and the number of document signed.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of user objects.
+ */
+async function getAll() {
+
+    return await executeWithCleanup(async (query) => {
+
+        return await query(`
+            SELECT u.id,
+                CONCAT(u.first_name, ' ', u.last_name) AS display_name,
+                COUNT(DISTINCT CASE WHEN v.doc_id IS NOT NULL THEN v.doc_id END) AS num_doc_signatures
+            FROM user u
+            LEFT JOIN user_version uv ON u.id = uv.user_id
+            LEFT JOIN version v ON uv.version_id = v.id AND uv.signature IS NOT NULL
+            WHERE u.archived_date IS NULL
+            GROUP BY u.id, u.first_name, u.last_name;
+            `);
+
+    });
+
+
+}
+
+/**
  * Retrieves archived users from the database.
  * @returns {Promise<Array<Object>>} A promise that resolves to an array of user objects.
  */
@@ -231,10 +255,11 @@ module.exports = {
     getById,
     getByEmail,
     getByDocId,
+    getAll,
     getArchived,
 
     archive,
     unarchive,
-    
+
     deleteArchived
 };
