@@ -128,14 +128,61 @@ class DocumentClickedPopup extends Popup {
             name: 'Restaurer',
             id: 'restore-button',
             admin_only: true,
-            action: (_, docId) => { console.log('restore', docId); },
+            action: async (dataMap, docId) => { 
+                const documentManager = dataMap['manager'];
+                const popupManager = dataMap['popupManager'];
+
+                super.close();
+
+                let messageContent;
+                try {
+                    // archive the document
+                    await documentManager.unarchive(docId);
+                    messageContent = `Le document ${this.document.getFileName()} a été désarchivé avec succès.
+                    Vous pouvez le retrouver dans la liste des documents non archivés.`;
+                } catch (e) {
+                    console.log(e);
+                    messageContent = `Une erreur est survenue lors du désarchivage du document ${this.document.getFileName()}. Veuillez réessayer.`;
+                } finally {
+                    popupManager.open('message-popup', {
+                        title: 'Désarchivage du document',
+                        message: messageContent
+                    });
+                }
+             },
             archive_button: true
         },
         {
             name: 'Supprimer définitivement',
             id: 'delete-button',
             admin_only: true,
-            action: (_, docId) => { console.log('delete', docId); },
+            action: async (dataMap, docId) => {
+                const documentManager = dataMap['manager'];
+                const popupManager = dataMap['popupManager'];
+
+                super.close();
+
+                let messageContent;
+                try {
+                    const resp = confirm(`Êtes-vous sûr de vouloir supprimer définitivement le document ${this.document.getFileName()} ?`);
+
+                    if (!resp) return;
+
+                    // archive the document
+                    await documentManager.delete(docId);
+                    messageContent = `Le document ${this.document.getFileName()} a été supprimé avec succès.`;
+                } catch (e) {
+                    console.log(e);
+                    messageContent = `Une erreur est survenue lors de la suppression définitive du document ${this.document.getFileName()}. Veuillez réessayer.`;
+                } finally {
+                    if (!messageContent) return;
+                    
+                    popupManager.open('message-popup', {
+                        title: 'Suppression définitive du document',
+                        message: messageContent
+                    });
+                }
+             },
             archive_button: true
         }
     ]
