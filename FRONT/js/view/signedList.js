@@ -33,6 +33,7 @@ class SignedListView extends View {
     // Wait for auth Check
     document.addEventListener('USER_LOGGED_IN', () => {
       this.#displayUsers().then(() => {
+        this.addButtons();
         this.#manageSearch();
       });
     });
@@ -40,12 +41,33 @@ class SignedListView extends View {
     // if the user is not logged in, we redirect to the index page
     document.addEventListener('USER_NOT_LOGGED_IN', () => {
       this.#displayUsers().then(() => {
+        this.removeButtons();
         this.#manageSearch();
       });
     });
 
     authManager.check();
 
+  }
+
+  /**
+   * Adds buttons to the DOM and removes the 'disabled' class from them.
+   */
+  addButtons() {
+    const btns = document.querySelectorAll('.admin');
+    btns.forEach(btn => {
+      btn.classList.remove('disabled');
+    });
+  }
+
+  /**
+   * Disables the remove buttons for administrators.
+   */
+  removeButtons() {
+    const btns = document.querySelectorAll('.admin');
+    btns.forEach(btn => {
+      btn.classList.add('disabled');
+    });
   }
 
   /**
