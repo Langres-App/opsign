@@ -63,6 +63,18 @@ class UserDao extends Dao {
                 'Authorization': 'Bearer ' + AuthManager.getToken()
             },
         });
+
+        // if the response is 500, it means that the server had a problem
+        if (response.status === 500) {
+            throw new Error('Une erreur est survenue lors de la récupération des données de signature. Veuillez réessayer plus tard.');
+        }
+
+        // if the response is 404, it means that the token is invalid
+        if (response.status === 404) {
+            throw new Error('[404] Le token de signature est invalide');
+        }
+
+        // else return the json body of the response containing the document and the user name
         let result = await response.json();
         return result;
     }
