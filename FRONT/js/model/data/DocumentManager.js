@@ -192,7 +192,31 @@ class DocumentManager extends DataManager {
      * @param {number | string} id identifier of the object to delete  
      */
     async archive(id) {
-        await super.delete(id);
+        await super.delete(id, false);
+    }
+
+    /**
+     * Unarchives a document with the specified ID.
+     * @param {number} id - The ID of the document to unarchive.
+     * @returns {Promise<void>} - A promise that resolves when the document is unarchived.
+     */
+    async unarchive(id) {
+        const dao = await this.getDao();
+
+        try {
+            dao.unarchive(id);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    /**
+     * Deletes a document with the specified ID.
+     * @param {number} id - The ID of the document to delete.
+     * @returns {Promise<void>} A promise that resolves when the document is deleted.
+     */
+    async delete(id) {
+        await super.delete(id, true);
     }
 
 }
