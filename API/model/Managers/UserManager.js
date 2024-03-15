@@ -122,7 +122,7 @@ async function getSigningPageData(token) {
 
     const toReturn = await UserVersionQueries.getSigningPageData(token);
 
-    assert(toReturn, 'No data found for the given token');
+    assert(toReturn, 'Data not found for the given token');
 
     // transform it to DD-MM-YYYY
     toReturn.docDate = toReturn.docDate.toLocaleDateString('fr-FR', { year: 'numeric', month: '2-digit', day: '2-digit' });

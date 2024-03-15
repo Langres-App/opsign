@@ -15,8 +15,47 @@ class SigningView extends View {
     // check the authentication (update the header & check the auth token)
     authManager.check();
 
-    // initialize the signing view
-    this.init();
+    Instantiator.getUserManager().then(async (usersManager) => {
+      // initialize the users manager
+      this.usersManager = usersManager;
+      
+      // get the token wether it is in the url or not
+      await this.getToken();
+
+      // initialize the signing view
+      this.init();
+    });
+  }
+
+  /**
+   * Retrieves the token from the URL parameter or prompts the user to enter it.
+   * If the token is not provided or is empty, it keeps prompting until a valid token is entered.
+   * After obtaining the token, it confirms the token with the user and updates the URL with the token.
+   * @returns {Promise<void>} A promise that resolves when the token is obtained and confirmed.
+   */
+  async getToken() {
+
+    this.token = Utils.getParamValue('token');
+
+    if (!this.token) {
+
+      do {
+
+        do {
+          this.token = prompt('Veuillez entrer le token de signature');
+          console.log(this.token);
+        } while (!this.token || this.token === null || this.token === '')
+
+        this.token = this.token.trim();
+
+        this.confirm = confirm(`Le token de signature est : ${this.token}\nConfirmez-vous ?`);
+
+      } while (!this.confirm && (!this.token || !this.token == null || this.token !== ''));
+
+      window.location = window.location.pathname + '?token=' + this.token;
+
+    }
+
   }
 
   /**
@@ -41,8 +80,7 @@ class SigningView extends View {
    */
   async initVisualData() {
     // get the document and user name
-    this.usersManager = await Instantiator.getUserManager();
-    let { docId, docName, docDate, userName } = await this.usersManager.getDocAndUserName(Utils.getParamValue('token'));
+    let { docId, docName, docDate, userName } = await this.usersManager.getDocAndUserName(this.token);
 
     // define the document date if it is not present
     if (!docDate) docDate = 'latest';
@@ -95,8 +133,7 @@ class SigningView extends View {
       const blob = await this.canvasClass.exportToBlob();
 
       // send the token & blob to api and retreive the signed doc as a blob
-      const token = Utils.getParamValue('token');
-      const signedDocBlob = await this.usersManager.signDocument(token, blob);
+      const signedDocBlob = await this.usersManager.signDocument(this.token, blob);
 
       alert('Votre document signé va être ouvert dans un nouvel onglet (usage unique), si vous avez besoin de le télécharger, veuillez le faire maintenant.\nVous pourrez toujours le redemander par la suite à l\'administrateur.\nMerci de votre compréhension.');
 
