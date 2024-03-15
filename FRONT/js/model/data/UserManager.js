@@ -64,11 +64,21 @@ class UserManager {
         }
     }
 
+    /**
+     * Retrieves the document and user name using the provided token.
+     * @param {string} token - The token used for authentication.
+     * @returns {Promise} A promise that resolves to the document and user name.
+     */
     async getDocAndUserName(token) {
         try {
             return await this.#userDao.getDocAndUserName(token);
-        } catch (_) {
-            window.location.href = '/charte';
+        } catch (e) {
+            if (e.message.includes('404')) {
+                alert('Le token de signature est invalide.\nVeuillez réessayer.');
+
+                // reload the page and remove the token from the url
+                window.location = window.location.pathname;
+            }
         }
     }
 
