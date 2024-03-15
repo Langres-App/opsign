@@ -120,8 +120,17 @@ class UserDao extends Dao {
     async archive(userId) {
         // To archive a user, we just send the delete request with the
         // user id the server will just set the user as archived.
-        return super.delete(userId);
+        return super.delete(userId, false);
     }
 
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param {string} userId - The ID of the user to delete.
+     * @returns {Promise} A promise that resolves when the user is deleted.
+     */
+    async delete(userId) {
+        return super.delete(userId, true);
+    }
 
 }
