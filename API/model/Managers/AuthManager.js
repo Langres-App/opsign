@@ -55,6 +55,7 @@ async function userIsLogged(token) {
  */
 async function login(data) {
 
+    // check for the username and password
     assert(data.username, '[AuthManager.login] The username is required');
     assert(data.password, '[AuthManager.login] The password is required');
 
@@ -76,8 +77,11 @@ async function login(data) {
  */
 async function register(data) {
 
-    assert(data.username, '[AuthManager.register] The username is required');
-    assert(data.password, '[AuthManager.register] The password is required');
+    assert(data.username, '[AuthManager.login] The username is required');
+    assert(/^[a-z0-9-]+\.[a-z0-9]+$/i.test(data.username), '[AuthManager.login] The username is invalid');
+
+    assert(data.password, '[AuthManager.login] The password is required');
+    assert(data.password.length >= 4, '[AuthManager.login] The password is not long enough, must be at least 4 characters long');
 
     // clean the username and password from any leading or trailing spaces
     data.username = data.username.trim();
