@@ -26,7 +26,7 @@ class UserManager {
     async addUser(user) {
         return await this.#userDao.add(user);
     }
-    
+
     async getAll(archived = false) {
         return await this.#userDao.getAll(archived);
     }
@@ -140,5 +140,28 @@ class UserManager {
      */
     async archive(userId) {
         return await this.#userDao.archive(userId);
+    }
+
+    /**
+     * Unarchives a user with the specified ID.
+     * @param {number} id - The ID of the user to unarchive.
+     * @returns {Promise<void>} - A promise that resolves when the user is unarchived.
+     */
+    async unarchive(id) {
+        try {
+            this.#userDao.unarchive(id);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param {number} userId - The ID of the user to delete.
+     * @returns {Promise} A promise that resolves when the user is deleted.
+     */
+    async delete(userId) {
+        return await this.#userDao.delete(userId);
     }
 }

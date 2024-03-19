@@ -99,12 +99,30 @@ class Dao {
     }
 
     /**
+     * Unarchives a document with the specified ID.
+     * @param {number} id - The ID of the document to unarchive.
+     * @returns {Promise<Response>} - A Promise that resolves to the response from the server.
+     */
+    async unarchive(id) {
+        let response = await fetch(this.url + this.endpoint + '/' + id + '/unarchive', {
+            method: 'PUT',
+            headers: {
+                'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+            }
+        });
+
+        return response;
+    }
+
+    /**
      * Delete an object from the database
      * @param {number} id Id of the object to delete
+     * @param {boolean} [archived=false] - Indicates whether to delete the archived data.
      * @returns the result of the delete request
      */
-    async delete(id) {
-        let response = await fetch(this.url + this.endpoint + "/" + id, {
+    async delete(id, archived = false) {
+        console.log('delete', id, archived);
+        let response = await fetch(this.url + this.endpoint + "/" + id + (archived ? '/archived' : ''), {
             method: 'DELETE'
         });
 

@@ -94,14 +94,14 @@ router.post('/:id', upload.single('file'), storeDocument, deleteOriginal, handle
 
 /**
  * Route for archiving a document by ID.
- * @name PUT /documents/:id
+ * @name PUT /:id/unarchive
  * @function
  * @async
  * @param {Object} req - Express request object.
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
-router.put('/archived/:id', handle(async (req, res) => {
+router.put('/:id/unarchive', handle(async (req, res) => {
     await DocumentManager.unarchive(req.params.id);
     res.status(200).send('Document restored successfully');
 }));
@@ -129,7 +129,7 @@ router.delete('/:id', handle(async (req, res) => {
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
-router.delete('/archived/:id', handle(async (req, res) => {
+router.delete('/:id/archived', handle(async (req, res) => {
     await DocumentManager.deleteArchivedDoc(req.params.id);
     res.status(204).send('Document deleted successfully');
 }));

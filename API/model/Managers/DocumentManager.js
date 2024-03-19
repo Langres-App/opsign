@@ -245,8 +245,13 @@ async function deleteArchivedDoc(id) {
     /* If deleteArchivedDoc throw an error (couldn't delete) the physical delete don't happen */
 
     // delete physical file
-    const filePath = path.join(__dirname, '../Docs', doc.name);
-    fs.rmdirSync(filePath, { recursive: true });
+    const filePath = path.join(__dirname, '../../Docs', doc.name);
+    fs.rm(filePath, { recursive: true }, (err) => {
+        if (err) {
+            console.log(err);
+            throw new Error('Error while deleting the document');
+        }
+    });
 
 }
 
