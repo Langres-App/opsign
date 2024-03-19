@@ -20,8 +20,7 @@ async function getAll() {
  * @returns {Promise<Array>} A promise that resolves to an array of archived documents.
  */
 async function getAllArchived() {
-    
-        return await queries.getAllArchived();
+    return await queries.getAllArchived();
 
 }
 
@@ -73,6 +72,11 @@ async function add(data) {
 
     // Check if the required fields are present
     assert(data.title, '[DocumentManager.add] The file name is required');
+
+    // replace special characters in the filename with underscores (to prevent errors when loading the file) but keeps [] and spaces and - and let the .pdf
+    data.title = data.title.replace(/[^a-zA-Z0-9\[\]\s.-]/g, '_');
+
+
     assert(data.date, '[DocumentManager.add] The created date is required');
     assert(data.filePath, '[DocumentManager.add] The file path is required');
 
@@ -107,6 +111,8 @@ async function addVersion(docId, versionDate, filePath) {
  * @throws {Error} - If the document ID is missing, the document is not found, or the document ID is not a number.
  */
 async function updateTitle(id, title) {
+    // replace special characters in the filename with underscores (to prevent errors when loading the file) but keeps [] and spaces and - and let the .pdf
+    title = title.replace(/[^a-zA-Z0-9\[\]\s.-]/g, '_');
 
     // Check if the required fields are present
     assert(id, '[DocumentManager.updateTitle] Document ID is required');
@@ -229,7 +235,7 @@ async function getPdf(id, date = undefined) {
  * @throws {Error} - If the required fields are not present or if the document ID is not a number.
  */
 async function deleteArchivedDoc(id) {
-    
+
     // Check if the required fields are present
     assert(id, '[DocumentManager.delete] Document ID is required');
 
