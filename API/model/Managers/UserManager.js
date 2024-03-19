@@ -311,7 +311,7 @@ async function autoDeleteArchivedUsers() {
     const fiveYearsAgo = now - (5 * 365 * 24 * 60 * 60 * 1000);
 
     console.log(`[${new Date().toLocaleString()}] - Checking for archived users to delete...`);
-    
+
     // Loop through the archived users
     for (const user of archivedUsers) {
         try {
