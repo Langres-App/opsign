@@ -136,12 +136,12 @@ class IndexView extends View {
     this.docTemplateManager = await Instantiator.documentTemplateManager(container);
     this.userTemplateManager = await Instantiator.mainUserTemplateManager(container);
 
-    
+
     // when a document is clicked open the clicked popup
     this.docTemplateManager.onDocumentClicked((id) => {
       this.popupManager.open('clicked-popup', {
         id: id,
-        archived: this.isArchiveView || false, 
+        archived: this.isArchiveView || false,
         logged: this.isLogged,
         authManager: this.manager,
         popupManager: this.popupManager,

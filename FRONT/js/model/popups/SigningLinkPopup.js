@@ -83,6 +83,13 @@ class SigningLinkPopup extends Popup {
         let popup = super.getPopup();
         let inputs = this.getInputs(popup);
 
+        // format the email input to have all lowercase letters and remove any weird chars but let the @ and the underscore
+        inputs.email.addEventListener('input', () => {
+            // make email lower case and only accept email format allow the underscore and dash
+
+            inputs.email.value = inputs.email.value.toLowerCase().replace(/[^a-zA-Z0-9@._-]/g, '');
+        });
+
         // when the email loses focus we check if the user exists & fill the first and last name if he does
         inputs.email.addEventListener('blur', async () => {
             // call api to get the user if he exists (auto fill the first and last name if he exists)
@@ -111,8 +118,8 @@ class SigningLinkPopup extends Popup {
 
         // format the first name input to have the first letter of each word uppercase and the rest lowercase
         inputs.firstName.addEventListener('input', () => {
-            // make the first letter of each word uppercase and the rest lowercase
-            inputs.firstName.value = inputs.firstName.value.replace(/\b\w/g, l => l.toUpperCase());
+            // make the first letter of each word uppercase and the rest lowercase and remove any weird chars but let dashes
+            inputs.firstName.value = inputs.firstName.value.replace(/[^a-zA-Z\s-]/g, '').replace(/\b\w/g, l => l.toUpperCase());
         });
 
         // format the last name input to have all uppercase letters and remove any weird chars like numbers ',' '.' etc

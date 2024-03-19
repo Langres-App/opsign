@@ -39,21 +39,21 @@ class SigningView extends View {
 
     if (!this.token) {
 
+      // ask for the token until a valid one is entered 
       do {
-
         do {
           this.token = prompt('Veuillez entrer le token de signature');
-          console.log(this.token);
-        } while (!this.token || this.token === null || this.token === '')
 
-        this.token = this.token.trim();
+        // if the user cancels the prompt, redirect to the charte page
+          if (!this.token) window.location = '/charte'
+          this.token = this.token.trim()
+        } while (this.token === '')
 
         this.confirm = confirm(`Le token de signature est : ${this.token}\nConfirmez-vous ?`);
 
-      } while (!this.confirm && (!this.token || !this.token == null || this.token !== ''));
+      } while (!this.confirm);
 
       window.location = window.location.pathname + '?token=' + this.token;
-
     }
 
   }
@@ -128,6 +128,12 @@ class SigningView extends View {
 
     // add the signing button event listener
     signingButton.addEventListener('click', async () => {
+
+      // ask the user if they have signed the document (to confirm)
+      const hasSigned = confirm('Avez-vous bien signé le document ?');
+
+      // if the user has not signed, return
+      if (!hasSigned) return;
 
       // get the blob from the canvas
       const blob = await this.canvasClass.exportToBlob();
