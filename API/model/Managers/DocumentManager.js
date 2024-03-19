@@ -72,6 +72,7 @@ async function add(data) {
 
     // Check if the required fields are present
     assert(data.title, '[DocumentManager.add] The file name is required');
+    assert(data.title.length > 0, '[DocumentManager.add] The file name is required');
 
     // replace special characters in the filename with underscores (to prevent errors when loading the file) but keeps [] and spaces and - and let the .pdf
     data.title = data.title.replace(/[^a-zA-Z0-9\[\]\s.-]/g, '_');
@@ -111,6 +112,11 @@ async function addVersion(docId, versionDate, filePath) {
  * @throws {Error} - If the document ID is missing, the document is not found, or the document ID is not a number.
  */
 async function updateTitle(id, title) {
+
+    // Check if the required fields are present
+    assert(title, '[DocumentManager.updateTitle] The title is required');
+    assert(title.length > 0, '[DocumentManager.updateTitle] The title is required');
+
     // replace special characters in the filename with underscores (to prevent errors when loading the file) but keeps [] and spaces and - and let the .pdf
     title = title.replace(/[^a-zA-Z0-9\[\]\s.-]/g, '_');
 
