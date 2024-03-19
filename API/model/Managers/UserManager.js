@@ -105,9 +105,9 @@ async function getAll() {
  * @returns {Promise<Array>} A promise that resolves to an array of archived users.
  */
 async function getArchived() {
-    
-        return await UserQueries.getArchived();
-    
+
+    return await UserQueries.getArchived();
+
 }
 
 /**
@@ -157,15 +157,15 @@ async function archive(userVersionId) {
  * @throws {Error} If the user ID is missing or not a number.
  */
 async function unarchive(id) {
-    
-        assert(id, '[UserManager.unarchive] The user ID is required');
-    
-        id = parseInt(id);
-        assert(id, '[UserManager.unarchive] The user ID must be a number');
-    
-        return await UserQueries.unarchive(id);
-    
-    
+
+    assert(id, '[UserManager.unarchive] The user ID is required');
+
+    id = parseInt(id);
+    assert(id, '[UserManager.unarchive] The user ID must be a number');
+
+    return await UserQueries.unarchive(id);
+
+
 }
 
 /**
@@ -297,10 +297,42 @@ async function deleteArchived(id) {
 
 }
 
+/**
+ * Deletes archived users whose archived date is older than 5 years.
+ * @returns {Promise<void>} A promise that resolves when all archived users have been deleted.
+ */
+async function autoDeleteArchivedUsers() {
+
+    // Get all archived users
+    const archivedUsers = await getArchived();
+
+    // Get the current date and the date 5 years ago
+    const now = new Date().getTime();
+    const fiveYearsAgo = now - (5 * 365 * 24 * 60 * 60 * 1000);
+
+    console.log(`[${new Date().toLocaleString()}] - Checking for archived users to delete...`);
+    
+    // Loop through the archived users
+    for (const user of archivedUsers) {
+        try {
+            // check if their archived date is older that 5 years, if so delete them
+            if (new Date(user.archived).getTime() < fiveYearsAgo) {
+                await deleteArchived(user.id);
+                console.log(`[${new Date().toLocaleString()}] - User ${user.firstName} ${user.last_name} has been deleted`);
+            }
+        } catch (error) {
+            console.error(`Error deleting user with ID ${user.id}: ${error.message}`);
+        }
+    }
+
+    // Log the end of the process
+    console.log(`[${new Date().toLocaleString()}] - Finished checking for archived users`);
+}
+
 module.exports = {
     add,
     generateSigningToken,
-    
+
     getById,
     getByEmail,
     getByDocId,
@@ -316,4 +348,5 @@ module.exports = {
     sign,
 
     deleteArchived,
+    autoDeleteArchivedUsers
 }
