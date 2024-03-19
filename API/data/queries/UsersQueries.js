@@ -135,25 +135,136 @@ async function getByEmail(email) {
 
 /**
  * Retrieves all users along with their display names and the number of document signed.
- * @returns {Promise<Array<Object>>} A promise that resolves to an array of user objects.
+ * @returns {Promise<Array<
+ * {
+ *      id: number, 
+ *      display_name: string, 
+ *      docs_signatures: [{id: number}], 
+ *      docs_waiting: [{id: number}],
+ *       docs_outdated: [{id: number}]
+ * }
+ * >>} A promise that resolves to an array of user objects.
  */
 async function getAll() {
 
     return await executeWithCleanup(async (query) => {
 
-        return await query(`
-            SELECT u.id,
-                CONCAT(u.first_name, ' ', u.last_name) AS display_name,
-                COUNT(DISTINCT CASE WHEN v.doc_id IS NOT NULL THEN v.doc_id END) AS num_doc_signatures
-            FROM user u
-            LEFT JOIN user_version uv ON u.id = uv.user_id
-            LEFT JOIN version v ON uv.version_id = v.id AND uv.signature IS NOT NULL
-            WHERE u.archived_date IS NULL
-            GROUP BY u.id, u.first_name, u.last_name;
-            `);
+        const users = await query(`
+        SELECT
+            u.id,
+            CONCAT(u.first_name, ' ', u.last_name) AS display_name
+        FROM
+            user u
+        WHERE
+            u.archived_date IS NULL;
+        `);
+
+        for (let user of users) {
+            const signedDocId = await getSignedDocId(user.id);
+            const waitingDocId = await getWaitingDocId(user.id);
+            const toUpdateDocId = await getToUpdateDocId(user.id);
+
+            user.docs_signatures = signedDocId;
+            user.docs_waiting = waitingDocId;
+            user.docs_outdated = toUpdateDocId;
+        }
+
+        return users;
 
     });
 
+}
+
+/**
+ * Retrieves the signed document ID for a given user.
+ * @param {number} userId - The ID of the user.
+ * @returns {Promise<Array<{id: number}>>} - A promise that resolves to an array of objects containing the signed document ID.
+ */
+async function getSignedDocId(userId) {
+    return await executeWithCleanup(async (query) => {
+        return await query(`
+        SELECT DISTINCT
+            v.doc_id id
+        FROM 
+            user_version uv
+        LEFT JOIN version v ON uv.version_id = v.id
+        LEFT JOIN document d ON v.doc_id = d.id
+        WHERE uv.user_id = ?
+            AND uv.signature IS NOT NULL
+            AND d.archived_date IS NULL;
+        `, [userId]);
+    });
+}
+
+/**
+ * Retrieves the waiting document ID for a given user.
+ *
+ * @param {number} userId - The ID of the user.
+ * @returns {Promise<number>} - A promise that resolves to the waiting document ID.
+ */
+async function getWaitingDocId(userId) {
+    return await executeWithCleanup(async (query) => {
+        return await query(`
+        SELECT DISTINCT
+            v.doc_id id
+        FROM 
+            user_version uv
+        LEFT JOIN version v ON uv.version_id = v.id
+        LEFT JOIN document d ON v.doc_id = d.id
+        WHERE uv.user_id = ?
+            AND uv.signature IS NULL
+            AND d.archived_date IS NULL;
+        `, [userId]);
+    });
+
+}
+
+/**
+ * Retrieves the document IDs that need to be updated for a given user.
+ * 
+ * @param {number} userId - The ID of the user.
+ * @returns {Promise<number[]>} - A promise that resolves to an array of document IDs.
+ */
+async function getToUpdateDocId(userId) {
+    return await executeWithCleanup(async (query) => {
+        return await query(`
+        WITH SignedDocs AS (
+            -- Sélectionner tous les documents signés au moins une fois par un utilisateur spécifié (u)
+            SELECT DISTINCT uv.user_id, v.doc_id
+            FROM version v
+            JOIN user_version uv ON v.id = uv.version_id
+            JOIN user u ON uv.user_id = u.id
+            JOIN document d ON v.doc_id = d.id
+            WHERE uv.signature IS NOT NULL
+            AND d.archived_date IS NULL
+            AND u.id = ? 
+        ),
+        LastVersions AS (
+            -- Sélectionner la dernière version de chaque document
+            SELECT v.doc_id, MAX(v.created_date) AS last_created_date
+            FROM version v
+            JOIN document d ON v.doc_id = d.id
+            WHERE d.archived_date IS NULL
+            GROUP BY v.doc_id
+        ),
+        LastSignedVersions AS (
+            -- Sélectionner les versions signées par l'utilisateur spécifié, pour chaque document
+            SELECT uv.user_id, v.doc_id, MAX(v.created_date) AS last_signed_date
+            FROM version v
+            JOIN user_version uv ON v.id = uv.version_id
+            WHERE uv.signature IS NOT NULL
+            GROUP BY uv.user_id, v.doc_id
+        )
+        -- Sélectionner les documents dont la dernière version n'est pas signée par l'utilisateur spécifié mais où au moins une autre version l'est
+        SELECT ld.doc_id
+        FROM SignedDocs ld
+        JOIN LastSignedVersions lsv ON ld.doc_id = lsv.doc_id AND ld.user_id = lsv.user_id
+        LEFT JOIN version v ON lsv.doc_id = v.doc_id AND lsv.last_signed_date = v.created_date
+        LEFT JOIN LastVersions lv ON ld.doc_id = lv.doc_id
+        WHERE v.id IS NULL OR lv.last_created_date != lsv.last_signed_date;
+        
+        `, [userId]);
+    });
 
 }
 
