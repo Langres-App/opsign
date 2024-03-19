@@ -53,7 +53,12 @@ async function getById(id) {
         FROM user_version uv
         WHERE uv.id = ?;`;
 
-        return (await query(queryStr, [id]))[0];
+        const result = await query(queryStr, [id]);
+
+        assert(result, '[UserQueries.getById] There was a problem querying the database for the user version ID');
+        assert(result.length > 0, '[UserQueries.getById] There was a problem querying the database for the user version ID');
+
+        return result[0];
 
     });
 
@@ -77,7 +82,12 @@ async function getSigningUserData(userId) {
             JOIN user u ON uv.user_id = u.id
             WHERE uv.id = ?;`;
 
-        return (await query(queryStr, [userId]))[0];
+            const result = await query(queryStr, [userId]);
+    
+            assert(result, '[UserQueries.getSigningUserData] There was a problem querying the database for the signing user data');
+            assert(result.length > 0, '[UserQueries.getSigningUserData] There was a problem querying the database for the signing user data');
+    
+            return result[0];
 
     });
 
@@ -128,7 +138,12 @@ async function getSigningPageData(token) {
         JOIN user u ON uv.user_id = u.id
         WHERE signing_token = ?;`;
 
-        return (await query(queryStr, [token]))[0];
+        const result = await query(queryStr, [token]);
+
+        assert(result, '[UserQueries.getSigningPageData] There was a problem querying the database for the signing page data');
+        assert(result.length > 0, '[UserQueries.getSigningPageData] There was a problem querying the database for the signing page data');
+
+        return result[0];
 
     });
 
@@ -148,7 +163,11 @@ async function getUserVersionId(userId, versionId) {
 
     return await executeWithCleanup(async (query) => {
 
-        return (await query('SELECT id FROM user_version WHERE user_id = ? AND version_id = ?', [userId, versionId]))[0].id;
+        const result = await query('SELECT id FROM user_version WHERE user_id = ? AND version_id = ?', [userId, versionId]);
+
+        assert(result.length > 0, '[UserQueries.getUserVersionId] There was a problem querying the database for the user version ID');
+
+        return result[0].id;
 
     });
 
@@ -221,7 +240,11 @@ async function getSignatureImage(userId) {
         FROM user_version
         WHERE user_id = ?;`;
 
-        return (await query(queryStr, [userId]))[0].signature;
+        const result = await query(queryStr, [userId]);
+
+        assert(result.length > 0, '[UserQueries.getSignatureImage] There was a problem querying the database for the signature image');
+
+        return result[0].signature;
 
     });
 
@@ -244,7 +267,11 @@ async function getDocumentPath(userVersionId) {
         FROM version
         WHERE id = (SELECT version_id FROM user_version WHERE id = ?);`;
 
-        return (await query(queryStr, [userVersionId]))[0].file_path;
+        const result = await query(queryStr, [userVersionId]);
+
+        assert(result.length > 0, '[UserQueries.getDocumentPath] There was a problem querying the database for the document path');
+
+        return result[0].file_path;
 
     });
 
@@ -266,7 +293,11 @@ async function getUserId(userVersionId) {
         FROM user_version
         WHERE id = ?;`;
 
-        return (await query(queryStr, [userVersionId]))[0].user_id;
+        const result = await query(queryStr, [userVersionId]);
+
+        assert(result.length > 0, '[UserQueries.getUserId] There was a problem querying the database for the user ID');
+
+        return result[0].user_id;
 
     });
 
