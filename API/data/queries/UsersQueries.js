@@ -31,12 +31,15 @@ async function add(user) {
     assert(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.identifier), '[UserQueries.add] The email is not valid');
 
     return await executeWithCleanup(async (query) => {
-        return (
-            await query(
-                'INSERT INTO user (first_name, last_name, identifier) VALUES (?, ?, ?)',
-                [user.first_name, user.last_name, user.email]
-            )
-        ).insertId;
+
+        const result = await query(
+            'INSERT INTO user (first_name, last_name, identifier) VALUES (?, ?, ?)',
+            [user.first_name, user.last_name, user.email]
+        );
+
+        assert(result, '[UserQueries.add] The user was not added');
+        
+        return result.insertId;
     });
 
 }

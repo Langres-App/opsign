@@ -71,8 +71,15 @@ async function getLatest(docId) {
     assert(docId, '[VersionQueries.getLatest] The document ID is required');
 
     return await executeWithCleanup(async (query) => {
+
         let queryStr = 'SELECT * FROM version WHERE doc_id = ? ORDER BY created_date DESC LIMIT 1';
-        return (await query(queryStr, [docId]))[0];
+
+        const result = await query(queryStr, [docId]);
+
+        assert(result.length, `[VersionQueries.getLatest] No version found for document ID ${docId}`);
+
+        return result[0];
+
     });
 
 }
@@ -91,7 +98,13 @@ async function getPdfPath(id, date) {
     return await executeWithCleanup(async (query) => {
 
         let queryStr = 'SELECT file_path FROM version WHERE doc_id = ? AND created_date = ?';
-        return (await query(queryStr, [id, date]))[0].file_path;
+
+        const result = await query(queryStr, [id, date]);
+
+        assert(result.length, `[VersionQueries.getPdfPath] No version found for document ID ${id} and created date ${date}`);
+    
+        return result[0].file_path;
+
     });
 
 }
@@ -115,8 +128,10 @@ async function updatePathes(docId, newName) {
     assert(newName, '[VersionQueries.updatePathes] The new name is required');
 
     return await executeWithCleanup(async (query) => {
+        
         let queryStr = 'UPDATE version SET file_path = REPLACE(file_path, ?, ?) WHERE doc_id = ?';
         return await query(queryStr, [newName, docId, newName]);
+
     });
 
 }
