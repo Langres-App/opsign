@@ -5,7 +5,7 @@ const app = express();
 
 // Enable CORS
 const cors = require('cors');
-const { deleteArchivedUsers } = require('./model/UserManager.js');
+const { autoDeleteArchivedUsers } = require('./model/Managers/UserManager.js');
 app.use(cors());
 
 // Set the port
@@ -35,7 +35,7 @@ app.listen(PORT, () => console.log(`[${new Date().toLocaleString()}] - Server is
 const duration = 100 * 1000; // = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 // Execute the function immediately when the page loads
-deleteArchivedUsers();
+autoDeleteArchivedUsers();
 
 // Set up the interval to execute the function every week
-setInterval(deleteArchivedUsers, duration);
+setInterval(autoDeleteArchivedUsers, duration);
