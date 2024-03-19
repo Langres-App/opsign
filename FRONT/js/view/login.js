@@ -52,6 +52,14 @@ class LoginView extends View {
                 password: form.elements['user-password'].value
             };
 
+            if (!/^[a-z0-9-]+\.[a-z0-9]+$/i.test(user.username)) {
+                throw new Error('Le nom d\'utilisateur est invalide, il doit être de la forme prenom.nom');
+            }
+
+            if (password.length < 4) {
+                throw new Error('Le mot de passe est trop court, il doit faire au moins 4 caractères');
+            }
+
             // depending on the userExists value, we login or register
             if (this.userExists) {
 
