@@ -73,6 +73,9 @@
     </footer>
 
     <script>
+        // if path end with /, we remove it
+        if (window.location.pathname.endsWith('/')) window.location.pathname = window.location.pathname.slice(0, -1);
+        
         // get the path of the current page (without the domain name)
         let path = window.location.pathname;
 
