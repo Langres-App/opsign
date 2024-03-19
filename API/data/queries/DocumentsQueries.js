@@ -64,7 +64,7 @@ async function getAll() {
         let queryStr = 'SELECT * FROM document WHERE archived_date IS NULL';
 
         // Get the document by ID
-        const documents = (await query(queryStr));
+        const documents = await query(queryStr);
 
         for (const document of documents) {
             const versions = await versionQueries.getAll(document.id);
@@ -97,7 +97,7 @@ async function getAllArchived() {
         let queryStr = 'SELECT * FROM document WHERE archived_date IS NOT NULL';
 
         // Get the document by ID
-        const documents = (await query(queryStr));
+        const documents = await query(queryStr);
 
         for (const document of documents) {
             const versions = await versionQueries.getAll(document.id);
@@ -206,6 +206,7 @@ async function archive(id) {
         // Archive the document by setting the archived_date to the current date
         const documentQuery = 'UPDATE document SET archived_date = ? WHERE id = ?';
         await query(documentQuery, [new Date(), id]);
+
     });
 
 }
@@ -225,6 +226,7 @@ async function unarchive(id) {
         // Archive the document by setting the archived_date to the current date
         const documentQuery = 'UPDATE document SET archived_date = NULL WHERE id = ?';
         await query(documentQuery, [id]);
+
     });
 
 
@@ -246,9 +248,11 @@ async function deleteArchivedDoc(id) {
     assert(id, '[DocumentsQueries.deleteArchivedDoc] The document ID is required');
 
     return await executeWithCleanup(async (query) => {
+
         // Delete the document by ID
         const documentQuery = 'DELETE FROM document WHERE id = ? AND archived_date IS NOT NULL';
         await query(documentQuery, [id]);
+        
     });
     
 }
