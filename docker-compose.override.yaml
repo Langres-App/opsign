@@ -12,7 +12,7 @@ services:
       DB_HOST: database
       DB_USER: user
       DB_PASSWORD: pass
-      DB_DATABASE: charte
+      DB_DATABASE: posign
       PORT: 52200
       http_proxy: http://10.0.0.1:80
       APP_TIMEZONE: Europe/Paris
@@ -20,9 +20,9 @@ services:
       - ./API:/var/www
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webchartapi.rule=PathPrefix(`/charteapi`)
+      - traefik.http.routers.webchartapi.rule=PathPrefix(`/posignapi`)
       - traefik.http.routers.webchartapi.middlewares=strip-webchartapi-prefix
-      - traefik.http.middlewares.strip-webchartapi-prefix.stripprefix.prefixes=/charteapi
+      - traefik.http.middlewares.strip-webchartapi-prefix.stripprefix.prefixes=/posignapi
       - traefik.http.routers.webchartapi.entrypoints=web
     depends_on:
       - database
@@ -44,9 +44,9 @@ services:
       - ./FRONT:/usr/local/apache2/htdocs/
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webchart.rule=PathPrefix(`/charte`)
+      - traefik.http.routers.webchart.rule=PathPrefix(`/posign`)
       - traefik.http.routers.webchart.middlewares=strip-webchart-prefix
-      - traefik.http.middlewares.strip-webchart-prefix.stripprefix.prefixes=/charte
+      - traefik.http.middlewares.strip-webchart-prefix.stripprefix.prefixes=/posign
       - traefik.http.routers.webchart.entrypoints=web
     networks:
       vpcbr:
