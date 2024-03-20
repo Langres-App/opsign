@@ -70,16 +70,16 @@
         // get the path of the current page (without the domain name)
         let path = window.location.pathname;
 
-        // replace the '/charte' because the website is in a folder called 'charte'
-        path = path.replace('/charte', '');
+        // replace the '/posign' because the website is in a folder called 'posign'
+        path = path.replace('/posign', '');
         path = path.replace('/FRONT', '');
 
         // split the path into an array of strings
         const pathArray = path.split('/');
         let relativePath = '';
 
-        // depending on the path, we set the relative path to the root of the website or to the 'charte' folder
-        if (path == '') relativePath = 'charte/';
+        // depending on the path, we set the relative path to the root of the website or to the 'posign' folder
+        if (path == '') relativePath = 'posign/';
         else relativePath = './';
 
         // for each element in the array, we add a '../' to the relative path to go to the root of the website

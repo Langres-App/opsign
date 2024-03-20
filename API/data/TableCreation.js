@@ -92,15 +92,12 @@ async function createAuthTable(query) {
  * Creates the necessary tables in the database.
  * @returns {Promise<void>} A promise that resolves when the tables are created.
  */
-async function createTables() {
-
-  executeWithCleanup(async (query) => {
+async function createTables(query) {
     await createDocumentTable(query);
     await createVersionTable(query);
     await createUserTable(query);
     await createUserVersionTable(query);
     await createAuthTable(query);
-  });
 }
 
 module.exports = {

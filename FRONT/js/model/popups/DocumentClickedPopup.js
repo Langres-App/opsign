@@ -22,7 +22,7 @@ class DocumentClickedPopup extends Popup {
             action: (_, docId) => {
                 super.close();
                 // open a new page with the same root page path 
-                window.open(`/charteapi/documents/${docId}/view/latest`, '_blank');
+                window.open(`/posignapi/documents/${docId}/view/latest`, '_blank');
             },
             archive_button: false
         },

@@ -1,7 +1,7 @@
 .idea
 /API/node_modules
 /API/package-lock.json
-/database_data
+/database*
 /API/Docs/
 .vscode
 config.user.inc.php

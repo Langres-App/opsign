@@ -154,7 +154,7 @@ class SignedListView extends View {
     // add the event listener
     templateManager.onSeeClicked((id) => {
       // open the signed document on a new tab
-      const link = '/charteapi/users/signedDocument/' + id;
+      const link = '/posignapi/users/signedDocument/' + id;
       window.open(link, '_blank');
     });
 
