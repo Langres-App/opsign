@@ -38,7 +38,7 @@ async function add(user) {
         );
 
         assert(result, '[UserQueries.add] The user was not added');
-        
+
         return result.insertId;
     });
 
@@ -155,6 +155,7 @@ async function getAll() {
         const users = await query(`
         SELECT
             u.id,
+            u.identifier email,
             CONCAT(u.first_name, ' ', u.last_name) AS display_name
         FROM
             user u
@@ -163,13 +164,18 @@ async function getAll() {
         `);
 
         for (let user of users) {
-            const signedDocId = await getSignedDocId(user.id);
-            const waitingDocId = await getWaitingDocId(user.id);
-            const toUpdateDocId = await getToUpdateDocId(user.id);
+            let signedDocId = await getSignedDocId(user.id);
+            let waitingDocId = await getWaitingDocId(user.id);
+            let toUpdateDocId = await getToUpdateDocId(user.id);
+            toUpdateDocId = toUpdateDocId.map(doc => doc.doc_id);
+
+            signedDocId = signedDocId.map(doc => {
+                doc.toUpdate = toUpdateDocId.includes(doc.id);
+                return doc;
+            });
 
             user.docs_signatures = signedDocId;
             user.docs_waiting = waitingDocId;
-            user.docs_outdated = toUpdateDocId;
         }
 
         return users;
@@ -187,7 +193,9 @@ async function getSignedDocId(userId) {
     return await executeWithCleanup(async (query) => {
         return await query(`
         SELECT DISTINCT
-            v.doc_id id
+            v.doc_id id,
+            d.file_name title,
+            uv.date
         FROM 
             user_version uv
         LEFT JOIN version v ON uv.version_id = v.id
@@ -209,7 +217,9 @@ async function getWaitingDocId(userId) {
     return await executeWithCleanup(async (query) => {
         return await query(`
         SELECT DISTINCT
-            v.doc_id id
+            v.doc_id id,
+            d.file_name title,
+            uv.signing_token
         FROM 
             user_version uv
         LEFT JOIN version v ON uv.version_id = v.id
@@ -255,7 +265,6 @@ async function getToUpdateDocId(userId) {
             SELECT uv.user_id, v.doc_id, MAX(v.created_date) AS last_signed_date
             FROM version v
             JOIN user_version uv ON v.id = uv.version_id
-            WHERE uv.signature IS NOT NULL
             GROUP BY uv.user_id, v.doc_id
         )
         -- Sélectionner les documents dont la dernière version n'est pas signée par l'utilisateur spécifié mais où au moins une autre version l'est

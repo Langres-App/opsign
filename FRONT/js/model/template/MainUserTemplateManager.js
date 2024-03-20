@@ -36,11 +36,15 @@ class MainUserTemplateManager extends TemplateManager {
         // the key is the name of the variable in the template and the value is the value to replace
         let values = [];
 
+        const signedCount = user.docs_signatures.length;
+        const outdatedCount = user.docs_signatures.filter(doc => doc.toUpdate === true).length;
+        const waitingCount = user.docs_waiting.length;
+
         values['id'] = user.id;
         values['DisplayName'] = user.display_name;
-        values['Signed'] = user.num_doc_signatures < 10 ? '0' + user.num_doc_signatures : user.num_doc_signatures;
-        values['Outdated'] = 'XX'; // TODO: replace with the correct value
-        values['Waiting'] = 'XX'; // TODO: replace with the correct value
+        values['Signed'] = signedCount  < 10 ? '0' + signedCount : signedCount;
+        values['Outdated'] = outdatedCount < 10 ? '0' + outdatedCount : outdatedCount;
+        values['Waiting'] = waitingCount < 10 ? '0' + waitingCount : waitingCount;
 
         // call parent method to add the document to the container
         await super.addTemplate(values);

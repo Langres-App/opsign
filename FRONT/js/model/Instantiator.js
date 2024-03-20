@@ -33,6 +33,7 @@ class Instantiator {
                 DocumentClickedPopup: 'js/model/popups/DocumentClickedPopup.js',
                 MessagePopup: 'js/model/popups/MessagePopup.js',
                 SigningLinkPopup: 'js/model/popups/SigningLinkPopup.js',
+                MainUserPopup: 'js/model/popups/UserClickedPopup.js',
             },
 
             manager: 'js/model/popups/PopupManager.js',
@@ -43,6 +44,8 @@ class Instantiator {
             DocumentTemplateManager: 'js/model/template/DocumentTemplateManager.js',
             MainUserTemplateManager: 'js/model/template/MainUserTemplateManager.js',
             SignedUserTemplateManager: 'js/model/template/SignedUserTemplateManager.js',
+            MainUserDocSignedTemplateManager: 'js/model/template/MainUserDocSignedTemplateManager.js',
+            MainUserDocWaitingTemplateManager: 'js/model/template/MainUserDocWaitingTemplateManager.js',
         },
 
         AuthManager: 'js/model/auth/AuthManager.js',
@@ -102,7 +105,7 @@ class Instantiator {
     }
 
 
-    
+
     /**
      * Loads the necessary dependencies and initializes the index view.
      * @returns {Promise<void>} A promise that resolves when the index view is initialized.
@@ -116,7 +119,7 @@ class Instantiator {
 
         new IndexView(manager);
     }
-    
+
     /**
      * Adds document scripts asynchronously.
      * @returns {Promise<void>} A promise that resolves when all scripts are added.
@@ -141,16 +144,16 @@ class Instantiator {
         return new DocumentManager();
     }
 
-     static async getUserManager() {
+    static async getUserManager() {
         await Promise.all([
             this.#loadSequentially([this.#pathes.data.access.Dao, this.#pathes.data.access.UserDao]),
             this.#loadSequentially([this.#pathes.data.manager, this.#pathes.data.UserManager]),
         ]);
 
         return new UserManager();
-     }
+    }
 
-    
+
     /**
      * Retrieves the PopupManager instance.
      * @returns {PopupManager} The PopupManager instance.
@@ -163,7 +166,8 @@ class Instantiator {
                 this.#pathes.popup.model.MessagePopup,
                 this.#pathes.popup.model.AddDocumentPopup,
                 this.#pathes.popup.model.DocumentClickedPopup,
-                this.#pathes.popup.model.SigningLinkPopup
+                this.#pathes.popup.model.SigningLinkPopup,
+                this.#pathes.popup.model.MainUserPopup,
             ]),
         ]);
 
@@ -216,6 +220,24 @@ class Instantiator {
 
     }
 
+    static async mainUserDocSignedTemplateManager(container) {
+        await this.#loadSequentially([
+            this.#pathes.template.manager,
+            this.#pathes.template.MainUserDocSignedTemplateManager
+        ]);
+
+        return new MainUserDocSignedTemplateManager(container);
+    }
+
+    static async mainUserDocWaitingTemplateManager(container) {
+        await this.#loadSequentially([
+            this.#pathes.template.manager,
+            this.#pathes.template.MainUserDocWaitingTemplateManager
+        ]);
+
+        return new MainUserDocWaitingTemplateManager(container);
+    }
+
     /**
      * Creates a signed list view.
      * @returns {Promise<void>} A promise that resolves when the signed list view is created.
@@ -250,7 +272,7 @@ class Instantiator {
      */
     static async canvas(canvas) {
         await this.#addScript('js/model/Canvas.js');
-     
+
         return new Canvas(canvas);
     }
 

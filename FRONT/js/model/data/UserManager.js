@@ -8,6 +8,8 @@ class UserManager {
      * @private
      */
     #userDao;
+    #users;
+    #archivedUsers;
 
     /**
      * Represents a UserManager object.
@@ -28,7 +30,34 @@ class UserManager {
     }
 
     async getAll(archived = false) {
-        return await this.#userDao.getAll(archived);
+        if (!archived) {
+            if (!this.#users) {
+                this.#users = await this.#userDao.getAll(archived);
+            }
+            return this.#users;
+        } else {
+            if (!this.#archivedUsers) {
+                this.#archivedUsers = await this.#userDao.getAll(archived);
+            }
+            return this.#archivedUsers;
+        }
+    }
+
+    async getById(id, archived = false) {
+        id = parseInt(id);
+        if (Number.isNaN(id)) throw new Error('Invalid ID');
+
+        if (archived) {
+            if (!this.#archivedUsers) {
+                this.#archivedUsers = await this.#userDao.getAll(archived);
+            }
+            return this.#archivedUsers.find(user => user.id === id);
+        } else {
+            if (!this.#users) {
+                this.#users = await this.#userDao.getAll(archived);
+            }
+            return this.#users.find(user => user.id === id);
+        }
     }
 
     /**

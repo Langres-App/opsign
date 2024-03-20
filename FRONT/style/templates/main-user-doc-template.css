@@ -1,0 +1,36 @@
+#user-clicked-popup .doc {
+    width: 100%;
+    padding: 0 10px;
+    margin: 10px 10px 10px 0;
+    box-sizing: border-box;
+}
+
+#user-clicked-popup .doc p {
+    max-width: 20vw;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
+
+#user-clicked-popup .doc:not(:last-child) {
+    border-bottom: 1px solid var(--blue);
+    padding: 0 10px 10px;
+}
+
+#user-clicked-popup .doc .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    gap: 16px;
+}
+
+#user-clicked-popup .doc .controls .clickable {
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+#user-clicked-popup .doc .controls .clickable:hover {
+    transform: translateY(-2px);
+}

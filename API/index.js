@@ -32,7 +32,7 @@ app.listen(PORT, () => console.log(`[${new Date().toLocaleString()}] - Server is
 //////////////////// GDPR compliance ////////////////////
 /////////////////////////////////////////////////////////
 
-const duration = 100 * 1000; // = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+const duration = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
 // Execute the function immediately when the page loads
 autoDeleteArchivedUsers();
