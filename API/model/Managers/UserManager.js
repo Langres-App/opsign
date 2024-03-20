@@ -20,11 +20,12 @@ async function add(user) {
     assert(user, '[UserManager.add] The user is required');
     assert(user.first_name, '[UserManager.add] The first name is required');
     user.first_name = user.first_name.trim();
-    assert(user.first_name > 2, '[UserManager.add] The first name is required');
+    assert(user.first_name.length > 2, '[UserManager.add] The first name is required');
+    console.log(user.first_name);
 
     assert(user.last_name, '[UserManager.add] The last name is required');
     user.last_name = user.last_name.trim();
-    assert(user.last_name > 2, '[UserManager.add] The last name is required');
+    assert(user.last_name.length > 2, '[UserManager.add] The last name is required');
 
     assert(user.email, '[UserManager.add] The email is required');
     assert(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email), '[UserManager.add] The email is not valid');

@@ -38,6 +38,7 @@ class PopupManager {
         this.#popupsScripts['document-popup'] = () => this.#addDocumentPopup();
         this.#popupsScripts['clicked-popup'] = () => this.#addDocumentClickedPopup();
         this.#popupsScripts['signing-link-popup'] = () => this.#addSigningLinkPopup();
+        this.#popupsScripts['user-clicked-popup'] = () => this.#addUserClickedPopup();
 
         // create an array to store the popups
         this.#popups = [];
@@ -95,6 +96,19 @@ class PopupManager {
 
         if (!this.#popups['signing-link-popup']) {
             this.#addPopup(new SigningLinkPopup());
+        }
+    }
+
+    /**
+     * Adds a user clicked popup.
+     * @private
+     * @async
+     */
+    async #addUserClickedPopup() {
+        await this.initialize();
+
+        if (!this.#popups['user-clicked-popup']) {
+            this.#addPopup(new UserClickedPopup());
         }
     }
 

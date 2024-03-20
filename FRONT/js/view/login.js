@@ -56,7 +56,7 @@ class LoginView extends View {
                 throw new Error('Le nom d\'utilisateur est invalide, il doit être de la forme prenom.nom');
             }
 
-            if (password.length < 4) {
+            if (user.password.length < 4) {
                 throw new Error('Le mot de passe est trop court, il doit faire au moins 4 caractères');
             }
 

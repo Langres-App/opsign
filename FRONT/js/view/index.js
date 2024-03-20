@@ -152,7 +152,14 @@ class IndexView extends View {
 
     // when a user is clicked open the clicked popup
     this.userTemplateManager.onUserClicked((id) => {
-      console.log('user clicked', id);
+      this.popupManager.open('user-clicked-popup', {
+        id: id,
+        archived: this.isArchiveView || false,
+        logged: this.isLogged,
+        authManager: this.manager,
+        popupManager: this.popupManager,
+        manager: this.userManager
+      });
     });
   }
 

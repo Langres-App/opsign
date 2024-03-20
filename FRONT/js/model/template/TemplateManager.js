@@ -56,10 +56,17 @@ class TemplateManager {
             // get the target of the event
             let target = event.target;
 
-            // check if the target has the specified class (if the class is not empty otherwise pass)
+            // check if the target of one of her parent has the specified class (if the class is not empty otherwise pass)
             if (!target.classList.contains(className) && className !== '') {
-                return;
+                const btnWithClass = Utils.getParentWithClass(target, className, limitElement);
+
+                // if the parent with the class does not exist, do nothing
+                if (!btnWithClass) return;
+
+                // set the target to the parent with the class
+                target = btnWithClass;
             }
+
 
             // get the parent of the target with the specified class
             let parentWithClass = Utils.getParentWithClass(target, parentClass, limitElement);

@@ -30,6 +30,11 @@
 }
 
 
+.orange {
+    background-color: var(--orange) !important;
+
+}
+
 .green {
     background-color: var(--green) !important;
 }
