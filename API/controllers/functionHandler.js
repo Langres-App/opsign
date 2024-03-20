@@ -10,9 +10,6 @@ function handle(handler) {
     return async (req, res) => {
         // Execute the handler function
         try {
-            // Create the tables if they don't exist
-            await createTables();
-
             // Execute the handler function
             await handler(req, res);
         } catch (error) {

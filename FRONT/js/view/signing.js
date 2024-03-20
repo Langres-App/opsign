@@ -44,8 +44,8 @@ class SigningView extends View {
         do {
           this.token = prompt('Veuillez entrer le token de signature');
 
-        // if the user cancels the prompt, redirect to the charte page
-          if (!this.token) window.location = '/charte'
+        // if the user cancels the prompt, redirect to the posign page
+          if (!this.token) window.location = '/posign'
           this.token = this.token.trim()
         } while (this.token === '')
 
@@ -97,7 +97,7 @@ class SigningView extends View {
 
     // define the document viewer
     const documentViewer = document.getElementById('document-viewer');
-    documentViewer.data = `/charteapi/documents/${docId}/view/${date}#toolbar=1&scrollbar=0&view=fitH&navpanes=0`;
+    documentViewer.data = `/posignapi/documents/${docId}/view/${date}#toolbar=1&scrollbar=0&view=fitH&navpanes=0`;
 
   }
 
@@ -147,7 +147,7 @@ class SigningView extends View {
       const link = URL.createObjectURL(signedDocBlob);
       window.open(link, '_blank');
 
-      window.location.href = '/charte';
+      window.location.href = '/posign';
 
     });
   }

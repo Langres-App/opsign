@@ -1,5 +1,6 @@
 const getPool = require("./PoolGetter");
 const util = require('util');
+const { createTables } = require("./TableCreation");
 
 /**
  * Executes a database operation with cleanup.
@@ -11,10 +12,12 @@ async function executeWithCleanup(handler) {
     let pool;
 
     try {
-
         // make the query async
         pool = getPool();
         const query = util.promisify(pool.query).bind(pool);
+
+        // Create the tables if they don't exist
+        await createTables(query);
 
         return await handler(query);
     } catch (error) {

@@ -22,7 +22,7 @@ class LoginView extends View {
         const manager = this.manager;
 
         // if the user is logged in, redirect to index
-        document.addEventListener('USER_LOGGED_IN', () => window.location = '/charte');
+        document.addEventListener('USER_LOGGED_IN', () => window.location = '/posign');
         const res = await manager.check();
         console.log(res);
         // check if the user exist is logged in
@@ -37,7 +37,7 @@ class LoginView extends View {
             button.value = 'Créer le compte';
 
             // change document title
-            document.title = 'Charte - Créer un compte';
+            document.title = 'POSign - Créer un compte';
             document.dispatchEvent(new Event('TITLE_CHANGED'));
         }
 
@@ -68,7 +68,7 @@ class LoginView extends View {
                     await manager.login(user);
 
                     // redirect to index
-                    window.location = '/charte';
+                    window.location = '/posign';
                 } catch (e) {
                     alert('Identifiant ou mot de passe incorrect');
                     form.reset();
@@ -80,7 +80,7 @@ class LoginView extends View {
                     await manager.register(user);
 
                     // redirect to index
-                    window.location = '/charte';
+                    window.location = '/posign';
                 } catch (e) {
                     alert('Erreur lors de la création du compte, veuillez réessayer plus tard.');
                     form.reset();

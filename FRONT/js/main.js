@@ -43,8 +43,8 @@ async function addStyleSheetsAndScripts() {
     // get the last element of the table and remove the '.html' extension
     let docName = doc[doc.length - 1].replace('.html', '');
 
-    // if the page is the index but as the '/charte' url, we set the name to 'index'
-    if (docName === 'charte') docName = 'index';
+    // if the page is the index but as the '/posign' url, we set the name to 'index'
+    if (docName === 'posign') docName = 'index';
 
     // add the style sheets to the page
     Utils.addStyleSheet('style/main.css');
@@ -66,7 +66,7 @@ async function addStyleSheetsAndScripts() {
 
     // depending on the page, we create the correct view
     switch (docName) {
-        case 'charte':
+        case 'posign':
         case 'index':
             Instantiator.index(manager);
             break;
