@@ -39,7 +39,7 @@ class AuthManager {
             response = await this.dao.checkForExistingUser();
             toReturn.userExists = response.status === 200;
 
-            if (toReturn) {
+            if (toReturn.userExists) {
                 let responseBody = await response.json();
                 if (responseBody.logged) {
                     document.dispatchEvent(new Event('USER_LOGGED_IN'));
