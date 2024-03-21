@@ -68,6 +68,7 @@ class AuthManager {
      */
     async login(user) {
         let response = await this.dao.login(user);
+        if (!response) throw new Error('Login failed');
         this.#setToken(response);
     }
 
@@ -78,6 +79,7 @@ class AuthManager {
      */
     async register(user) {
         let response = await this.dao.register(user);
+        if (!response) throw new Error('Login failed');
         this.#setToken(response);
     }
 
