@@ -272,6 +272,9 @@ class IndexView extends View {
       }
     }
 
+    // order by the biggest size of docs_waiting
+    users.sort((a, b) => b.docs_waiting.length - a.docs_waiting.length);
+
     // add the users to the container
     await this.userTemplateManager.addUsers(users);
   }
