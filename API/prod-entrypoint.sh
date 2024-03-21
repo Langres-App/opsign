@@ -4,4 +4,6 @@ export NODE_ENV=production;
 
 npm install --only=production;
 
-forever start index.js;
+npm install -g pm2;
+
+pm2-runtime start index.js;

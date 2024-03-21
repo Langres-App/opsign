@@ -22,7 +22,6 @@
     "pdfkit": "^0.14.0",
     "sharp": "^0.33.2",
     "text-to-image": "^5.2.0",
-    "forever": "^4.0.3"
   },
   "devDependencies": {
     "jest": "^29.7.0",

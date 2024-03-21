@@ -14,7 +14,7 @@ services:
       - "3306"
     networks:
       vpcbr: 
-        ipv4_address: 172.23.0.2
+        ipv4_address: 172.25.0.2
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: unless-stopped
@@ -31,7 +31,7 @@ services:
       - traefik.http.routers.phpmyadminposign.entrypoints=web
     networks:
       vpcbr:
-        ipv4_address: 172.23.0.3
+        ipv4_address: 172.25.0.3
     depends_on:
       - database
 
@@ -40,8 +40,8 @@ networks:
   driver: bridge
   ipam:
     config:
-      - subnet: 172.23.0.0/16
-      - gateway: 172.23.0.1
+      - subnet: 172.25.0.0/16
+      - gateway: 172.25.0.1
     
 
 
