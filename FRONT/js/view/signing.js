@@ -42,7 +42,7 @@ class SigningView extends View {
       // ask for the token until a valid one is entered 
       do {
         do {
-          this.token = prompt('Veuillez entrer le token de signature');
+          this.token = prompt('Veuillez entrer le code de signature');
 
         // if the user cancels the prompt, redirect to the posign page
           if (!this.token) window.location = '/posign'

@@ -24,7 +24,7 @@ class LoginView extends View {
         // if the user is logged in, redirect to index
         document.addEventListener('USER_LOGGED_IN', () => window.location = '/posign');
         const res = await manager.check();
-        console.log(res);
+
         // check if the user exist is logged in
         this.userExists = res.userExists;
 

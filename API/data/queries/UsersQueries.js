@@ -194,18 +194,25 @@ async function getAll() {
 async function getSignedDocId(userId) {
     return await executeWithCleanup(async (query) => {
         return await query(`
-        SELECT DISTINCT
-            v.doc_id id,
-            uv.id user_version_id,
-            d.file_name title,
+        SELECT
+            v.doc_id AS id,
+            uv.id AS user_version_id,
+            d.file_name AS title,
             uv.date
         FROM 
             user_version uv
         LEFT JOIN version v ON uv.version_id = v.id
         LEFT JOIN document d ON v.doc_id = d.id
-        WHERE uv.user_id = ?
+        WHERE 
+            uv.user_id = ?
             AND uv.signature IS NOT NULL
-            AND d.archived_date IS NULL;
+            AND d.archived_date IS NULL
+            AND uv.date = (
+                SELECT MIN(uv_inner.date)
+                FROM user_version uv_inner
+                LEFT JOIN version v_inner ON uv_inner.version_id = v_inner.id
+                WHERE v_inner.doc_id = v.doc_id
+            );
         `, [userId]);
     });
 }
@@ -307,21 +314,18 @@ async function getArchived() {
 
 /**
  * Archives a user by setting the archived_date field to the current date and time.
- * @param {number} userVersionId - The ID of the user version to archive.
+ * @param {number} userId - The ID of the user to archive.
  * @returns {Promise<void>} A promise that resolves when the user is successfully archived.
  * @throws {Error} If the user version ID is missing or not a number.
  */
-async function archive(userVersionId) {
+async function archive(userId) {
 
-    assert(userVersionId, '[UserQueries.archive] The user version ID is required');
+    assert(userId, '[UserQueries.archive] The user version ID is required');
 
-    userVersionId = parseInt(userVersionId);
-    assert(userVersionId, '[UserQueries.archive] The user version ID must be a number');
+    userId = parseInt(userId);
+    assert(userId, '[UserQueries.archive] The user ID must be a number');
 
     return await executeWithCleanup(async (query) => {
-
-        // get the user ID from the user version ID
-        const userId = await UserVersionQueries.getUserId(userVersionId);
 
         // archive the user
         return await query('UPDATE user SET archived_date = NOW() WHERE id = ?', [userId]);
