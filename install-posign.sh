@@ -99,7 +99,7 @@ done
             git fetch origin --force;
             git reset --hard origin/main;
             git pull --rebase origin main;
-            bash ./env_update.sh;
+            bash ./env-update.sh;
             sg docker -c "docker compose up --build -d"
         fi
     fi
