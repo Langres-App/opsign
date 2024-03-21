@@ -60,9 +60,9 @@ class UserClickedPopup extends Popup {
         const container = this.getPopup().querySelector('.signed-docs');
         this.DocSignedTM = await Instantiator.mainUserDocSignedTemplateManager(container);
 
-        this.DocSignedTM.onUpdateClick(async (docId) => {
+        this.DocSignedTM.onUpdateClick(async (uvId) => {
             const user = await this.userManager.getById(this.userId);
-            const userDoc = user.docs_signatures.find(doc => doc.id == docId);
+            const userDoc = user.docs_signatures.find(doc => doc.user_version_id == uvId);
 
             const resp = await this.userManager.generateSigningLink({ email: user.email, documentId: userDoc.id });
 
@@ -165,6 +165,18 @@ class UserClickedPopup extends Popup {
         const user = await this.userManager.getById(this.userId, false);
 
         popup.querySelector('#user-name').innerText = user.display_name;
+
+        if (user.docs_signatures.length == 0) {
+            popup.querySelector('.signed').style.display = 'none';
+        } else {
+            popup.querySelector('.signed').style.display = 'block';
+        }
+
+        if (user.docs_waiting.length == 0) {
+            popup.querySelector('.waiting').style.display = 'none';
+        } else {
+            popup.querySelector('.signed').style.display = 'block';
+        }
 
         this.DocSignedTM.clearContainer();
         this.DocWaitingTM.clearContainer();
