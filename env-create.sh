@@ -94,8 +94,6 @@ ${PROXY_ENV}
       PORT: 80
 ${PROXY_ENV}
       APP_TIMEZONE: ${TIMEZONE}
-    volumes:
-      - ./FRONT:/usr/local/apache2/htdocs/
     labels:
       - traefik.enable=true
       - traefik.http.routers.webchart.rule=PathPrefix(\`/posign\`)
@@ -181,8 +179,6 @@ ${PROXY_ENV}
       PORT: 80
 ${PROXY_ENV}
       APP_TIMEZONE: ${TIMEZONE}
-    volumes:
-      - ./FRONT:/usr/local/apache2/htdocs/
     labels:
       - traefik.enable=true
       - traefik.http.routers.webchart.rule=PathPrefix(\`/posign\`)
@@ -258,8 +254,6 @@ ${PROXY_ENV}
       PORT: 80
 ${PROXY_ENV}
       APP_TIMEZONE: ${TIMEZONE}
-    volumes:
-      - ./FRONT:/usr/local/apache2/htdocs/
     labels:
       - traefik.enable=true
       - traefik.http.routers.webchart.rule=PathPrefix(\`/posign\`)

@@ -4,4 +4,4 @@ export NODE_ENV=production;
 
 npm install --only=production;
 
-npm prod;
+forever start index.js;
