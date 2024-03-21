@@ -1,9 +1,10 @@
 <div data-id="{{id}}" class="template main-user-element">
     <div class="head">
         <p class="DisplayName">{{DisplayName}}</p>
-        <p>Résumé des documents :</p>
+        <p class="{{archived}}">Résumé des documents :</p>
+        <p class="{{showText}}">Archivé le {{Date}}</p>
     </div>
-    <div class="body aligned">
+    <div class="body aligned {{archived}}">
         <div class="signed-part">
             <p class="title">Signés</p>
             <p class="value signed">{{Signed}}</p>
@@ -16,5 +17,9 @@
             <p class="title">En attente</p>
             <p class="value waiting">{{Waiting}}</p>
         </div>
+    </div>
+    <div class="buttons {{showText}}">
+        <div class="button unarchiveUser">Restaurer</div>
+        <div class="button red deleteUser">Supprimer</div>
     </div>
 </div>
