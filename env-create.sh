@@ -74,10 +74,10 @@ ${PROXY_ENV}
       - ./Docs:/var/www/Docs
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webdap.rule=PathPrefix(\`/posignapi\`)
-      - traefik.http.routers.webdap.middlewares=strip-webdap-prefix
-      - traefik.http.middlewares.strip-webdap-prefix.stripprefix.prefixes=/posignapi
-      - traefik.http.routers.webdap.entrypoints=web
+      - traefik.http.routers.webapi.rule=PathPrefix(\`/posignapi\`)
+      - traefik.http.routers.webapi.middlewares=strip-webapi-prefix
+      - traefik.http.middlewares.strip-webapi-prefix.stripprefix.prefixes=/posignapi
+      - traefik.http.routers.webapi.entrypoints=web
     depends_on:
       - database
     networks:
@@ -96,10 +96,10 @@ ${PROXY_ENV}
       APP_TIMEZONE: ${TIMEZONE}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webchart.rule=PathPrefix(\`/posign\`)
-      - traefik.http.routers.webchart.middlewares=strip-webchart-prefix
-      - traefik.http.middlewares.strip-webchart-prefix.stripprefix.prefixes=/posign
-      - traefik.http.routers.webchart.entrypoints=web
+      - traefik.http.routers.webposign.rule=PathPrefix(\`/posign\`)
+      - traefik.http.routers.webposign.middlewares=strip-webposign-prefix
+      - traefik.http.middlewares.strip-webposign-prefix.stripprefix.prefixes=/posign
+      - traefik.http.routers.webposign.entrypoints=web
     networks:
       vpcbr:
         ipv4_address: 172.23.0.5
@@ -159,10 +159,10 @@ ${PROXY_ENV}
       - ./Docs:/var/www/Docs
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webdap.rule=PathPrefix(\`/posignapi\`)
-      - traefik.http.routers.webdap.middlewares=strip-webdap-prefix
-      - traefik.http.middlewares.strip-webdap-prefix.stripprefix.prefixes=/posignapi
-      - traefik.http.routers.webdap.entrypoints=web
+      - traefik.http.routers.webposignapi.rule=PathPrefix(\`/posignapi\`)
+      - traefik.http.routers.webposignapi.middlewares=strip-webposignapi-prefix
+      - traefik.http.middlewares.strip-webposignapi-prefix.stripprefix.prefixes=/posignapi
+      - traefik.http.routers.webposignapi.entrypoints=web
     depends_on:
       - database
     networks:
@@ -181,10 +181,10 @@ ${PROXY_ENV}
       APP_TIMEZONE: ${TIMEZONE}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webchart.rule=PathPrefix(\`/posign\`)
-      - traefik.http.routers.webchart.middlewares=strip-webchart-prefix
-      - traefik.http.middlewares.strip-webchart-prefix.stripprefix.prefixes=/posign
-      - traefik.http.routers.webchart.entrypoints=web
+      - traefik.http.routers.webposign.rule=PathPrefix(\`/posign\`)
+      - traefik.http.routers.webposign.middlewares=strip-webposign-prefix
+      - traefik.http.middlewares.strip-webposign-prefix.stripprefix.prefixes=/posign
+      - traefik.http.routers.webposign.entrypoints=web
     networks:
       vpcbr:
         ipv4_address: 172.23.0.5
@@ -234,10 +234,10 @@ ${PROXY_ENV}
       - ./Docs:/var/www/Docs
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webdap.rule=PathPrefix(\`/posignapi\`)
-      - traefik.http.routers.webdap.middlewares=strip-webdap-prefix
-      - traefik.http.middlewares.strip-webdap-prefix.stripprefix.prefixes=/posignapi
-      - traefik.http.routers.webdap.entrypoints=web
+      - traefik.http.routers.webposignapi.rule=PathPrefix(\`/posignapi\`)
+      - traefik.http.routers.webposignapi.middlewares=strip-webposignapi-prefix
+      - traefik.http.middlewares.strip-webposignapi-prefix.stripprefix.prefixes=/posignapi
+      - traefik.http.routers.webposignapi.entrypoints=web
     depends_on:
       - database
     networks:
@@ -256,10 +256,10 @@ ${PROXY_ENV}
       APP_TIMEZONE: ${TIMEZONE}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webchart.rule=PathPrefix(\`/posign\`)
-      - traefik.http.routers.webchart.middlewares=strip-webchart-prefix
-      - traefik.http.middlewares.strip-webchart-prefix.stripprefix.prefixes=/posign
-      - traefik.http.routers.webchart.entrypoints=web
+      - traefik.http.routers.webposign.rule=PathPrefix(\`/posign\`)
+      - traefik.http.routers.webposign.middlewares=strip-webposign-prefix
+      - traefik.http.middlewares.strip-webposign-prefix.stripprefix.prefixes=/posign
+      - traefik.http.routers.webposign.entrypoints=web
     networks:
       vpcbr:
         ipv4_address: 172.23.0.5
