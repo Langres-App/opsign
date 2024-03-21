@@ -36,10 +36,12 @@ class SignedListView extends View {
   async #init(authManager) {
     this.#setPageTitle();
     await this.initTemplateManager();
+    this.isLogged = false;
 
     // Wait for auth Check
     document.addEventListener('USER_LOGGED_IN', () => {
       this.#displayUsers().then(() => {
+        this.isLogged = true;
         this.addButtons();
         this.#manageSearch();
       });
@@ -47,6 +49,7 @@ class SignedListView extends View {
 
     // if the user is not logged in, we redirect to the index page
     document.addEventListener('USER_NOT_LOGGED_IN', () => {
+      this.isLogged = false;
       this.#displayUsers().then(() => {
         this.removeButtons();
         this.#manageSearch();
@@ -171,6 +174,10 @@ class SignedListView extends View {
     // filter the users based on the search value and add them to the container
     let userList = users.filter(user => user.getDisplayName().toLowerCase().includes(searchValue.toLowerCase()));
     await this.templateManager.addSignedUsers(userList);
+
+    if (!this.isLogged) {
+      this.removeButtons();
+    }
 
   }
 }

@@ -181,12 +181,16 @@ async function rename(id, title) {
         assert(id, '[DocumentsQueries.rename] The document ID is required');
         assert(title, '[DocumentsQueries.rename] The file name is required');
 
+        // get the old name for to change the folder and files names
+        const old = await getById(id);
+        const oldTitle = old.name;
+
         // Update the document name
         const documentQuery = 'UPDATE document SET file_name = ? WHERE id = ?';
         await query(documentQuery, [title, id]);
 
         // Update the version file paths
-        await versionQueries.updatePathes(id, title);
+        await versionQueries.updatePathes(id, oldTitle, title);
     });
 
 }

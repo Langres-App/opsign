@@ -144,6 +144,10 @@ class Instantiator {
         return new DocumentManager();
     }
 
+    /**
+     * Retrieves the user manager instance.
+     * @returns {UserManager} The user manager instance.
+     */
     static async getUserManager() {
         await Promise.all([
             this.#loadSequentially([this.#pathes.data.access.Dao, this.#pathes.data.access.UserDao]),
@@ -220,6 +224,11 @@ class Instantiator {
 
     }
 
+    /**
+     * Creates an instance of the MainUserDocSignedTemplateManager class.
+     * @param {Container} container - The container object.
+     * @returns {MainUserDocSignedTemplateManager} The MainUserDocSignedTemplateManager instance.
+     */
     static async mainUserDocSignedTemplateManager(container) {
         await this.#loadSequentially([
             this.#pathes.template.manager,
@@ -229,6 +238,11 @@ class Instantiator {
         return new MainUserDocSignedTemplateManager(container);
     }
 
+    /**
+     * Creates a new instance of the MainUserDocWaitingTemplateManager class.
+     * @param {Container} container - The container object.
+     * @returns {MainUserDocWaitingTemplateManager} The new instance of MainUserDocWaitingTemplateManager.
+     */
     static async mainUserDocWaitingTemplateManager(container) {
         await this.#loadSequentially([
             this.#pathes.template.manager,
