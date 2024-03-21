@@ -33,10 +33,12 @@ class HeaderManager {
             // add the event listener to log out
             accountButton.addEventListener('click', (e) => {
                 e.preventDefault();
-                document.dispatchEvent(new CustomEvent('USER_NOT_LOGGED_IN', { detail: { userExist: true } }));
-
+                
                 // remove the user from the local storage
                 window.localStorage.removeItem('userToken');
+
+                document.dispatchEvent(new CustomEvent('USER_LOGGED_OUT', { detail: { userExist: true } }));
+
             });
         });
 

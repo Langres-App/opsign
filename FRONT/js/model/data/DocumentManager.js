@@ -78,7 +78,7 @@ class DocumentManager extends DataManager {
             }
         }
 
-        
+
         let toReturn = [];
         let data;
 
@@ -146,8 +146,10 @@ class DocumentManager extends DataManager {
             console.log(e);
         }
 
-        // depending on what appened we either reload the page or return a message
-        if (data) { }  // TODO: message popup that reload the view
+        if (data) {
+            window.location.reload();
+        }
+
     }
 
     /**
@@ -166,7 +168,9 @@ class DocumentManager extends DataManager {
         }
 
         // depending on the api call, either tell the element was added, or return an error message
-        if (data) { } // TODO: message popup that reload the view / error message
+        if (data) {
+            window.location.reload();
+        }
     }
 
 
@@ -178,6 +182,8 @@ class DocumentManager extends DataManager {
         let data;
         try {
             data = await super.update(object);
+            alert('Document renommé avec succès !');
+            window.location.reload();
         } catch (e) {
             console.log(e);
         }
