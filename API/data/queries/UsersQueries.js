@@ -307,21 +307,18 @@ async function getArchived() {
 
 /**
  * Archives a user by setting the archived_date field to the current date and time.
- * @param {number} userVersionId - The ID of the user version to archive.
+ * @param {number} userId - The ID of the user to archive.
  * @returns {Promise<void>} A promise that resolves when the user is successfully archived.
  * @throws {Error} If the user version ID is missing or not a number.
  */
-async function archive(userVersionId) {
+async function archive(userId) {
 
-    assert(userVersionId, '[UserQueries.archive] The user version ID is required');
+    assert(userId, '[UserQueries.archive] The user version ID is required');
 
-    userVersionId = parseInt(userVersionId);
-    assert(userVersionId, '[UserQueries.archive] The user version ID must be a number');
+    userId = parseInt(userId);
+    assert(userId, '[UserQueries.archive] The user ID must be a number');
 
     return await executeWithCleanup(async (query) => {
-
-        // get the user ID from the user version ID
-        const userId = await UserVersionQueries.getUserId(userVersionId);
 
         // archive the user
         return await query('UPDATE user SET archived_date = NOW() WHERE id = ?', [userId]);
