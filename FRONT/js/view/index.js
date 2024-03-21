@@ -18,6 +18,8 @@ class IndexView extends View {
   }
 
   async loadPage() {
+    this.searchValue = '';
+
     // import the differents scripts
     await this.instantiateManagers();
 
@@ -33,6 +35,13 @@ class IndexView extends View {
       this.disableNavButtons();
       this.disableAddButton();
     }
+
+    const searchbar = document.getElementById('search');
+    searchbar.addEventListener('input', async () => {
+      const searchValue = searchbar.value.trim();
+      this.searchValue = searchValue;
+      this.reload();
+    });
 
   }
 
@@ -87,14 +96,17 @@ class IndexView extends View {
    * @param {boolean} archived - Indicates whether to fetch archived data or not.
    * @returns {Promise<void>} - A promise that resolves when the view is reloaded.
    */
-  async reload(archived) {
+  async reload(archived = undefined) {
+
+    if (archived === undefined) archived = this.isArchiveView || false;
+
     const docBtn = document.getElementById('docs_menu');
     this.isArchiveView = archived;
 
     // if the documents button is active, display the documents, else display the users (using the switch state for the archived state)
     if (docBtn.classList.contains('active')) {
       await this.displayFetchedDocuments(archived);
-      if (archived) this.disableAddButton();
+      if (archived || !this.isLogged) this.disableAddButton();
       else this.enableAddButton();
 
     } else {
@@ -150,6 +162,8 @@ class IndexView extends View {
 
     // when a user is clicked open the clicked popup
     this.userTemplateManager.onUserClicked((id) => {
+      if (this.isArchiveView) return;
+
       this.popupManager.open('user-clicked-popup', {
         id: id,
         archived: this.isArchiveView || false,
@@ -158,6 +172,26 @@ class IndexView extends View {
         popupManager: this.popupManager,
         manager: this.userManager
       });
+    });
+
+    this.userTemplateManager.onUnarchiveUserClicked((id) => {
+      // unarchive user
+      const confirmRes = confirm('Voulez-vous vraiment désarchiver cet utilisateur ?');
+      if (confirmRes) {
+        this.userManager.unarchive(id);
+        alert('Utilisateur désarchivé avec succès');
+        window.location.reload();
+      }
+    });
+
+    this.userTemplateManager.onDeleteUserClicked((id) => {
+      // delete user
+      const confirmRes = confirm('Voulez-vous vraiment supprimer cet utilisateur ?');
+      if (confirmRes) {
+        this.userManager.delete(id);
+        alert('Utilisateur supprimé avec succès');
+        window.location.reload();
+      }
     });
   }
 
@@ -206,6 +240,10 @@ class IndexView extends View {
     // get the template manager
     try {
       let documents = await this.documentManager.getAll(archived);
+      // filter the documents based on the search value
+      if (this.searchValue) {
+        documents = documents.filter(doc => doc.getFileName().toLowerCase().includes(this.searchValue.toLowerCase()));
+      }
 
       // add the documents to the container
       await this.docTemplateManager.addDocuments(documents);
@@ -221,6 +259,18 @@ class IndexView extends View {
 
     // get the template manager
     let users = await this.userManager.getAll(archived);
+
+    // filter the users based on the search value
+    if (this.searchValue) {
+      if (this.isArchiveView) {
+        users = users.filter(user => {
+          const name = user.first_name + ' ' + user.last_name;
+          return name.toLowerCase().includes(this.searchValue.toLowerCase());
+        });
+      } else {
+        users = users.filter(user => user.display_name.toLowerCase().includes(this.searchValue.toLowerCase()));
+      }
+    }
 
     // add the users to the container
     await this.userTemplateManager.addUsers(users);
