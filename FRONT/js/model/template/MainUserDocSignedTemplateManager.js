@@ -34,7 +34,7 @@ class MainUserDocSignedTemplateManager extends TemplateManager {
 
         const date = new Date(doc.date).toLocaleDateString();
 
-        values['id'] = doc.id;                              // doc id
+        values['id'] = doc.user_version_id;                 // doc id
         values['Title'] = doc.title;                        // doc name
         values['Date'] = date;                              // sig date
         values['update'] = doc.toUpdate ? '' : 'disabled';  // update button (disabled if the doc is up to date)
