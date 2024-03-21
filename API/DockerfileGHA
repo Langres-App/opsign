@@ -15,7 +15,7 @@ RUN ln -s /usr/share/zoneinfo/Europe/Paris /etc/localtime
 COPY . .
 
 # Install the dependencies
-RUN npm install
+RUN npm install --only=production
 
 # Exposing server port
 EXPOSE 52200
