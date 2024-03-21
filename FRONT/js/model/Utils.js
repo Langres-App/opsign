@@ -186,4 +186,25 @@ class Utils {
         return null;
     }
 
+    /**
+     * Copies the given value to the clipboard.
+     * 
+     * @param {string} val - The value to be copied to the clipboard.
+     * @returns {Promise<void>} - A promise that resolves when the value is successfully copied to the clipboard.
+     */
+    static async copyToClipboard(val) {
+        // deprecated but still works | another way would be to use the clipboard API but would require a secure context (https)
+        const textArea = document.createElement("textarea");
+        textArea.value = val;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+        } catch (err) {
+            console.error('Unable to copy to clipboard', err);
+        }
+        document.body.removeChild(textArea);
+    }
+
 }
