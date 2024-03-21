@@ -8,6 +8,7 @@ const router = express.Router();
 const DocumentManager = require('../model/Managers/DocumentManager');
 const { storeDocument, upload, deleteOriginal } = require('../model/FileStore');
 const { handle } = require('./functionHandler');
+const requireAuth = require('./authMiddleware');
 
 /**
  * Route for getting all documents.
@@ -31,7 +32,7 @@ router.get('/', handle(async (req, res) => {
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
-router.get('/archived', handle(async (req, res) => {
+router.get('/archived', requireAuth, handle(async (req, res) => {
     res.status(200).json(await DocumentManager.getAllArchived());
 }));
 
@@ -57,7 +58,7 @@ router.get('/:id', handle(async (req, res) => {
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
-router.post('/', upload.single('file'), storeDocument, deleteOriginal, handle(async (req, res) => {
+router.post('/', requireAuth, upload.single('file'), storeDocument, deleteOriginal, handle(async (req, res) => {
     req.body.filePath = req.filePath;
     await DocumentManager.add(req.body);                    // Store the document in the database | multer middleware stored the file in Docs folder and the path in req.filePath
     res.status(201).send('Document created successfully');  // Send success response
@@ -73,7 +74,7 @@ router.post('/', upload.single('file'), storeDocument, deleteOriginal, handle(as
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
-router.put('/:id', handle(async (req, res) => {
+router.put('/:id', requireAuth, handle(async (req, res) => {
     await DocumentManager.updateTitle(req.params.id, req.body.name);
     res.status(200).send('Document updated successfully');
 }));
@@ -87,7 +88,7 @@ router.put('/:id', handle(async (req, res) => {
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
-router.post('/:id', upload.single('file'), storeDocument, deleteOriginal, handle(async (req, res) => {
+router.post('/:id', requireAuth, upload.single('file'), storeDocument, deleteOriginal, handle(async (req, res) => {
     await DocumentManager.addVersion(req.params.id, req.body.date, req.filePath);
     res.status(200).send('Version added successfully');
 }));
@@ -101,7 +102,7 @@ router.post('/:id', upload.single('file'), storeDocument, deleteOriginal, handle
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
-router.put('/:id/unarchive', handle(async (req, res) => {
+router.put('/:id/unarchive', requireAuth, handle(async (req, res) => {
     await DocumentManager.unarchive(req.params.id);
     res.status(200).send('Document restored successfully');
 }));
@@ -115,7 +116,7 @@ router.put('/:id/unarchive', handle(async (req, res) => {
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
-router.delete('/:id', handle(async (req, res) => {
+router.delete('/:id', requireAuth, handle(async (req, res) => {
     await DocumentManager.archive(req.params.id);
     res.status(204).send('Document archived successfully');
 }));
@@ -129,7 +130,7 @@ router.delete('/:id', handle(async (req, res) => {
  * @param {Object} res - Express response object.
  * @returns {Promise<void>} - Promise that resolves when the response is sent.
  */
-router.delete('/:id/archived', handle(async (req, res) => {
+router.delete('/:id/archived', requireAuth, handle(async (req, res) => {
     await DocumentManager.deleteArchivedDoc(req.params.id);
     res.status(204).send('Document deleted successfully');
 }));

@@ -48,8 +48,14 @@ class Dao {
                 'Authorization': 'Bearer ' + AuthManager.getToken()
             },
         });
-        let result = await response.json();
-        return result;
+
+        if (response.status === 200) {
+            let result = await response.json();
+            return result;
+        }
+
+        return null;
+
     }
 
     /**
@@ -58,7 +64,11 @@ class Dao {
      * @returns The object with the given id as a json object
      */
     async getById(id) {
-        let response = await fetch(this.url + this.endpoint + "/" + id);
+        let response = await fetch(this.url + this.endpoint + "/" + id, {
+            headers: {
+                'Authorization': 'Bearer ' + AuthManager.getToken()
+            }
+        });
         let data = await response.json();
         return data;
     }
@@ -73,7 +83,7 @@ class Dao {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'authorization': 'Bearer ' + AuthManager.getToken() || ''
+                'Authorization': 'Bearer ' + AuthManager.getToken()
             },
             body: JSON.stringify(data)
         });
@@ -90,7 +100,8 @@ class Dao {
         let response = await fetch(this.url + this.endpoint + "/" + data.id, {
             method: 'PUT',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + AuthManager.getToken()
             },
             body: JSON.stringify(data)
         });
@@ -107,7 +118,7 @@ class Dao {
         let response = await fetch(this.url + this.endpoint + '/' + id + '/unarchive', {
             method: 'PUT',
             headers: {
-                'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+                'Authorization': 'Bearer ' + AuthManager.getToken()
             }
         });
 
@@ -121,9 +132,11 @@ class Dao {
      * @returns the result of the delete request
      */
     async delete(id, archived = false) {
-        console.log('delete', id, archived);
         let response = await fetch(this.url + this.endpoint + "/" + id + (archived ? '/archived' : ''), {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + AuthManager.getToken()
+            }
         });
 
         return response;

@@ -4,6 +4,7 @@ const { handle } = require('./functionHandler');
 const router = express.Router();
 const UserManager = require('../model/Managers/UserManager');
 const { getSignedDocument } = require('../model/Managers/SignedDocumentManager');
+const requireAuth = require('./authMiddleware');
 
 /**
  * GET /users/archived
@@ -12,7 +13,7 @@ const { getSignedDocument } = require('../model/Managers/SignedDocumentManager')
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the users are retrieved.
  */
-router.get('/archived', handle(async (req, res) => {
+router.get('/archived', requireAuth, handle(async (req, res) => {
     res.status(200).send(await UserManager.getArchived());
 }));
 
@@ -34,8 +35,8 @@ router.get('/:id', handle(async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the user is retrieved.
  */
-router.get('', handle(async (req, res) => {
-    
+router.get('', requireAuth, handle(async (req, res) => {
+
     let data;
 
     if (!req.query.email) {
@@ -43,7 +44,7 @@ router.get('', handle(async (req, res) => {
         res.status(200).send(data);
         return;
     }
-    
+
     data = await UserManager.getByEmail(req.query.email);
     res.status(200).send({ first_name: data.first_name, last_name: data.last_name });
 }));
@@ -67,7 +68,7 @@ router.get('/signingData/:token', handle(async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the user is created.
  */
-router.post('/', handle(async (req, res) => {
+router.post('/', requireAuth, handle(async (req, res) => {
 
     if (req.body.identifier != undefined) {
         req.body.email = req.body.identifier;
@@ -84,7 +85,7 @@ router.post('/', handle(async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the user is updated.
  */
-router.put('/unarchive/:id', handle(async (req, res) => {
+router.put('/:id/unarchive', requireAuth, handle(async (req, res) => {
     await UserManager.unarchive(req.params.id);
     res.status(200).send('User unarchived successfully');
 }));
@@ -96,7 +97,7 @@ router.put('/unarchive/:id', handle(async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the user is archived.
  */
-router.delete('/:id', handle(async (req, res) => {
+router.delete('/:id', requireAuth, handle(async (req, res) => {
     await UserManager.archive(req.params.id);
     res.status(200).send('User archived successfully');
 }));
@@ -108,7 +109,7 @@ router.delete('/:id', handle(async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the user is deleted.
  */
-router.delete('/archived/:id', handle(async (req, res) => {
+router.delete('/:id/archived', requireAuth, handle(async (req, res) => {
     await UserManager.deleteArchived(req.params.id);
     res.status(200).send('User deleted successfully');
 }));
@@ -120,7 +121,7 @@ router.delete('/archived/:id', handle(async (req, res) => {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the signing token is generated.
  */
-router.post('/generateSigningToken', handle(async (req, res) => {
+router.post('/generateSigningToken', requireAuth, handle(async (req, res) => {
     const token = await UserManager.generateSigningToken(req.body, req.body.documentId);
     res.status(200).send(token);
 }));
@@ -182,7 +183,7 @@ router.delete('/:userId/deleteSignaturesToken/:token', requireAuth, handle(async
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - The promise that resolves when the signed document is retrieved.
  */
-router.get('/signedDocument/:id', handle(async (req, res) => {
+router.get('/signedDocument/:id', requireAuth, handle(async (req, res) => {
     // get the signed document
     const signedDoc = await getSignedDocument(req.params.id);
 
