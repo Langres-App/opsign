@@ -29,22 +29,27 @@
 
     <main>
         <div id="mainHeader">
-            <div id="tabs">
-                <div id="docs_menu" class="tab clickable active">
-                    <p>Documents</p>
+            <div class="aligned">
+                <div id="tabs">
+                    <div id="docs_menu" class="tab clickable active">
+                        <p>Documents</p>
+                    </div>
+                    <div id="users_menu" class="tab clickable">
+                        <p>Utilisateurs</p>
+                    </div>
                 </div>
-                <div id="users_menu" class="tab clickable">
-                    <p>Utilisateurs</p>
+                <div id="opt">
+                    <div class="aligned">
+                        <label class="switch">
+                            <input id="archived_cb" type="checkbox">
+                            <span class="slider round"></span>
+                        </label>
+                        <p>Archivés</p>
+                    </div>
                 </div>
             </div>
-            <div id="opt">
-                <div class="aligned">
-                    <label class="switch">
-                        <input id="archived_cb" type="checkbox">
-                        <span class="slider round"></span>
-                    </label>
-                    <p>Archivés</p>
-                </div>
+            <div>
+                <input id="search" type="text" placeholder="Rechercher">
             </div>
         </div>
         <div id="mainBody">

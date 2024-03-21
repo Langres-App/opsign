@@ -14,7 +14,7 @@ class DocumentDao extends Dao {
     let response = await fetch(this.url + this.endpoint, {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        'Authorization': 'Bearer ' + AuthManager.getToken()
       },
       body: doc
     });
@@ -32,7 +32,7 @@ class DocumentDao extends Dao {
     let response = await fetch(this.url + this.endpoint + '/' + id, {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer ' + sessionStorage.getItem('token')
+        'Authorization': 'Bearer ' + AuthManager.getToken()
       },
       body: versionToAdd
     });

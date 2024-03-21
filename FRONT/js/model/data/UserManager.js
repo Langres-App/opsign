@@ -126,7 +126,7 @@ class UserManager {
             const resp = await this.#userDao.generateSigningLink(body);
 
             if (resp.status === 409) {
-                throw new Error('L\'utilisateur à déjà été invité à signer ce document. Si la signature n\'a pas encore été effectuée, vous trouverez le lien [placeholder].');
+                throw new Error('L\'utilisateur à déjà été invité à signer ce document. Si la signature n\'a pas encore été effectuée, vous trouverez le lien sur son profile dans l\'onglet Utilisateurs.');
             }
             if (resp.status !== 200) {
                 throw new Error('Erreur lors de la génération du lien de signature');
@@ -137,7 +137,7 @@ class UserManager {
 
         }
 
-        return window.location.origin + '/charte/visual/pages/signing.html?token=' + link;
+        return window.location.origin + '/posign/visual/pages/signing.html?token=' + link;
 
     }
 
@@ -156,10 +156,12 @@ class UserManager {
      * @param {string} userId - The ID of the user.
      * @returns {Promise<void>} - A promise that resolves when the PDF document is printed.
      */
-    async print(docId, userId) {
-        let url = await this.#userDao.print(docId, userId);
-        // open a new window to show the pdf document with the user signature
-        window.open(url + '?doc=' + docId + '&user=' + userId, '_blank');
+    async print(uvId) {
+        const signedDocBlob = await this.#userDao.print(uvId);
+
+        // open the signed document
+        const link = URL.createObjectURL(signedDocBlob);
+        window.open(link, '_blank');
     }
 
     /**
@@ -192,5 +194,13 @@ class UserManager {
      */
     async delete(userId) {
         return await this.#userDao.delete(userId);
+    }
+
+    async deleteSignatures(userId, docId) {
+        return await this.#userDao.deleteAllSignatures(userId, docId);
+    }
+
+    async deleteSignatureToken(userId, token) {
+        return await this.#userDao.deleteSignatureToken(token, userId);
     }
 }

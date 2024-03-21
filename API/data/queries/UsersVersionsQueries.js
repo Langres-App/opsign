@@ -1,5 +1,6 @@
 const assert = require('./../../model/Asserter')
 const executeWithCleanup = require("../databaseCleanup");
+const versionQueries = require('./VersionQueries');
 
 // #region CREATE
 
@@ -82,12 +83,12 @@ async function getSigningUserData(userId) {
             JOIN user u ON uv.user_id = u.id
             WHERE uv.id = ?;`;
 
-            const result = await query(queryStr, [userId]);
-    
-            assert(result, '[UserQueries.getSigningUserData] There was a problem querying the database for the signing user data');
-            assert(result.length > 0, '[UserQueries.getSigningUserData] There was a problem querying the database for the signing user data');
-    
-            return result[0];
+        const result = await query(queryStr, [userId]);
+
+        assert(result, '[UserQueries.getSigningUserData] There was a problem querying the database for the signing user data');
+        assert(result.length > 0, '[UserQueries.getSigningUserData] There was a problem querying the database for the signing user data');
+
+        return result[0];
 
     });
 
@@ -333,6 +334,61 @@ async function signDoc(token, blob) {
 
 // #endregion
 
+// #region Delete
+
+/**
+ * Deletes the signature by document ID.
+ *
+ * @param {string} docId - The document ID.
+ * @param {string} userId - The user ID.
+ * @returns {Promise<void>} - A Promise that resolves when the signature is deleted.
+ * @throws {Error} - If the document ID is not provided.
+ */
+async function deleteSignatureByDocId(docId, userId) {
+    assert(docId, '[UserQueries.deleteSignature] The document ID is required');
+
+    return await executeWithCleanup(async (query) => {
+
+        // get all versions of the document
+        const versions = await versionQueries.getAll(docId);
+
+        for (let i = 0; i < versions.length; i++) {
+
+            // delete the signature
+            let queryStr = `
+                DELETE FROM user_version
+                WHERE version_id = ? AND user_id = ?;`;
+
+            await query(queryStr, [versions[i].id, userId]);
+        }
+
+    });
+
+}
+
+/**
+ * Deletes the signature by token.
+ *
+ * @param {string} token - The signing token.
+ * @param {string} userId - The user ID.
+ * @returns {Promise<void>} - A promise that resolves when the signature is deleted.
+ */
+async function deleteSignatureByToken(token, userId) {
+    assert(token, '[UserQueries.deleteSignature] The token is required');
+
+    return await executeWithCleanup(async (query) => {
+
+        let queryStr = `
+        DELETE FROM user_version
+        WHERE signing_token = ? AND user_id = ?;`;
+
+        await query(queryStr, [token, userId]);
+
+    });
+}
+
+// #endregion
+
 
 module.exports = {
     addSigningToken,
@@ -349,4 +405,7 @@ module.exports = {
     getById,
 
     signDoc,
+
+    deleteSignatureByDocId,
+    deleteSignatureByToken
 };
