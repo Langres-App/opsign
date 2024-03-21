@@ -2,6 +2,7 @@
 /API/node_modules
 /API/package-lock.json
 /database*
-/API/Docs/
+/Docs/
 .vscode
-config.user.inc.php
+docker-compose.override.yml
+.env
