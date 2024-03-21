@@ -4,7 +4,6 @@
  */
 
 const express = require('express');
-const { login } = require('../data/queries/AuthorizedUserQueries');
 const { handle } = require('./functionHandler');
 const AuthManager = require('../model/Managers/AuthManager');
 const router = express.Router();
