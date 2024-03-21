@@ -138,6 +138,10 @@ class Canvas {
         return this.#canvas.toDataURL("image/png");
     }
 
+    /**
+     * Exports the canvas as a Blob object.
+     * @returns {Promise<Blob>} A promise that resolves with the Blob object representing the canvas.
+     */
     exportToBlob() {
         return new Promise((resolve) => {
             this.#canvas.toBlob((blob) => {

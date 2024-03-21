@@ -40,7 +40,7 @@ class MainUserTemplateManager extends TemplateManager {
         // values is a map that contains the values to be replaced in the template, 
         // the key is the name of the variable in the template and the value is the value to replace
         let values = [];
-        
+
         values['id'] = user.id;
 
         if (!user.archived_date) {
@@ -48,7 +48,7 @@ class MainUserTemplateManager extends TemplateManager {
             const outdatedCount = user.docs_signatures.filter(doc => doc.toUpdate === true).length;
             const waitingCount = user.docs_waiting.length;
 
-            values['DisplayName'] = user.display_name; 
+            values['DisplayName'] = user.display_name;
             values['Signed'] = signedCount < 10 ? '0' + signedCount : signedCount;
             values['Outdated'] = outdatedCount < 10 ? '0' + outdatedCount : outdatedCount;
             values['Waiting'] = waitingCount < 10 ? '0' + waitingCount : waitingCount;
