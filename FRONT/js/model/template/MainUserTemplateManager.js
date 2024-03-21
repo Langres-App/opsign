@@ -40,16 +40,26 @@ class MainUserTemplateManager extends TemplateManager {
         // values is a map that contains the values to be replaced in the template, 
         // the key is the name of the variable in the template and the value is the value to replace
         let values = [];
-
-        const signedCount = user.docs_signatures.length;
-        const outdatedCount = user.docs_signatures.filter(doc => doc.toUpdate === true).length;
-        const waitingCount = user.docs_waiting.length;
-
+        
         values['id'] = user.id;
-        values['DisplayName'] = user.display_name;
-        values['Signed'] = signedCount  < 10 ? '0' + signedCount : signedCount;
-        values['Outdated'] = outdatedCount < 10 ? '0' + outdatedCount : outdatedCount;
-        values['Waiting'] = waitingCount < 10 ? '0' + waitingCount : waitingCount;
+
+        if (!user.archived_date) {
+            const signedCount = user.docs_signatures.length;
+            const outdatedCount = user.docs_signatures.filter(doc => doc.toUpdate === true).length;
+            const waitingCount = user.docs_waiting.length;
+
+            values['DisplayName'] = user.display_name; 
+            values['Signed'] = signedCount < 10 ? '0' + signedCount : signedCount;
+            values['Outdated'] = outdatedCount < 10 ? '0' + outdatedCount : outdatedCount;
+            values['Waiting'] = waitingCount < 10 ? '0' + waitingCount : waitingCount;
+            values['archived'] = '';
+            values['showText'] = 'disabled';
+        } else {
+            values['DisplayName'] = user.first_name + ' ' + user.last_name;
+            values['showText'] = '';
+            values['archived'] = 'disabled';
+            values['Date'] = new Date(user.archived_date).toLocaleDateString();
+        }
 
         // call parent method to add the document to the container
         await super.addTemplate(values);
@@ -63,5 +73,25 @@ class MainUserTemplateManager extends TemplateManager {
      */
     onUserClicked(callback) {
         super.onClick(callback, '', 'main-user-element', '#mainBody');
+    }
+
+    /**
+     * Handles the click event for the "Unarchive User" button.
+     *
+     * @param {Function} callback - The callback function to be executed when the button is clicked.
+     * @returns {void}
+     */
+    onUnarchiveUserClicked(callback) {
+        super.onClick(callback, 'unarchiveUser', 'main-user-element', '#mainBody');
+    }
+
+    /**
+     * Handles the click event when the user clicks on the delete user button.
+     *
+     * @param {Function} callback - The callback function to be executed when the delete user button is clicked.
+     * @returns {void}
+     */
+    onDeleteUserClicked(callback) {
+        super.onClick(callback, 'deleteUser', 'main-user-element', '#mainBody');
     }
 }

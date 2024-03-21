@@ -90,7 +90,7 @@ class DocumentManager extends DataManager {
         }
 
         // if no error was thrown and the data is defined we return what the function needs to
-        if (data !== undefined) {
+        if (data) {
             data.forEach(doc => {
                 toReturn.push(new PoDocument(doc))
             });
@@ -100,7 +100,7 @@ class DocumentManager extends DataManager {
             return toReturn;
         }
 
-        return null;
+        return [];
     }
 
     /**

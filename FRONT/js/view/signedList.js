@@ -27,8 +27,15 @@ class SignedListView extends View {
     });
   }
 
-  #init(authManager) {
+  /**
+   * Initializes the signed list view.
+   *
+   * @param {AuthManager} authManager - The authentication manager.
+   * @returns {Promise<void>} A promise that resolves when the initialization is complete.
+   */
+  async #init(authManager) {
     this.#setPageTitle();
+    await this.initTemplateManager();
 
     // Wait for auth Check
     document.addEventListener('USER_LOGGED_IN', () => {
@@ -47,6 +54,25 @@ class SignedListView extends View {
     });
 
     authManager.check();
+
+  }
+
+  /**
+   * Initializes the template manager for the signed list view.
+   * @returns {Promise<void>} A promise that resolves when the template manager is initialized.
+   */
+  async initTemplateManager() {
+    // get the container
+    let container = document.getElementById('list');
+
+    // create the template manager
+    this.templateManager = await Instantiator.signedUserTemplateManager(container);
+
+    // add the event listener
+    this.templateManager.onSeeClicked((id) => {
+      // open the signed document on a new tab
+      this.manager.print(id);
+    });
 
   }
 
@@ -132,11 +158,6 @@ class SignedListView extends View {
    * @returns {Promise<void>} - A promise that resolves when the users are displayed.
    */
   async #displayUsers(searchValue) {
-    // get the container
-    let container = document.getElementById('list');
-
-    // create the template manager
-    let templateManager = await Instantiator.signedUserTemplateManager(container);
 
     // add the users to the container
     let users = await this.manager.getAllByDocId(this.#docId);
@@ -145,27 +166,11 @@ class SignedListView extends View {
     searchValue = searchValue || '';
 
     // remove every Template from the container
-    templateManager.clearContainer();
+    this.templateManager.clearContainer();
 
     // filter the users based on the search value and add them to the container
     let userList = users.filter(user => user.getDisplayName().toLowerCase().includes(searchValue.toLowerCase()));
-    await templateManager.addSignedUsers(userList);
+    await this.templateManager.addSignedUsers(userList);
 
-    // add the event listener
-    templateManager.onSeeClicked((id) => {
-      // open the signed document on a new tab
-      const link = '/posignapi/users/signedDocument/' + id;
-      window.open(link, '_blank');
-    });
-
-    templateManager.onArchiveClicked(async (id) => {
-
-      try {
-        await this.manager.archive(id);
-        window.location.reload();
-      } catch (e) {
-        // TODO: error message
-      }
-    });
   }
 }

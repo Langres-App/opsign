@@ -29,6 +29,21 @@ class UserClickedPopup extends Popup {
 
         this.initialized = true;
 
+        const archiveButton = this.getPopup().querySelector('#archiveUser');
+        archiveButton.addEventListener('click', async () => {
+            const confirmRes = confirm('Voulez-vous vraiment archiver cet utilisateur ?');
+            if (confirmRes) {
+                try {
+                    await this.userManager.archive(this.userId);
+                    alert('Utilisateur archivé avec succès');
+                    window.location.reload();
+                } catch (e) {
+                    alert('Erreur lors de l\'archivage de l\'utilisateur');
+                    console.log(e);
+                }
+            }
+        });
+
         // add the stylesheet
         Utils.addStyleSheet('style/templates/main-user-doc-template.css');
 
@@ -45,9 +60,9 @@ class UserClickedPopup extends Popup {
         const container = this.getPopup().querySelector('.signed-docs');
         this.DocSignedTM = await Instantiator.mainUserDocSignedTemplateManager(container);
 
-        this.DocSignedTM.onUpdateClick(async (docId) => {
+        this.DocSignedTM.onUpdateClick(async (uvId) => {
             const user = await this.userManager.getById(this.userId);
-            const userDoc = user.docs_signatures.find(doc => doc.id == docId);
+            const userDoc = user.docs_signatures.find(doc => doc.user_version_id == uvId);
 
             const resp = await this.userManager.generateSigningLink({ email: user.email, documentId: userDoc.id });
 
@@ -63,17 +78,17 @@ class UserClickedPopup extends Popup {
 
         });
 
-        this.DocSignedTM.onDocClick(async (docId) => {
-            const user = await this.userManager.getById(this.userId);
-            const userDoc = user.docs_signatures.find(doc => doc.id == docId);
-            await this.userManager.print(userDoc.user_version_id);
+        this.DocSignedTM.onDocClick(async (uvId) => {
+            await this.userManager.print(uvId);
         });
 
-        this.DocSignedTM.onDeleteClick(async (docId) => {
+        this.DocSignedTM.onDeleteClick(async (uvId) => {
+            const user = await this.userManager.getById(this.userId);
+            const userDoc = user.docs_signatures.find(doc => doc.user_version_id == uvId);
             const confirmRes = confirm('Voulez-vous vraiment supprimer cette signature ?');
             if (confirmRes) {
                 try {
-                    await this.userManager.deleteSignatures(this.userId, docId);
+                    await this.userManager.deleteSignatures(this.userId, userDoc.id);
                     alert('Signature(s) supprimée avec succès');
                     window.location.reload();
                 } catch (e) {
@@ -150,6 +165,18 @@ class UserClickedPopup extends Popup {
         const user = await this.userManager.getById(this.userId, false);
 
         popup.querySelector('#user-name').innerText = user.display_name;
+
+        if (user.docs_signatures.length == 0) {
+            popup.querySelector('.signed').style.display = 'none';
+        } else {
+            popup.querySelector('.signed').style.display = 'block';
+        }
+
+        if (user.docs_waiting.length == 0) {
+            popup.querySelector('.waiting').style.display = 'none';
+        } else {
+            popup.querySelector('.signed').style.display = 'block';
+        }
 
         this.DocSignedTM.clearContainer();
         this.DocWaitingTM.clearContainer();

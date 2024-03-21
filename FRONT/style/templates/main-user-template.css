@@ -50,9 +50,6 @@
 
      }
 
-
-
-
  }
 
 
@@ -60,4 +57,11 @@
      background: rgba(0, 0, 0, .3);
      backdrop-filter: blur(10px);
      scale: 1.02;
+ }
+
+ .main-user-element .buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: unset !important;
  }

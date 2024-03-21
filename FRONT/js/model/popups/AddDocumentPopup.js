@@ -209,7 +209,6 @@ class AddDocumentPopup extends Popup {
      * @returns {Promise<void>} - A promise that resolves when the document is successfully edited.
      */
     async editDocument(docId, manager, form) {
-        console.log('edit document');
         // add the document to the manager
         try {
             await manager.update({
