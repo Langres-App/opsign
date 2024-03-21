@@ -194,18 +194,25 @@ async function getAll() {
 async function getSignedDocId(userId) {
     return await executeWithCleanup(async (query) => {
         return await query(`
-        SELECT DISTINCT
-            v.doc_id id,
-            uv.id user_version_id,
-            d.file_name title,
+        SELECT
+            v.doc_id AS id,
+            uv.id AS user_version_id,
+            d.file_name AS title,
             uv.date
         FROM 
             user_version uv
         LEFT JOIN version v ON uv.version_id = v.id
         LEFT JOIN document d ON v.doc_id = d.id
-        WHERE uv.user_id = ?
+        WHERE 
+            uv.user_id = ?
             AND uv.signature IS NOT NULL
-            AND d.archived_date IS NULL;
+            AND d.archived_date IS NULL
+            AND uv.date = (
+                SELECT MIN(uv_inner.date)
+                FROM user_version uv_inner
+                LEFT JOIN version v_inner ON uv_inner.version_id = v_inner.id
+                WHERE v_inner.doc_id = v.doc_id
+            );
         `, [userId]);
     });
 }
