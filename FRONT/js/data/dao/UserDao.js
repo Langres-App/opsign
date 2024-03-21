@@ -20,16 +20,6 @@ class UserDao extends Dao {
         return Error('NOT IMPLEMENTED');
     }
 
-
-    /**
-     * Deletes a user. Not implemented because we don't delete users but archive them. (soft delete)
-     * @param {Object} user - The user object to be deleted.
-     * @returns {Promise} - A promise that resolves with the result of the deletion.
-     */
-    async delete(user) {
-        return Error('NOT IMPLEMENTED');
-    }
-
     async getByEmail(email) {
         let response = await fetch(super.getUrl() + super.getEndpoint() + `?email=${email}`, {
             method: 'GET',
@@ -86,7 +76,10 @@ class UserDao extends Dao {
 
         let response = await fetch(super.getUrl() + super.getEndpoint() + `/sign/${token}`, {
             method: 'POST',
-            body: formData
+            body: formData,
+            headers: {
+                'Authorization': 'Bearer ' + AuthManager.getToken()
+            }
         });
 
         return response;
@@ -98,15 +91,14 @@ class UserDao extends Dao {
      * @param {string} userId - The ID of the user.
      * @returns {Promise<any>} - A promise that resolves with the fetched data.
      */
-    async print(docId, userId) {
-        let response = await fetch(super.getUrl() + super.getEndpoint() + `?doc=${docId}&user=${userId}`, {
+    async print(uvId) {
+        let response = await fetch(super.getUrl() + super.getEndpoint() + `/SignedDocument/${uvId}`, {
             method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + AuthManager.getToken()
             },
         });
-        let result = await response.json();
+        let result = await response.blob();
         return result;
     }
 
@@ -131,6 +123,40 @@ class UserDao extends Dao {
      */
     async delete(userId) {
         return super.delete(userId, true);
+    }
+
+    /**
+     * Deletes all signatures for a given user.
+     * @param {string} userId - The ID of the user.
+     * @returns {Promise<Response>} - A Promise that resolves to the response from the server.
+     */
+    async deleteAllSignatures(userId, docId) {
+        let response = await fetch(super.getUrl() + super.getEndpoint() + `/${userId}/deleteAllSignatures/${docId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + AuthManager.getToken()
+            },
+        });
+
+        return response;
+    }
+
+    /**
+     * Deletes a signature token.
+     * @param {string} token - The token to delete
+     * @returns {Promise<Response>} - A Promise that resolves to the response of the delete request.
+     */
+    async deleteSignatureToken(token, userId) {
+        let response = await fetch(super.getUrl() + super.getEndpoint() + `/${userId}/deleteSignaturesToken/${token}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + AuthManager.getToken()
+            },
+        });
+
+        return response;
     }
 
 }
