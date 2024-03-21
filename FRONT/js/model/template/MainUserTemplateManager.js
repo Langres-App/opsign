@@ -18,6 +18,11 @@ class MainUserTemplateManager extends TemplateManager {
      * @returns {Promise} - A promise that resolves when all users have been added.
      */
     async addUsers(users = []) {
+
+        // order the user by the number of documents waiting to be signed
+        users.sort((a, b) => a.docs_waiting.length - b.docs_waiting.length);
+
+        // add the users to the container
         for (let user of users) {
             await this.#addUser(user);
         }

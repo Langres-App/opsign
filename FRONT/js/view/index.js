@@ -114,8 +114,6 @@ class IndexView extends View {
 
     // clone it and add back every listener
     header.replaceWith(header.cloneNode(true));
-
-    console.log('nav buttons disabled');
   }
 
   /**
@@ -178,7 +176,6 @@ class IndexView extends View {
 
     // when the add is clicked open the popup and pass the needed data
     btn.addEventListener('click', () => {
-      console.log('add button clicked');
       this.popupManager.open('document-popup', {
         state: AddDocumentPopup.state.ADD,
         manager: this.documentManager
@@ -206,11 +203,17 @@ class IndexView extends View {
   async displayFetchedDocuments(archived = false) {
     await this.docTemplateManager.clearContainer();
 
-    // get the template manager    
-    let documents = await this.documentManager.getAll(archived);
+    // get the template manager
+    try {
+      let documents = await this.documentManager.getAll(archived);
 
-    // add the documents to the container
-    await this.docTemplateManager.addDocuments(documents);
+      // add the documents to the container
+      await this.docTemplateManager.addDocuments(documents);
+
+    } catch (e) {
+      console.log(e);
+      alert('An error occured while fetching the documents');
+    }
   }
 
   async displayUsers(archived = false) {

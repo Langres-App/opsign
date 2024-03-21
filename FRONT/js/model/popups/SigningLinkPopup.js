@@ -151,7 +151,7 @@ class SigningLinkPopup extends Popup {
 
         // actions to be taken when the popup is clicked
         const actions = {
-            'signing-link-copy': async (_, link) => await this.copyToClipboard(link),
+            'signing-link-copy': async (_, link) => await Utils.copyToClipboard(link),
             'signing-link-mailto': async (user, link) => {
                 // send the mail
                 window.location.href = `mailto:${user.identifier}?subject=Signature du document ${docName}&body=Bonjour ${user.first_name} ${user.last_name},%0D%0AMerci de signer ce document à l'adresse suivante : ${link}.%0D%0ACordialement.`;
@@ -183,30 +183,6 @@ class SigningLinkPopup extends Popup {
             }
 
         });
-
-
-    }
-
-    /**
-     * Copies the given value to the clipboard.
-     * 
-     * @param {string} val - The value to be copied to the clipboard.
-     * @returns {Promise<void>} - A promise that resolves when the value is successfully copied to the clipboard.
-     */
-    async copyToClipboard(val) {
-        // deprecated but still works | another way would be to use the clipboard API but would require a secure context (https)
-        const textArea = document.createElement("textarea");
-        textArea.value = val;
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-            document.execCommand('copy');
-            alert('Lien copié dans le presse papier');
-        } catch (err) {
-            console.error('Unable to copy to clipboard', err);
-        }
-        document.body.removeChild(textArea);
 
 
     }
