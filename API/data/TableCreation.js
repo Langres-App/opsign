@@ -43,7 +43,7 @@ async function createUserTable(query) {
     id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
-    identifier VARCHAR(255) NOT NULL,
+    identifier VARCHAR(255) NOT NULL UNIQUE,
     archived_date Datetime default NULL
   )`;
 

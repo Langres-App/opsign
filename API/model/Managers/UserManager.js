@@ -30,7 +30,11 @@ async function add(user) {
     assert(user.email, '[UserManager.add] The email is required');
     assert(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(user.email), '[UserManager.add] The email is not valid');
 
-    return await UserQueries.add(user);
+    try {
+        return await UserQueries.add(user);
+    } catch (e) {
+        return e;
+    }
 
 }
 
@@ -175,12 +179,11 @@ async function unarchive(id) {
  */
 async function generateSigningToken(data, documentId) {
 
-    let userId;
+    const user = await UserQueries.getByEmail(data.email);
 
-    // check for the user / add it if needed
-    if (!await UserQueries.getByEmail(data.email)) {
-        userId = await UserQueries.add(data);
-    }
+    assert(user, '[UserManager.generateSigningToken] The user is required'); // may check the addUser from the front
+
+    const userId = user.id;
 
     assert(data.email, '[UserManager.generateSigningToken] The email is required');
     assert(documentId, '[UserManager.generateSigningToken] The documentId is required');
@@ -193,10 +196,6 @@ async function generateSigningToken(data, documentId) {
         token = utils.generateRandomToken(5, false);
     }
 
-    // Get the user and version IDs
-    if (!userId) {
-        userId = (await UserQueries.getByEmail(data.email)).id;
-    }
     const versionId = (await VersionQueries.getLatest(documentId)).id;
 
     // Add the token to the database
