@@ -132,7 +132,7 @@ async function updateTitle(id, title) {
     id = parseInt(id);
     assert(Number(id), '[DocumentManager.updateTitle] Document ID must be a number');
 
-    changeFolderAndFilesNames(path.join(__dirname, '../Docs', oldName), title);
+    changeFolderAndFilesNames(path.join(__dirname, '../../Docs', oldName), title);
     await queries.rename(id, title);
 
 }
