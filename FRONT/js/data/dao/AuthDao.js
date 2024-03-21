@@ -46,7 +46,7 @@ class AuthDao extends Dao {
      */
     async register(user) {
         let resp = await this.post('/register', user);
-        if (resp.status === 200) {
+        if (resp.status === 201) {
             return await resp.text();
         }
     }
