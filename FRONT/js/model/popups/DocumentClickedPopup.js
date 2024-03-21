@@ -102,7 +102,6 @@ class DocumentClickedPopup extends Popup {
             admin_only: true,
             action: async (dataMap, docId) => {
                 const documentManager = dataMap['manager'];
-                const popupManager = dataMap['popupManager'];
 
                 super.close();
 
@@ -110,16 +109,13 @@ class DocumentClickedPopup extends Popup {
                 try {
                     // archive the document
                     await documentManager.archive(docId);
-                    messageContent = `Le document ${this.document.getFileName()} a été archivé avec succès.
-                    Vous pouvez le retrouver dans la liste des documents archivés. (connexion requise)`;
+                    messageContent = `Le document ${this.document.getFileName()} a été archivé avec succès.\nsVous pouvez le retrouver dans la liste des documents archivés. (connexion requise)`;
                 } catch (e) {
                     console.log(e);
                     messageContent = `Une erreur est survenue lors de l'archivage du document ${this.document.getFileName()}. Veuillez réessayer.`;
                 } finally {
-                    popupManager.open('message-popup', {
-                        title: 'Archivage du document',
-                        message: messageContent
-                    });
+                    alert(messageContent);
+                    window.location.reload();
                 }
             },
             archive_button: false
@@ -138,16 +134,13 @@ class DocumentClickedPopup extends Popup {
                 try {
                     // archive the document
                     await documentManager.unarchive(docId);
-                    messageContent = `Le document ${this.document.getFileName()} a été désarchivé avec succès.
-                    Vous pouvez le retrouver dans la liste des documents non archivés.`;
+                    messageContent = `Le document ${this.document.getFileName()} a été désarchivé avec succès.\nVous pouvez le retrouver dans la liste des documents non archivés.`;
                 } catch (e) {
                     console.log(e);
                     messageContent = `Une erreur est survenue lors du désarchivage du document ${this.document.getFileName()}. Veuillez réessayer.`;
                 } finally {
-                    popupManager.open('message-popup', {
-                        title: 'Désarchivage du document',
-                        message: messageContent
-                    });
+                    alert(messageContent);
+                    window.location.reload();
                 }
              },
             archive_button: true

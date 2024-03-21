@@ -39,7 +39,7 @@ class AuthManager {
             response = await this.dao.checkForExistingUser();
             toReturn.userExists = response.status === 200;
 
-            if (toReturn) {
+            if (toReturn.userExists) {
                 let responseBody = await response.json();
                 if (responseBody.logged) {
                     document.dispatchEvent(new Event('USER_LOGGED_IN'));
@@ -68,6 +68,7 @@ class AuthManager {
      */
     async login(user) {
         let response = await this.dao.login(user);
+        if (!response) throw new Error('Login failed');
         this.#setToken(response);
     }
 
@@ -78,6 +79,7 @@ class AuthManager {
      */
     async register(user) {
         let response = await this.dao.register(user);
+        if (!response) throw new Error('Login failed');
         this.#setToken(response);
     }
 

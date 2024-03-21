@@ -121,16 +121,19 @@ async function getPdfPath(id, date) {
  * @param {string} newName - The new name to replace in the file paths.
  * @returns {Promise} A promise that resolves with the result of the update operation.
  */
-async function updatePathes(docId, newName) {
+async function updatePathes(docId, oldTitle, newName) {
 
     // Check if the required fields are present
     assert(docId, '[VersionQueries.updatePathes] The document ID is required');
     assert(newName, '[VersionQueries.updatePathes] The new name is required');
-
+    
     return await executeWithCleanup(async (query) => {
         
+        console.log('oldTitle: ', oldTitle);
+        console.log('newName: ', newName);
+
         let queryStr = 'UPDATE version SET file_path = REPLACE(file_path, ?, ?) WHERE doc_id = ?';
-        return await query(queryStr, [newName, docId, newName]);
+        return await query(queryStr, [oldTitle, newName, docId]);
 
     });
 

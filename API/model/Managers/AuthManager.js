@@ -87,14 +87,19 @@ async function register(data) {
     data.username = data.username.trim();
     data.password = data.password.trim();
 
-    await queries.createUser(data);
+    try {
+        await userExist();
+    } catch (e) {
+        if (e.message.includes('not found')) {
+            await queries.createUser(data);
+        }
+    }
 
-    // Check if the user exists, if not throw an error with 'Bad credentials' so that no information is leaked
-    assert(await userExist(), 'Bad credentials');
 
-    return await login(data);
+    // Check if the user exists, if not throw an error
+    assert(await userExist(), 'Oops, something went wrong. Please try again.');
 
-
+    return login(data);
 
 }
 
