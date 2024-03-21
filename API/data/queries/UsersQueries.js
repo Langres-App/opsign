@@ -167,10 +167,12 @@ async function getAll() {
             let signedDocId = await getSignedDocId(user.id);
             let waitingDocId = await getWaitingDocId(user.id);
             let toUpdateDocId = await getToUpdateDocId(user.id);
-            toUpdateDocId = toUpdateDocId.map(doc => doc.doc_id);
+
+            let toUpdateDocIdList = toUpdateDocId.map(doc => doc.doc_id);
 
             signedDocId = signedDocId.map(doc => {
-                doc.toUpdate = toUpdateDocId.includes(doc.id);
+                doc.toUpdate = toUpdateDocIdList.includes(doc.id);
+                doc.latest_version_id = toUpdateDocId.find(docToUpdate => docToUpdate.doc_id === doc.id) ? toUpdateDocId.find(docToUpdate => docToUpdate.doc_id === doc.id).ver_id : null;
                 return doc;
             });
 
@@ -194,6 +196,7 @@ async function getSignedDocId(userId) {
         return await query(`
         SELECT DISTINCT
             v.doc_id id,
+            uv.id user_version_id,
             d.file_name title,
             uv.date
         FROM 
@@ -254,11 +257,15 @@ async function getToUpdateDocId(userId) {
         ),
         LastVersions AS (
             -- Sélectionner la dernière version de chaque document
-            SELECT v.doc_id, MAX(v.created_date) AS last_created_date
+            SELECT v.id, v.doc_id, v.created_date AS last_created_date
             FROM version v
             JOIN document d ON v.doc_id = d.id
             WHERE d.archived_date IS NULL
-            GROUP BY v.doc_id
+            AND v.created_date = (
+                SELECT MAX(v2.created_date)
+                FROM version v2
+                WHERE v2.doc_id = v.doc_id
+            )
         ),
         LastSignedVersions AS (
             -- Sélectionner les versions signées par l'utilisateur spécifié, pour chaque document
@@ -268,7 +275,7 @@ async function getToUpdateDocId(userId) {
             GROUP BY uv.user_id, v.doc_id
         )
         -- Sélectionner les documents dont la dernière version n'est pas signée par l'utilisateur spécifié mais où au moins une autre version l'est
-        SELECT ld.doc_id
+        SELECT ld.doc_id, lv.id ver_id
         FROM SignedDocs ld
         JOIN LastSignedVersions lsv ON ld.doc_id = lsv.doc_id AND ld.user_id = lsv.user_id
         LEFT JOIN version v ON lsv.doc_id = v.doc_id AND lsv.last_signed_date = v.created_date

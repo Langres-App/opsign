@@ -1,3 +1,7 @@
+/**
+ * @class UserClickedPopup - Represents a popup that is opened when a user is clicked.
+ * @extends Popup
+ */
 class UserClickedPopup extends Popup {
 
     /**
@@ -15,6 +19,11 @@ class UserClickedPopup extends Popup {
 
     }
 
+    /**
+     * Initializes the UserClickedPopup.
+     * 
+     * @returns {Promise<void>} A promise that resolves when the initialization is complete.
+     */
     async initialize() {
         if (this.initialized) return;
 
@@ -28,37 +37,95 @@ class UserClickedPopup extends Popup {
         await this.initDocWaitingTemplateManager();
     }
 
+    /**
+     * Initializes the document signed template manager.
+     * @returns {Promise<void>} A promise that resolves when the initialization is complete.
+     */
     async initDocSignedTemplateManager() {
         const container = this.getPopup().querySelector('.signed-docs');
         this.DocSignedTM = await Instantiator.mainUserDocSignedTemplateManager(container);
 
         this.DocSignedTM.onUpdateClick(async (docId) => {
-            console.log('update clicked', docId);
+            const user = await this.userManager.getById(this.userId);
+            const userDoc = user.docs_signatures.find(doc => doc.id == docId);
+
+            const resp = await this.userManager.generateSigningLink({ email: user.email, documentId: userDoc.id });
+
+            const confirmRes = confirm('Voulez-vous envoyer par email le lien de signature à cet utilisateur ?');
+
+            if (confirmRes) {
+                const mailTo = `mailto:${user.email}?subject=Signature du document ${doc.title}&body=Bonjour ${user.display_name},%0D%0AMerci de signer ce document à l'adresse suivante : ${resp}.%0D%0ACordialement.`;
+                window.open(mailTo, '_blank');
+                window.location.reload();
+            } else {
+                alert('Pour accéder au token, veuillez réinitialiser la page et revenir sur cette popup.');
+            }
+
         });
 
         this.DocSignedTM.onDocClick(async (docId) => {
-            console.log('doc clicked', docId);
+            const user = await this.userManager.getById(this.userId);
+            const userDoc = user.docs_signatures.find(doc => doc.id == docId);
+            await this.userManager.print(userDoc.user_version_id);
         });
 
         this.DocSignedTM.onDeleteClick(async (docId) => {
-            console.log('delete clicked', docId);
+            const confirmRes = confirm('Voulez-vous vraiment supprimer cette signature ?');
+            if (confirmRes) {
+                try {
+                    await this.userManager.deleteSignatures(this.userId, docId);
+                    alert('Signature(s) supprimée avec succès');
+                    window.location.reload();
+                } catch (e) {
+                    alert('Erreur lors de la suppression de la signature');
+                    console.log(e);
+                }
+            }
         });
     }
 
+    /**
+     * Initializes the document waiting template manager.
+     * @returns {Promise<void>} A promise that resolves when the initialization is complete.
+     */
     async initDocWaitingTemplateManager() {
         const container = this.getPopup().querySelector('.waiting-docs');
         this.DocWaitingTM = await Instantiator.mainUserDocWaitingTemplateManager(container);
 
         this.DocWaitingTM.onEmailClick(async (docId) => {
-            console.log('email clicked', docId);
+            const user = await this.userManager.getById(this.userId);
+            const doc = user.docs_waiting.find(doc => doc.id == docId);
+            const token = doc.signing_token;
+
+            const link = document.location.origin + '/posign/visual/pages/signing.html?token=' + token;
+            const mailTo = `mailto:${user.email}?subject=Signature du document ${doc.title}&body=Bonjour ${user.display_name},%0D%0AMerci de signer ce document à l'adresse suivante : ${link}.%0D%0ACordialement.`;
+            window.open(mailTo, '_blank');
         });
 
         this.DocWaitingTM.onCopyClick(async (docId) => {
-            console.log('copy clicked', docId);
+            const user = await this.userManager.getById(this.userId);
+            const doc = user.docs_waiting.find(doc => doc.id == docId);
+            const token = doc.signing_token;
+
+            await Utils.copyToClipboard(token);
+            alert('Code de signature copié dans le presse-papier');
         });
 
         this.DocWaitingTM.onDeleteClick(async (docId) => {
-            console.log('delete clicked', docId);
+            const user = await this.userManager.getById(this.userId);
+            const doc = user.docs_waiting.find(doc => doc.id == docId);
+            const token = doc.signing_token;
+
+            const confirmRes = confirm('Voulez-vous vraiment supprimer ce lien de signature ?');
+            if (confirmRes) {
+                try {
+                    await this.userManager.deleteSignatureToken(this.userId, token);
+                    alert('Signature(s) supprimée avec succès');
+                    window.location.reload();
+                } catch (e) {
+                    alert('Erreur lors de la suppression de la signature');
+                }
+            }
         });
     }
 
@@ -73,14 +140,14 @@ class UserClickedPopup extends Popup {
         // (because open also add the popup to the DOM if not used before and we need to access it to add the data to it)
         await super.open();
 
+        let popup = this.getPopup();
+        this.userManager = dataMap['manager'];
+        this.userId = dataMap['id'];
+
         // initialize the popup
         await this.initialize();
 
-        let popup = this.getPopup();
-        const userManager = dataMap['manager'];
-
-        const userId = dataMap['id'];
-        const user = await userManager.getById(userId, false);
+        const user = await this.userManager.getById(this.userId, false);
 
         popup.querySelector('#user-name').innerText = user.display_name;
 

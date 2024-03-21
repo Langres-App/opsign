@@ -328,6 +328,32 @@ async function autoDeleteArchivedUsers() {
     console.log(`[${new Date().toLocaleString()}] - Finished checking for archived users`);
 }
 
+/**
+ * Deletes a signature by document ID.
+ *
+ * @param {string} docId - The ID of the document.
+ * @returns {Promise} A promise that resolves when the signature is deleted.
+ * @throws {Error} If the document ID is not provided.
+ */
+async function deleteSignatureByDocId(docId, userId) {
+    assert(docId, '[UserManager.deleteSignatureByDocId] The document ID is required');
+    assert(userId, '[UserManager.deleteSignatureByDocId] The user ID is required');
+    return await UserVersionQueries.deleteSignatureByDocId(docId, userId);
+}
+
+/**
+ * Deletes a signature by token.
+ *
+ * @param {string} token - The token of the signature to delete.
+ * @param {number} userId - The ID of the user.
+ * @returns {Promise} A promise that resolves when the signature is deleted.
+ */
+async function deleteSignatureByToken(token, userId) {
+    assert(token, '[UserManager.deleteSignature] The token is required');
+    assert(userId, '[UserManager.deleteSignature] The user ID is required');
+    return await UserVersionQueries.deleteSignatureByToken(token, userId);
+}
+
 module.exports = {
     add,
     generateSigningToken,
@@ -347,5 +373,7 @@ module.exports = {
     sign,
 
     deleteArchived,
-    autoDeleteArchivedUsers
+    autoDeleteArchivedUsers,
+    deleteSignatureByDocId,
+    deleteSignatureByToken
 }
