@@ -144,6 +144,38 @@ router.post('/sign/:token', blobUpload.single('blob'), handle(async (req, res) =
 }));
 
 /**
+ * DELETE /users/:userId/deleteAllSignatures/:docId
+ * @description Delete all signatures for a specific document (not the waiting ones).
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - The promise that resolves when the signatures are deleted.
+ */
+router.delete('/:userId/deleteAllSignatures/:docId', requireAuth, handle(async (req, res) => {
+    // delete all signatures for a specific document (not the waiting ones)
+    await UserManager.deleteSignatureByDocId(
+        req.params.docId,
+        req.params.userId
+    );
+    res.status(200).send('Signature deleted successfully');
+}));
+
+/**
+ * DELETE /users/:userId/deleteSignaturesToken/:token
+ * @description Delete a waiting signature by token.
+ * @param {Object} req - The request object.
+ * @param {Object} res - The response object.
+ * @returns {Promise<void>} - The promise that resolves when the waiting signature is deleted.
+ */
+router.delete('/:userId/deleteSignaturesToken/:token', requireAuth, handle(async (req, res) => {
+    // delete the waiting signature (by its token)
+    await UserManager.deleteSignatureByToken(
+        req.params.token,
+        req.params.userId
+    );
+    res.status(200).send('Signature deleted successfully');
+}));
+
+/**
  * GET /users/signedDocument/:id
  * @description Get a signed document by ID.
  * @param {Object} req - The request object.
