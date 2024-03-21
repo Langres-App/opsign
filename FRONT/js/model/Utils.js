@@ -63,25 +63,11 @@ class Utils {
      * @returns {string} The relative path to the root of the website
      */
     static getRelativePathToRoot() {
+        // if path end with /, we remove it
+        if (window.location.pathname.endsWith('/')) window.location.pathname = window.location.pathname.slice(0, -1);
+        
         // get the path of the current page (without the domain name)
-        let path = window.location.pathname;
-
-        // replace the '/posign' because the website is in a folder called 'posign'
-        path = path.replace('/posign', '');
-        path = path.replace('/front', '');
-
-        // split the path into an array of strings
-        const pathArray = path.split('/');
-        let relativePath = '';
-
-        if (path == '') relativePath = 'posign/';
-        else relativePath = './';
-
-        // for each element in the array, we add a '../' to the relative path to go to the root of the website
-        for (let i = 0; i < pathArray.length - 2; i++) {
-            relativePath += '../';
-        }
-        return relativePath;
+        return  `/${window.location.pathname.split('/')[1]}/`;
     }
 
     /**
