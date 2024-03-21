@@ -64,8 +64,7 @@ async function userExist() {
  */
 async function userIsLogged(token) {
 
-    assert(token, '[AuthorizedUserQueries.userIsLogged] The token is required');
-    assert(token !== 'null', '[AuthorizedUserQueries.userIsLogged] The token is required');
+    if (!token || token === 'null') return false;
 
     return await executeWithCleanup(async (query) => {
 
