@@ -20,15 +20,15 @@ services:
     restart: unless-stopped
     environment:
       PMA_HOST: database
-      PMA_ABSOLUTE_URI: http://${HOSTNAME}/posignpma/
+      PMA_ABSOLUTE_URI: http://${HOSTNAME}/opsignpma/
     volumes:
       - ./config.user.inc.php:/etc/phpmyadmin/config.user.inc.php
     labels:
       - traefik.enable=true
-      - traefik.http.routers.phpmyadminposign.rule=PathPrefix(`/posignpma`)
-      - traefik.http.routers.phpmyadminposign.middlewares=strip-phpmyadminposign-prefix
-      - traefik.http.middlewares.strip-phpmyadminposign-prefix.stripPrefix.prefixes=/posignpma
-      - traefik.http.routers.phpmyadminposign.entrypoints=web
+      - traefik.http.routers.phpmyadminopsign.rule=PathPrefix(`/opsignpma`)
+      - traefik.http.routers.phpmyadminopsign.middlewares=strip-phpmyadminopsign-prefix
+      - traefik.http.middlewares.strip-phpmyadminopsign-prefix.stripPrefix.prefixes=/opsignpma
+      - traefik.http.routers.phpmyadminopsign.entrypoints=web
     networks:
       vpcbr:
         ipv4_address: 172.23.0.3

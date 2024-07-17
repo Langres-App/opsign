@@ -18,7 +18,7 @@ class SigningView extends View {
     Instantiator.getUserManager().then(async (usersManager) => {
       // initialize the users manager
       this.usersManager = usersManager;
-      
+
       // get the token wether it is in the url or not
       await this.getToken();
 
@@ -44,8 +44,8 @@ class SigningView extends View {
         do {
           this.token = prompt('Veuillez entrer le code de signature');
 
-        // if the user cancels the prompt, redirect to the posign page
-          if (!this.token) window.location = '/posign'
+          // if the user cancels the prompt, redirect to the opsign page
+          if (!this.token) window.location = '/opsign'
           this.token = this.token.trim()
         } while (this.token === '')
 
@@ -97,7 +97,7 @@ class SigningView extends View {
 
     // define the document viewer
     const documentViewer = document.getElementById('document-viewer');
-    documentViewer.data = `/posignapi/documents/${docId}/view/${date}#toolbar=1&scrollbar=0&view=fitH&navpanes=0`;
+    documentViewer.data = `/opsignapi/documents/${docId}/view/${date}#toolbar=1&scrollbar=0&view=fitH&navpanes=0`;
 
   }
 
@@ -147,7 +147,7 @@ class SigningView extends View {
       const link = URL.createObjectURL(signedDocBlob);
       window.open(link, '_blank');
 
-      window.location.href = '/posign';
+      window.location.href = '/opsign';
 
     });
   }

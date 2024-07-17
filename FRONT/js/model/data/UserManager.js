@@ -137,7 +137,7 @@ class UserManager {
 
         }
 
-        return window.location.origin + '/posign/visual/pages/signing.html?token=' + link;
+        return window.location.origin + '/opsign/visual/pages/signing.html?token=' + link;
 
     }
 
@@ -168,7 +168,7 @@ class UserManager {
      * Archives a user so that he doesn't appear when looking for people who signed a document. (soft delete)
      * @param {string} userId - The ID of the user to archive.
      * @returns {Promise} A promise that resolves when the user is archived.
-     */posign
+     */opsign
     async archive(userId) {
         return await this.#userDao.archive(userId);
     }

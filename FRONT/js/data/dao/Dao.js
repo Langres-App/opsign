@@ -8,7 +8,7 @@ class Dao {
      */
     constructor(endpoint) {
         // set the url of the api
-        this.url = '/posignapi/';
+        this.url = '/opsignapi/';
 
         // check if the endpoint is defined
         if (endpoint === undefined) {

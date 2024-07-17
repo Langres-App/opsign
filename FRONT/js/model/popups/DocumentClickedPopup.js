@@ -22,7 +22,7 @@ class DocumentClickedPopup extends Popup {
             action: (_, docId) => {
                 super.close();
                 // open a new page with the same root page path 
-                window.open(`/posignapi/documents/${docId}/view/latest`, '_blank');
+                window.open(`/opsignapi/documents/${docId}/view/latest`, '_blank');
             },
             archive_button: false
         },
@@ -30,9 +30,9 @@ class DocumentClickedPopup extends Popup {
             name: 'Signer le document',
             id: 'sign-document-button',
             admin_only: false,
-            action: (_, __) => { 
+            action: (_, __) => {
                 window.location.href = Utils.getRelativePathToRoot() + 'visual/pages/signing.html';
-             },
+            },
             archive_button: false
         },
         {
@@ -124,7 +124,7 @@ class DocumentClickedPopup extends Popup {
             name: 'Restaurer',
             id: 'restore-button',
             admin_only: true,
-            action: async (dataMap, docId) => { 
+            action: async (dataMap, docId) => {
                 const documentManager = dataMap['manager'];
                 const popupManager = dataMap['popupManager'];
 
@@ -142,7 +142,7 @@ class DocumentClickedPopup extends Popup {
                     alert(messageContent);
                     window.location.reload();
                 }
-             },
+            },
             archive_button: true
         },
         {
@@ -169,13 +169,13 @@ class DocumentClickedPopup extends Popup {
                     messageContent = `Une erreur est survenue lors de la suppression définitive du document ${this.document.getFileName()}. Veuillez réessayer.`;
                 } finally {
                     if (!messageContent) return;
-                    
+
                     popupManager.open('message-popup', {
                         title: 'Suppression définitive du document',
                         message: messageContent
                     });
                 }
-             },
+            },
             archive_button: true
         }
     ]
