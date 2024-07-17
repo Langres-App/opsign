@@ -34,7 +34,7 @@ class Version {
         this.#path = data.file_path;
         this.#file = null;
         this.#addDate = new Date(data.created_date).toLocaleDateString();
-        this.#preview = Utils.getRelativePathToRoot() + "img/Plastic_Omnium.svg";
+        this.#preview = Utils.getRelativePathToRoot() + "img/OPmobility_blue.svg";
     }
 
     /**

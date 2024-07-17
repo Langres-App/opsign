@@ -8,14 +8,14 @@ function addPlasticOmniumIco() {
     let link = document.createElement('link');
     link.rel = 'icon';
     link.type = 'image/x-icon';
-    link.href = Utils.getRelativePathToRoot() + 'img/Plastic_Omnium_noname.svg';
+    link.href = Utils.getRelativePathToRoot() + 'img/OPmobility_icon.svg';
 
     // add the link to the head
     document.head.appendChild(link);
 }
 
 /**
- * Add the Plastic Omnium logo to the page
+ * Add the OPmobility logo to the page
  */
 function addPlasticOmniumLogo() {
     // create the logo container
@@ -23,7 +23,7 @@ function addPlasticOmniumLogo() {
 
     // create the logo and set its attributes
     let logo = document.createElement('img');
-    logo.src = Utils.getRelativePathToRoot() + 'img/Plastic_Omnium_noname.svg';
+    logo.src = Utils.getRelativePathToRoot() + 'img/OPmobility_icon_copy.svg';
     logo.alt = '';
 
     // add the logo to the container
