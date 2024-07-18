@@ -207,12 +207,13 @@ async function getSignedDocId(userId) {
             uv.user_id = ?
             AND uv.signature IS NOT NULL
             AND d.archived_date IS NULL
-            AND uv.date = (
-                SELECT MIN(uv_inner.date)
-                FROM user_version uv_inner
-                LEFT JOIN version v_inner ON uv_inner.version_id = v_inner.id
-                WHERE v_inner.doc_id = v.doc_id
-            );
+        AND uv.date = (
+            SELECT MIN(uv_inner.date)
+            FROM user_version uv_inner
+            JOIN version v_inner ON uv_inner.version_id = v_inner.id
+            WHERE v_inner.doc_id = v.doc_id AND uv_inner.user_id = uv.user_id
+        );
+
         `, [userId]);
     });
 }
