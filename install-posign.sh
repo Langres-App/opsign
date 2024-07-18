@@ -47,16 +47,16 @@ then
 #     sudo systemctl enable containerd.service;"
 
 # Ask the user for the git repository address either in ssh or http
-    read -p "Address of the git repository (ssh or http // default: https://github.com/polangres/posign ) :  " GIT_ADDRESS;
+    read -p "Address of the git repository (ssh or http // default: https://github.com/polangres/opsign ) :  " GIT_ADDRESS;
     if [ -z "${GIT_ADDRESS}" ]
     then
-        GIT_ADDRESS="https://github.com/polangres/posign"
+        GIT_ADDRESS="https://github.com/polangres/opsign"
     fi
 
 # Clone the git repository and run the env-create.sh script
     git clone ${GIT_ADDRESS};
     
-    cd posign;
+    cd opsign;
 
     bash ./env-create.sh;
 
@@ -74,7 +74,7 @@ while true; do
 done
 # If the user answered yes, we launch the app
     if [ "${LAUNCH_ANSWER}" == "yes" ]; then
-        cd posign;
+        cd opsign;
         sg docker -c "docker compose up -d"
         else
             while true; do
@@ -87,12 +87,12 @@ done
             done
         if [ "${UPDATE_ANSWER}" == "yes" ]; then
         # Ask the user for the git repository address either in ssh or http
-            read -p "Address of the git repository (ssh or http // default: https://github.com/polangres/posign ) :  " GIT_ADDRESS;
+            read -p "Address of the git repository (ssh or http // default: https://github.com/polangres/opsign ) :  " GIT_ADDRESS;
             if [ -z "${GIT_ADDRESS}" ]
             then
-                GIT_ADDRESS="https://github.com/polangres/posign"
+                GIT_ADDRESS="https://github.com/polangres/opsign"
             fi
-            cd posign;
+            cd opsign;
             sg docker -c "docker compose stop";
             git remote remove origin;
             git remote add origin ${GIT_ADDRESS};

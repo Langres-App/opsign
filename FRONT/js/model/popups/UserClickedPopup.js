@@ -112,7 +112,7 @@ class UserClickedPopup extends Popup {
             const doc = user.docs_waiting.find(doc => doc.id == docId);
             const token = doc.signing_token;
 
-            const link = document.location.origin + '/posign/visual/pages/signing.html?token=' + token;
+            const link = document.location.origin + '/opsign/visual/pages/signing.html?token=' + token;
             const mailTo = `mailto:${user.email}?subject=Signature du document ${doc.title}&body=Bonjour ${user.display_name},%0D%0AMerci de signer ce document à l'adresse suivante : ${link}.%0D%0ACordialement.`;
             window.open(mailTo, '_blank');
         });
