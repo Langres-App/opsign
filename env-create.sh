@@ -132,9 +132,8 @@ echo ".env file created successfully!"
 
 if [ "${APP_CONTEXT}" == "prod" ]
   then
-
-APP_CONTEXT="dev"
-sed -i "s|^APP_ENV=prod.*|APP_ENV=dev|" .env
+sed -i "s|^APP_ENV=dev.*|APP_ENV=prod|" .env
+APP_CONTEXT="prod"
 
 # Create docker-compose.override.yml file to use the good entrypoint
 cat > docker-compose.override.yml <<EOL
@@ -198,18 +197,9 @@ networks:
 
 EOL
 
-
-sg docker -c "docker compose up --build -d"
-
-sleep 90
-
-sg docker -c "docker compose stop"
-
-sleep 30
-
-sed -i "s|^APP_ENV=dev.*|APP_ENV=prod|" .env
-APP_CONTEXT="prod"
-
+  else
+APP_CONTEXT="dev"
+sed -i "s|^APP_ENV=prod.*|APP_ENV=dev|" .env
 
 # Create docker-compose.override.yml file to use the good entrypoint
 cat > docker-compose.override.yml <<EOL
