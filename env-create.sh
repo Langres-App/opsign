@@ -57,7 +57,7 @@ version: '3.8'
 
 services:
   webapi:
-    image: ghcr.io/polangres/opsignapi:main
+    image: ghcr.io/polangres/posignapi:main
     restart: unless-stopped 
     entrypoint: "./${APP_CONTEXT}-entrypoint.sh"
     ports:
@@ -74,9 +74,9 @@ ${PROXY_ENV}
       - ./Docs:/var/www/Docs
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webapi.rule=PathPrefix(\`/opsignapi\`)
+      - traefik.http.routers.webapi.rule=PathPrefix(\`/posignapi\`)
       - traefik.http.routers.webapi.middlewares=strip-webapi-prefix
-      - traefik.http.middlewares.strip-webapi-prefix.stripprefix.prefixes=/opsignapi
+      - traefik.http.middlewares.strip-webapi-prefix.stripprefix.prefixes=/posignapi
       - traefik.http.routers.webapi.entrypoints=web
     depends_on:
       - database
@@ -85,7 +85,7 @@ ${PROXY_ENV}
         ipv4_address: 172.23.0.4
 
   web:
-    image: ghcr.io/polangres/opsignfront:main
+    image: ghcr.io/polangres/posignfront:main
     restart: unless-stopped
     depends_on:
       - webapi
@@ -96,10 +96,10 @@ ${PROXY_ENV}
       APP_TIMEZONE: ${TIMEZONE}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webopsign.rule=PathPrefix(\`/opsign\`)
-      - traefik.http.routers.webopsign.middlewares=strip-webopsign-prefix
-      - traefik.http.middlewares.strip-webopsign-prefix.stripprefix.prefixes=/opsign
-      - traefik.http.routers.webopsign.entrypoints=web
+      - traefik.http.routers.webposign.rule=PathPrefix(\`/posign\`)
+      - traefik.http.routers.webposign.middlewares=strip-webposign-prefix
+      - traefik.http.middlewares.strip-webposign-prefix.stripprefix.prefixes=/posign
+      - traefik.http.routers.webposign.entrypoints=web
     networks:
       vpcbr:
         ipv4_address: 172.23.0.5
@@ -132,9 +132,8 @@ echo ".env file created successfully!"
 
 if [ "${APP_CONTEXT}" == "prod" ]
   then
-
-APP_CONTEXT="dev"
-sed -i "s|^APP_ENV=prod.*|APP_ENV=dev|" .env
+sed -i "s|^APP_ENV=dev.*|APP_ENV=prod|" .env
+APP_CONTEXT="prod"
 
 # Create docker-compose.override.yml file to use the good entrypoint
 cat > docker-compose.override.yml <<EOL
@@ -142,7 +141,7 @@ version: '3.8'
 
 services:
   webapi:
-    image: ghcr.io/polangres/opsignapi:main
+    image: ghcr.io/polangres/posignapi:main
     restart: unless-stopped 
     entrypoint: "./${APP_CONTEXT}-entrypoint.sh"
     ports:
@@ -159,10 +158,10 @@ ${PROXY_ENV}
       - ./Docs:/var/www/Docs
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webopsignapi.rule=PathPrefix(\`/opsignapi\`)
-      - traefik.http.routers.webopsignapi.middlewares=strip-webopsignapi-prefix
-      - traefik.http.middlewares.strip-webopsignapi-prefix.stripprefix.prefixes=/opsignapi
-      - traefik.http.routers.webopsignapi.entrypoints=web
+      - traefik.http.routers.webposignapi.rule=PathPrefix(\`/posignapi\`)
+      - traefik.http.routers.webposignapi.middlewares=strip-webposignapi-prefix
+      - traefik.http.middlewares.strip-webposignapi-prefix.stripprefix.prefixes=/posignapi
+      - traefik.http.routers.webposignapi.entrypoints=web
     depends_on:
       - database
     networks:
@@ -170,7 +169,7 @@ ${PROXY_ENV}
         ipv4_address: 172.23.0.4
 
   web:
-    image: ghcr.io/polangres/opsignfront:main
+    image: ghcr.io/polangres/posignfront:main
     restart: unless-stopped
     depends_on:
       - webapi
@@ -181,10 +180,10 @@ ${PROXY_ENV}
       APP_TIMEZONE: ${TIMEZONE}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webopsign.rule=PathPrefix(\`/opsign\`)
-      - traefik.http.routers.webopsign.middlewares=strip-webopsign-prefix
-      - traefik.http.middlewares.strip-webopsign-prefix.stripprefix.prefixes=/opsign
-      - traefik.http.routers.webopsign.entrypoints=web
+      - traefik.http.routers.webposign.rule=PathPrefix(\`/posign\`)
+      - traefik.http.routers.webposign.middlewares=strip-webposign-prefix
+      - traefik.http.middlewares.strip-webposign-prefix.stripprefix.prefixes=/posign
+      - traefik.http.routers.webposign.entrypoints=web
     networks:
       vpcbr:
         ipv4_address: 172.23.0.5
@@ -198,18 +197,9 @@ networks:
 
 EOL
 
-
-sg docker -c "docker compose up --build -d"
-
-sleep 90
-
-sg docker -c "docker compose stop"
-
-sleep 30
-
-sed -i "s|^APP_ENV=dev.*|APP_ENV=prod|" .env
-APP_CONTEXT="prod"
-
+  else
+APP_CONTEXT="dev"
+sed -i "s|^APP_ENV=prod.*|APP_ENV=dev|" .env
 
 # Create docker-compose.override.yml file to use the good entrypoint
 cat > docker-compose.override.yml <<EOL
@@ -217,7 +207,7 @@ version: '3.8'
 
 services:
   webapi:
-    image: ghcr.io/polangres/opsignapi:main
+    image: ghcr.io/polangres/posignapi:main
     restart: unless-stopped 
     entrypoint: "./${APP_CONTEXT}-entrypoint.sh"
     ports:
@@ -234,10 +224,10 @@ ${PROXY_ENV}
       - ./Docs:/var/www/Docs
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webopsignapi.rule=PathPrefix(\`/opsignapi\`)
-      - traefik.http.routers.webopsignapi.middlewares=strip-webopsignapi-prefix
-      - traefik.http.middlewares.strip-webopsignapi-prefix.stripprefix.prefixes=/opsignapi
-      - traefik.http.routers.webopsignapi.entrypoints=web
+      - traefik.http.routers.webposignapi.rule=PathPrefix(\`/posignapi\`)
+      - traefik.http.routers.webposignapi.middlewares=strip-webposignapi-prefix
+      - traefik.http.middlewares.strip-webposignapi-prefix.stripprefix.prefixes=/posignapi
+      - traefik.http.routers.webposignapi.entrypoints=web
     depends_on:
       - database
     networks:
@@ -245,7 +235,7 @@ ${PROXY_ENV}
         ipv4_address: 172.23.0.4
 
   web:
-    image: ghcr.io/polangres/opsignfront:main
+    image: ghcr.io/polangres/posignfront:main
     restart: unless-stopped
     depends_on:
       - webapi
@@ -256,10 +246,10 @@ ${PROXY_ENV}
       APP_TIMEZONE: ${TIMEZONE}
     labels:
       - traefik.enable=true
-      - traefik.http.routers.webopsign.rule=PathPrefix(\`/opsign\`)
-      - traefik.http.routers.webopsign.middlewares=strip-webopsign-prefix
-      - traefik.http.middlewares.strip-webopsign-prefix.stripprefix.prefixes=/opsign
-      - traefik.http.routers.webopsign.entrypoints=web
+      - traefik.http.routers.webposign.rule=PathPrefix(\`/posign\`)
+      - traefik.http.routers.webposign.middlewares=strip-webposign-prefix
+      - traefik.http.middlewares.strip-webposign-prefix.stripprefix.prefixes=/posign
+      - traefik.http.routers.webposign.entrypoints=web
     networks:
       vpcbr:
         ipv4_address: 172.23.0.5
