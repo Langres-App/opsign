@@ -17,34 +17,34 @@ done
 if [ "${ANSWER}" == "yes" ]
 then 
 
-# # Install git and PlasticOmnium docker repo
-#     sudo yum install -y git;
-#     sudo subscription-manager repo-override --repo=PlasticOmnium_Docker_Docker_CE_Stable --add=enabled:1;
+# Install git and PlasticOmnium docker repo
+     sudo yum install -y git yum-utils;
+    sudo yum-config-manager --add-repo https://download.docker.com/linux/rhel/docker-ce.repo;
 
-# # Remove old docker version and install docker-ce
-#     sudo yum remove docker \
-#                 docker-client \
-#                 docker-client-latest \
-#                 docker-common \
-#                 docker-latest \
-#                 docker-latest-logrotate \
-#                 docker-logrotate \
-#                 docker-engine \
-#                 podman \
-#                 runc;
+# Remove old docker version and install docker-ce
+     sudo yum remove docker \
+                 docker-client \
+                 docker-client-latest \
+                 docker-common \
+                 docker-latest \
+                 docker-latest-logrotate \
+                 docker-logrotate \
+                 docker-engine \
+                 podman \
+                 runc;
 
-#     sudo yum install docker-ce docker-ce-cli containerd.io docker-compose-plugin -y;
+    sudo yum install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y;
 
-# # Add the user to the docker group
-#     sudo groupadd docker;
-#     sudo usermod -aG docker $USER;
+ # Add the user to the docker group
+     sudo groupadd docker;
+     sudo usermod -aG docker $USER;
 
-# # Start docker and enable it inside a prompt with the docker group
-# sg docker -c "
-#     sudo systemctl start docker;
-#     sudo systemctl start containerd.service;
-#     sudo systemctl enable docker.service;
-#     sudo systemctl enable containerd.service;"
+ # Start docker and enable it inside a prompt with the docker group
+ sg docker -c "
+     sudo systemctl start docker;
+     sudo systemctl start containerd.service;
+     sudo systemctl enable docker.service;
+     sudo systemctl enable containerd.service;"
 
 # Ask the user for the git repository address either in ssh or http
     read -p "Address of the git repository (ssh or http // default: https://github.com/polangres/opsign ) :  " GIT_ADDRESS;
