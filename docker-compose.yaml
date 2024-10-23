@@ -1,7 +1,6 @@
-version: '3.8'
 services: 
   database:
-    image: mariadb:latest
+    image: docker.io/mariadb:latest
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -16,7 +15,7 @@ services:
       vpcbr: 
         ipv4_address: 172.23.0.2
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: docker.io/phpmyadmin/phpmyadmin
     restart: unless-stopped
     environment:
       PMA_HOST: database
