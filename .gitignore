@@ -1,6 +1,5 @@
 .idea
 /API/node_modules
-/API/package-lock.json
 /database*
 /Docs/
 .vscode
