@@ -1,0 +1,396 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: opsign-database-service
+spec:
+  selector:
+    app: opsign-database
+  ports:
+    - port: 3308
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: opsign-database-pod-limits-range
+  namespace: opsign-database-pod-limits
+spec:
+  limits:
+    - defaultRequest:
+        memory: 8000Mi
+        ephemeral-storage: 10000Mi
+        cpu: 4
+      type: Container
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: opsign-database-pod
+  namespace: opsign-database-pod-limits
+  labels:
+    app: opsign-database
+spec:
+  securityContext:
+    runAsNonRoot: true
+  automountServiceAccountToken: false
+  restartPolicy: Always
+  containers:
+    - name: database
+      image: docker.io/library/mariadb:lts-noble
+      securityContext:
+        allowPrivilegeEscalation: false
+      env:
+        - name: MARIADB_ROOT_PASSWORD_FILE
+          value: /run/secrets/root_password
+        - name: MARIADB_DATABASE_FILE
+          value: /run/secrets/database_name
+        - name: MARIADB_USER_FILE
+          value: /run/secrets/database_user
+        - name: MARIADB_PASSWORD_FILE
+          value: /run/secrets/database_password
+      ports:
+        - containerPort: 3306
+          hostPath: 3308
+          protocol: TCP
+      volumeMounts:
+        - mountPath: /run/secrets/root_password
+          readOnly: true
+          name: root_password
+        - mountPath: /run/secrets/database_name
+          readOnly: true
+          name: database_name
+        - mountPath: /run/secrets/database_user
+          readOnly: true
+          name: database_user
+        - mountPath: /run/secrets/database_password
+          readOnly: true
+          name: database_password
+        - mountPath: /var/lib/mysql
+          name: database-data
+        - mountPath: /etc/localtime
+          name: localtime-settings
+          readOnly: true
+      resources:
+        limits:
+          memory: 8000Mi
+          ephemeral-storage: 10000Mi
+        requests:
+          cpu: 4
+  dnsPolicy: Default
+  volumes:
+    - hostPath:
+        path: ./secrets/root_password
+        type: File
+      name: root_password
+    - hostPath:
+        path: ./secrets/database_name
+        type: File
+      name: database_name
+    - hostPath:
+        path: ./secrets/database_user
+        type: File
+      name: database_user
+    - hostPath:
+        path: ./secrets/database_password
+        type: File
+      name: database_password
+    - hostPath:
+        path: ./database_data
+        type: DirectoryOrCreate
+      name: database-data
+    - hostPath:
+        path: /etc/localtime
+      name: localtime-settings
+    - hostPath:
+        path: ./secrets/ssl/ca-cert.pem
+        type: File
+      name: ca-cert
+    - hostPath:
+        path: ./secrets/ssl/server-cert.pem
+        type: File
+      name: server-cert
+    - hostPath:
+        path: ./secrets/ssl/server-key.pem
+        type: File
+      name: server-key
+    - hostPath:
+        path: ./my.cnf
+        type: File
+      name: mysql-config
+    - hostPath:
+        path: ./create-power-bi-ronlyuser.sql
+      name: sql-script
+    - name: opsign-db-certs
+      emptyDir: {}
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: opsign-phpmyadmin-pod-limits-range
+  namespace: opsign-phpmyadmin-pod-limits
+spec:
+  limits:
+    - defaultRequest:
+        memory: 1000Mi
+        ephemeral-storage: 500Mi
+        cpu: 1
+      type: Container
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: opsign-phpmyadmin-pod
+  namespace: opsign-phpmyadmin-pod-limits
+  labels:
+    app: opsign-phpmyadmin
+    traefik.enable: true
+    traefik.http.routers.opsign-phpmyadmin.rule: "Host(`sanclp0031`) && PathPrefix(`/opsignpma`) || Host(`sanclp0031.ad.ponet`) && PathPrefix(`/opsignpma`)"
+    traefik.http.routers.opsign-phpmyadmin.entrypoints: websecure
+    traefik.http.routers.opsign-phpmyadmin.tls: true
+    # Remove or comment out the certresolver if using dedicated certificate Files
+    # traefik.http.routers.opsign-phpmyadmin.tls.certresolver: myResolver
+    traefik.http.routers.opsign-phpmyadmin.middlewares: strip-opsign-phpmyadmin-prefix
+    traefik.http.services.opsign-phpmyadmin.loadbalancer.server.port: 80
+    traefik.http.middlewares.strip-opsign-phpmyadmin-prefix.stripPrefix.prefixes: /opsignpma
+spec:
+  securityContext:
+    runAsNonRoot: true
+  automountServiceAccountToken: false
+  restartPolicy: Always
+  containers:
+    - name: phpmyadmin
+      image: docker.io/phpmyadmin/phpmyadmin:5.2.2
+      securityContext:
+        allowPrivilegeEscalation: false
+        # capabilities:
+        #   drop:
+        #     - ALL
+      env:
+        - name: PMA_HOST
+          value: database
+        - name: PMA_ABSOLUTE_URI
+          value: https://sanclp0031/opsignpma
+        - name: PMA_SSL
+          value: "true"
+        - name: PMA_SSL_CA
+          value: /etc/phpmyadmin/ssl/ca-cert.pem
+      volumeMounts:
+        - mountPath: /etc/phpmyadmin/config.user.inc.php
+          name: phpmyadmin-config
+          readOnly: true
+        - mountPath: /etc/localtime
+          name: localtime-settings
+          readOnly: true
+        - mountPath: /etc/phpmyadmin/ssl/ca-cert.pem
+          name: ca-cert
+          readOnly: true
+      resources:
+        limits:
+          memory: 1000Mi
+          ephemeral-storage: 500Mi
+        requests:
+          cpu: 1
+  dnsPolicy: Default
+  volumes:
+    - hostPath:
+        path: ./config.user.inc.php
+        type: File
+      name: phpmyadmin-config
+    - hostPath:
+        path: /etc/localtime
+      name: localtime-settings
+    - hostPath:
+        path: ./secrets/ssl/ca-cert.pem
+        type: File
+      name: ca-cert
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opsign-database-service
+spec:
+  selector:
+    app: opsign-database
+  ports:
+    - port: 52200
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: opsign-web-pod-limits-range
+  namespace: opsign-web-pod-limits
+spec:
+  limits:
+    - defaultRequest:
+        memory: 2000Mi
+        ephemeral-storage: 10000Mi
+        cpu: 4
+      type: Container
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: opsign-api-web-pod
+  namespace: opsign-api-web-pod-limits
+  labels:
+    app: opsign-api-web
+    traefik.enable: true
+    traefik.http.routers.opsign-api-web.rule: "Host(`sanclp0031`)  && PathPrefix(`/opsign-api`) || Host(`sanclp0031.ad.ponet`) && PathPrefix(`/opsign-api`)"
+    traefik.http.routers.opsign-api-web.entrypoints: websecure
+    traefik.http.routers.opsign-api-web.tls: true
+    # Remove or comment out the certresolver if using dedicated certificate Files
+    # traefik.http.routers.opsign-api-web.tls.certresolver: myResolver
+    traefik.http.routers.opsign-api-web.middlewares: strip-opsign-web-prefix
+    traefik.http.services.opsign-api-web.loadbalancer.server.port: 80
+    traefik.http.middlewares.strip-opsign-api-web-prefix.stripPrefix.prefixes: /opsign-api
+spec:
+  securityContext:
+    runAsNonRoot: true
+  automountServiceAccountToken: false
+  restartPolicy: Always
+  initContainers:
+    - name: copy-certificates-and-fix-permission-for-opsign
+      image: docker.io/library/busybox:stable
+      command: ["/bin/sh", "-c"]
+      args:
+        - |
+          chmod 750 /var/www/Docs;
+          chown -R www-data:www-data /var/www/Docs;
+      volumeMounts:
+        - mountPath: /var/www/Docs
+          name: docs
+  containers:
+    - name: web
+      image: ghcr.io/kiloutyg/opsignapi:main
+      command: ["./prod-entrypoint.sh"]
+      env:
+        - name: no_proxy
+          value: .ponet
+        - name: http_proxy
+          value: http://10.0.0.1:80
+        - name: APP_TIMEZONE
+          value: Europe/Paris
+        - name: https_proxy
+          value: http://10.0.0.1:80
+        - name: PORT
+          value: 52200
+        - name: DB_HOST
+          value: opsign-database-pod
+        - name: DB_USER
+          value: polangres
+        - name: DB_PASSWORD
+          value: ${MYSQL_PASSWORD}
+        - name: DB_DATABASE
+          value: posgindb
+      ports:
+        - containerPort: 52200
+          hostPath: 52200
+          protocol: TCP
+      volumeMounts:
+        - mountPath: /var/www/prod-entrypoint.sh
+          name: dev-entrypoint
+        - mountPath: /var/www/Docs
+          name: docs
+        - mountPath: /etc/localtime
+          name: localtime-settings
+      resources:
+        limits:
+          memory: 4000Mi
+          ephemeral-storage: 15000Mi
+        requests:
+          cpu: 4
+  dnsPolicy: Default
+  volumes:
+    - hostPath:
+       path: ./API/prod-entrypoint.sh
+       type: File
+      name: dev-entrypoint
+    - hostPath:
+        path: ./Docs
+        type: DirectoryOrCreate
+      name: docs
+    - hostPath:
+        path: /etc/localtime
+      name: localtime-settings
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: opsign-database-service
+spec:
+  selector:
+    app: opsign-database
+  ports:
+    - port: 52200
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: opsign-web-pod-limits-range
+  namespace: opsign-web-pod-limits
+spec:
+  limits:
+    - defaultRequest:
+        memory: 2000Mi
+        ephemeral-storage: 10000Mi
+        cpu: 4
+      type: Container
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: opsign-web-pod
+  namespace: opsign-web-pod-limits
+  labels:
+    app: opsign-web
+    traefik.enable: true
+    traefik.http.routers.opsign-web.rule: "Host(`sanclp0031`)  && PathPrefix(`/opsign`) || Host(`sanclp0031.ad.ponet`) && PathPrefix(`/opsign`)"
+    traefik.http.routers.opsign-web.entrypoints: websecure
+    traefik.http.routers.opsign-web.tls: true
+    # Remove or comment out the certresolver if using dedicated certificate Files
+    # traefik.http.routers.opsign-web.tls.certresolver: myResolver
+    traefik.http.routers.opsign-web.middlewares: strip-opsign-web-prefix
+    traefik.http.services.opsign-web.loadbalancer.server.port: 80
+    traefik.http.middlewares.strip-opsign-web-prefix.stripPrefix.prefixes: /opsign
+spec:
+  securityContext:
+    runAsNonRoot: true
+  automountServiceAccountToken: false
+  restartPolicy: Always
+  containers:
+    - name: web
+      image: ghcr.io/kiloutyg/opsignfront:main
+      command: ["./prod-entrypoint.sh"]
+      env:
+        - name: no_proxy
+          value: .ponet
+        - name: http_proxy
+          value: http://10.0.0.1:80
+        - name: APP_TIMEZONE
+          value: Europe/Paris
+        - name: https_proxy
+          value: http://10.0.0.1:80
+        - name: PORT
+          value: 80
+        - name: HOSTNAME
+          value: sanclp0031
+      volumeMounts:
+        - mountPath: /var/www/prod-entrypoint.sh
+          name: dev-entrypoint
+        - mountPath: /var/www/Docs
+          name: docs
+        - mountPath: /etc/ssl/my-certs
+          name: opsign-certs
+        - mountPath: /etc/localtime
+          name: localtime-settings
+      resources:
+        limits:
+          memory: 4000Mi
+          ephemeral-storage: 15000Mi
+        requests:
+          cpu: 4
+  dnsPolicy: Default
+  volumes:
+    - hostPath:
+        path: /etc/localtime
+      name: localtime-settings
+
